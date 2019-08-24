@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class VoiceChannelEventListener extends ListenerAdapter
 {
@@ -15,21 +16,25 @@ public class VoiceChannelEventListener extends ListenerAdapter
     public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event)
     {
         Member leftMember = event.getMember();
-        if (leftMember.getId().equals(BOT_USER_ID) || event.getChannelLeft().getMembers().size() == 0)
+        boolean leftMemberIsBot = leftMember.getId().equals(BOT_USER_ID);
+        List<Member> membersLeft = event.getChannelLeft().getMembers();
+
+        boolean botAlone = membersLeft.size() == 1 && !leftMemberIsBot;
+
+        if (leftMemberIsBot || membersLeft.size() == 0 || botAlone)
         {
-            event.getGuild().getAudioManager();
+            AudioManager audioManager = event.getGuild().getAudioManager();
+
+            AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
+
+            if (audioPlayerSendHandler == null)
+            {
+                return;
+            }
+
+            audioManager.closeAudioConnection();
+            audioPlayerSendHandler.getTrackScheduler().getQueue().clear();
+            audioPlayerSendHandler.getAudioPlayer().destroy();
         }
-
-        AudioManager audioManager = event.getGuild().getAudioManager();
-
-        AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
-
-        if (audioPlayerSendHandler == null)
-        {
-            return;
-        }
-
-        audioPlayerSendHandler.getTrackScheduler().getQueue().clear();
-        audioPlayerSendHandler.getAudioPlayer().destroy();
     }
 }
