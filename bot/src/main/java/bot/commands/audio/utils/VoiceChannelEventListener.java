@@ -23,6 +23,12 @@ public class VoiceChannelEventListener extends ListenerAdapter
         AudioManager audioManager = event.getGuild().getAudioManager();
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
+
+        if (audioPlayerSendHandler == null)
+        {
+            return;
+        }
+
         audioPlayerSendHandler.getTrackScheduler().getQueue().clear();
         audioPlayerSendHandler.getAudioPlayer().destroy();
     }
