@@ -26,7 +26,10 @@ public class SkipSongCommand extends Command
         }
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
-        audioPlayerSendHandler.getAudioPlayer().stopTrack();
-        event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+        if (audioPlayerSendHandler != null)
+        {
+            audioPlayerSendHandler.getAudioPlayer().stopTrack();
+            event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+        }
     }
 }
