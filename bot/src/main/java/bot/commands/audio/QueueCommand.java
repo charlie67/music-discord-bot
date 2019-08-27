@@ -5,12 +5,15 @@ import bot.commands.audio.utils.TrackScheduler;
 import bot.utils.TimeUtils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.menu.Paginator;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueueCommand extends Command
 {
@@ -47,18 +50,14 @@ public class QueueCommand extends Command
         double pages = Math.ceil((double) queue.size() / 10);
         eb.setFooter(String.format("%d songs in queue | tab 1/%.0f", queue.size(), pages));
 
-        StringBuilder stringBuilder = new StringBuilder();
-        int trackCount = 1;
+        AtomicInteger ordinal = new AtomicInteger(1);
+        Paginator.Builder pb = new Paginator.Builder();
+        queue.forEach(audioTrack -> {
+            pb.addItems(String.format("`%d.` [%s](%s) | %s\n\n", ordinal.getAndIncrement(), audioTrack.getInfo().title, audioTrack.getInfo().uri, TimeUtils.timeString(audioTrack.getDuration() / 1000)));
+        });
+        pb.setItemsPerPage(10);
+        pb.setEventWaiter(new EventWaiter());
 
-        for (AudioTrack audioTrack : queue)
-        {
-            if (trackCount == 11) break;
-            stringBuilder.append(String.format("`%d.` [%s](%s) | %s\n\n", trackCount, audioTrack.getInfo().title, audioTrack.getInfo().uri, TimeUtils.timeString(audioTrack.getDuration() / 1000)));
-            trackCount++;
-        }
-
-        eb.setDescription(stringBuilder.toString());
-
-        channel.sendMessage(eb.build()).queue();
+        pb.build().display(channel);
     }
 }
