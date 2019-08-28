@@ -1,7 +1,7 @@
 # music-discord-bot
 Java Discord bot
 
-###Environment variables
+### Environment variables
 | Variable                |                          |
 |----------------------|---------------------------------------------------|
 | DISCORD_BOT_KEY      | The discord API key                               |
