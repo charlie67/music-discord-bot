@@ -33,6 +33,7 @@ public class JoinCommand extends Command
         if (voiceState == null || !voiceState.inVoiceChannel())
         {
             event.getChannel().sendMessage("You need to be in a voice channel.").queue();
+            return;
         }
 
         AudioManager audioManager = event.getGuild().getAudioManager();
