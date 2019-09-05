@@ -5,25 +5,25 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 public class TrackScheduler extends AudioEventAdapter
 {
     private ArrayList<AudioTrack> queue = new ArrayList<>();
+    private Logger LOGGER = LoggerFactory.getLogger(TrackScheduler.class);
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
-        System.out.println("Track ended");
-        if (endReason == AudioTrackEndReason.LOAD_FAILED)
-        {
-            System.out.println("Loading failed on the track");
-        }
+        LOGGER.debug(String.format("Track ended %s", endReason.toString()));
 
-        if (queue.size() > 0)
-        {
+        if (queue.size() > 0) {
             player.playTrack(nextTrack());
+        } else {
+            //search for a related track on youtube and play that
         }
     }
 
@@ -43,15 +43,14 @@ public class TrackScheduler extends AudioEventAdapter
         queue.add(track);
     }
 
-    public int getQueueSize()
+    int getQueueSize()
     {
         return queue.size();
     }
 
-    public AudioTrack nextTrack()
+    AudioTrack nextTrack()
     {
-        if (queue.size() > 0)
-        {
+        if (queue.size() > 0) {
             AudioTrack audioTrack = queue.get(0);
             queue.remove(0);
             return audioTrack;
