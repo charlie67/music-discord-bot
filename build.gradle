@@ -20,4 +20,9 @@ dependencies {
     //logging
     compile "org.apache.logging.log4j:log4j:2.11.2"
     compile "org.apache.logging.log4j:log4j-slf4j-impl:2.11.2"
+
+    //youtube
+    compile 'com.google.api-client:google-api-client:1.23.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev212-1.25.0'
 }

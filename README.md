@@ -5,4 +5,5 @@ Java Discord bot
 | Variable                |                          |
 |----------------------|---------------------------------------------------|
 | DISCORD_BOT_KEY      | The discord API key                               |
+| YOUTUBE_API_KEY      | The Youtube API key                               |
 
