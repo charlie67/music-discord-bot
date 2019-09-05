@@ -49,6 +49,7 @@ public class PlayCommand extends Command
             JoinCommand.joinVoiceChannel(event, playerManager);
         }
         event.getChannel().sendMessage("Searching for `").append(argument).append("`").queue();
+        event.getChannel().sendTyping().queue();
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
