@@ -1,7 +1,6 @@
 package bot.commands.audio.utils;
 
 import bot.utils.TimeUtils;
-import bot.utils.YoutubeUtils;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -87,7 +86,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         eb.setTitle(track.getInfo().title, track.getInfo().uri);
         if (track instanceof YoutubeAudioTrack)
         {
-            String url = YoutubeUtils.getYoutubeThumbnail(track);
+            String url = YouTubeUtils.getYoutubeThumbnail(track);
             eb.setThumbnail(url);
             eb.setColor(Color.RED);
         }

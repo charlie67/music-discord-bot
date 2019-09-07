@@ -3,22 +3,10 @@ package bot.commands.audio;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.AudioSearchResultHandler;
 import bot.commands.audio.utils.TrackScheduler;
-import bot.commands.audio.utils.YouTubeUtils;
-import bot.utils.TimeUtils;
-import bot.utils.YoutubeUtils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 public class PlayCommand extends Command
 {

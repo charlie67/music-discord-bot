@@ -1,8 +1,8 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
+import bot.commands.audio.utils.YouTubeUtils;
 import bot.utils.TimeUtils;
-import bot.utils.YoutubeUtils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -45,7 +45,7 @@ public class NowPlayingCommand extends Command
         EmbedBuilder eb = new EmbedBuilder();
         if (np instanceof YoutubeAudioTrack)
         {
-            String url = YoutubeUtils.getYoutubeThumbnail(np);
+            String url = YouTubeUtils.getYoutubeThumbnail(np);
             eb.setThumbnail(url);
             eb.setColor(Color.RED);
         }
