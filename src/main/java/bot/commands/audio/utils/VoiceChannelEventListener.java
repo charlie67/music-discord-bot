@@ -15,6 +15,7 @@ import java.util.TimerTask;
 
 public class VoiceChannelEventListener extends ListenerAdapter
 {
+    /** The discord ID of the bot used to check if the bot is alone in the voice channel*/
     private static final String BOT_USER_ID = "567437271733633024";
 
     @Override
@@ -79,6 +80,11 @@ public class VoiceChannelEventListener extends ListenerAdapter
         }
     }
 
+    /**
+     * If still connected leave the currently connected voice channel and cleanup
+     *
+     * @param event The voice event that triggered this handler
+     */
     private void leaveVoiceChannel(@Nonnull GenericGuildVoiceEvent event)
     {
         AudioManager audioManager = event.getGuild().getAudioManager();

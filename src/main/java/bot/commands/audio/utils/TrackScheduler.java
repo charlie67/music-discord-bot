@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class TrackScheduler extends AudioEventAdapter
@@ -23,7 +24,15 @@ public class TrackScheduler extends AudioEventAdapter
         if (queue.size() > 0) {
             player.playTrack(nextTrack());
         } else {
-            //search for a related track on youtube and play that
+            try {
+                String oldTrackId = track.getInfo().identifier;
+                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
+                queue.add(nextTrack);
+                player.playTrack(nextTrack());
+
+            } catch (IOException e) {
+               LOGGER.error("Encountered error when trying to find a related video", e);
+            }
         }
     }
 

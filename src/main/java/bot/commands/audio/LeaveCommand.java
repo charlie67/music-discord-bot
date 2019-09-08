@@ -10,7 +10,7 @@ public class LeaveCommand extends Command
     public LeaveCommand()
     {
         this.name = "leave";
-        this.aliases = new String[]{"die"};
+        this.aliases = new String[]{"die", "stop"};
         this.help = "Leave the currently connected voice channel";
     }
 
