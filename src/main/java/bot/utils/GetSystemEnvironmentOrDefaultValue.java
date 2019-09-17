@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class GetSystemEnvironmentOrDefaultValue
 {
-    static Map<String, String> defaultValueMap = new HashMap<>();
+    private static Map<String, String> defaultValueMap = new HashMap<>();
 
     static
     {
