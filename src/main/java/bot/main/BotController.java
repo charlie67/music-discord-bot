@@ -7,8 +7,12 @@ import bot.commands.audio.NowPlayingCommand;
 import bot.commands.audio.PlayCommand;
 import bot.commands.audio.QueueCommand;
 import bot.commands.audio.RemoveCommand;
+import bot.commands.audio.SeekCommand;
+import bot.commands.audio.ShuffleCommand;
 import bot.commands.audio.SkipSongCommand;
 import bot.commands.audio.utils.VoiceChannelEventListener;
+import bot.commands.utilities.PingCommand;
+import bot.utils.GetSystemEnvironmentOrDefaultValue;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -21,6 +25,7 @@ import javax.security.auth.login.LoginException;
 
 public class BotController
 {
+
     public static void main(String[] args) throws LoginException
     {
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
@@ -32,10 +37,11 @@ public class BotController
         builder.setActivity(null);
         builder.setOwnerId("106139573561626624");
         builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager), new QueueCommand(),
-                new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand());
+                new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(), new ClearQueueCommand(),
+                new RemoveCommand(), new SeekCommand(), new PingCommand(), new ShuffleCommand());
 
         CommandClient client = builder.build();
 
-        JDA jda = new JDABuilder(System.getenv("DISCORD_BOT_KEY")).addEventListeners(client, new VoiceChannelEventListener()).build();
+        JDA jda = new JDABuilder(GetSystemEnvironmentOrDefaultValue.get("DISCORD_BOT_KEY")).addEventListeners(client, new VoiceChannelEventListener()).build();
     }
 }
