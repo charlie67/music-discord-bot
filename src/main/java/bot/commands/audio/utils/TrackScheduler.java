@@ -5,34 +5,51 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TrackScheduler extends AudioEventAdapter
 {
     private ArrayList<AudioTrack> queue = new ArrayList<>();
-    private Logger LOGGER = LoggerFactory.getLogger(TrackScheduler.class);
+    private Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
+
+    private long durationInMilliSeconds = 0;
+
+    private Map<String, List<AudioTrack>> mapVideoIdToMix = new HashMap<>();
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
-        LOGGER.debug(String.format("Track ended %s", endReason.toString()));
+        LOGGER.info(String.format("Track ended %s", endReason.toString()));
 
-        if (queue.size() > 0) {
+        if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
+        {
+        return;
+        }
+
+        if (queue.size() > 0)
+        {
             player.playTrack(nextTrack());
-        } else {
-            try {
-                String oldTrackId = track.getInfo().identifier;
-                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
-                queue.add(nextTrack);
-                player.playTrack(nextTrack());
+            return;
+        }
 
-            } catch (IOException e) {
-               LOGGER.error("Encountered error when trying to find a related video", e);
-            }
+
+        try
+        {
+            String oldTrackId = track.getInfo().identifier;
+            AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
+            queue.add(nextTrack);
+            player.playTrack(nextTrack());
+
+        } catch (IOException e)
+        {
+            LOGGER.error("Encountered error when trying to find a related video", e);
         }
     }
 
@@ -49,7 +66,14 @@ public class TrackScheduler extends AudioEventAdapter
 
     public void queue(AudioTrack track)
     {
+        durationInMilliSeconds += track.getDuration();
         queue.add(track);
+    }
+
+    public void clearQueue()
+    {
+        durationInMilliSeconds = 0;
+        queue.clear();
     }
 
     int getQueueSize()
@@ -59,8 +83,10 @@ public class TrackScheduler extends AudioEventAdapter
 
     AudioTrack nextTrack()
     {
-        if (queue.size() > 0) {
+        if (queue.size() > 0)
+        {
             AudioTrack audioTrack = queue.get(0);
+            durationInMilliSeconds -= audioTrack.getDuration();
             queue.remove(0);
             return audioTrack;
         }
@@ -68,8 +94,18 @@ public class TrackScheduler extends AudioEventAdapter
         return null;
     }
 
+    public void setQueue(ArrayList<AudioTrack> queue)
+    {
+        this.queue = queue;
+    }
+
     public ArrayList<AudioTrack> getQueue()
     {
         return queue;
+    }
+
+    public long getDurationInMilliSeconds()
+    {
+        return durationInMilliSeconds;
     }
 }
