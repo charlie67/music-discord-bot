@@ -11,20 +11,20 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.net.ConnectException;
 
-public class PlayCommand extends Command
+public class PlayTopCommand extends Command
 {
     private final AudioPlayerManager playerManager;
 
-    public PlayCommand(AudioPlayerManager playerManager)
+    public PlayTopCommand(AudioPlayerManager playerManager)
     {
         this.playerManager = playerManager;
-        this.name = "play";
-        this.help = "Plays a song with the given name or url.";
+        this.name = "playtop";
+        this.aliases = new String[]{"pt"};
+        this.help = "Plays a song with the given name or url by placing it at the top of the queue.";
     }
-
     @Override
     protected void execute(CommandEvent event)
     {
-        VoiceChannelUtils.SearchAndPlaySong(event, false, playerManager);
+        VoiceChannelUtils.SearchAndPlaySong(event, true, playerManager);
     }
 }

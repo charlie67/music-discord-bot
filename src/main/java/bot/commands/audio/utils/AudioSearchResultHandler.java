@@ -17,13 +17,15 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     private CommandEvent event;
     private AudioPlayerSendHandler audioPlayerSendHandler;
     private String argument;
+    private boolean playTop;
 
-    public AudioSearchResultHandler(TrackScheduler trackScheduler, CommandEvent event, AudioPlayerSendHandler audioPlayerSendHandler, String argument)
+    AudioSearchResultHandler(TrackScheduler trackScheduler, CommandEvent event, AudioPlayerSendHandler audioPlayerSendHandler, String argument, boolean playTop)
     {
         this.trackScheduler = trackScheduler;
         this.event = event;
         this.audioPlayerSendHandler = audioPlayerSendHandler;
         this.argument = argument;
+        this.playTop = playTop;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     {
         for (AudioTrack track : playlist.getTracks())
         {
-            trackScheduler.queue(track);
+            trackScheduler.queue(track, playTop);
         }
 
         event.getChannel().sendMessage(String.format("Queued `%d` tracks", playlist.getTracks().size())).queue();
@@ -68,7 +70,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     private void queueTrackAndStartNextSong(AudioTrack track)
     {
         long queueDurationInMilliSeconds = trackScheduler.getDurationInMilliSeconds();
-        trackScheduler.queue(track);
+        trackScheduler.queue(track, playTop);
 
         EmbedBuilder eb = getAudioTrackMessage(track, trackScheduler.getQueueSize(), queueDurationInMilliSeconds);
         event.getChannel().sendMessage(eb.build()).queue();

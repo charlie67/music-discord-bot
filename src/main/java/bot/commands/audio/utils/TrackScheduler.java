@@ -21,8 +21,6 @@ public class TrackScheduler extends AudioEventAdapter
 
     private long durationInMilliSeconds = 0;
 
-    private Map<String, List<AudioTrack>> mapVideoIdToMix = new HashMap<>();
-
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
@@ -64,9 +62,13 @@ public class TrackScheduler extends AudioEventAdapter
         super.onTrackStuck(player, track, thresholdMs);
     }
 
-    public void queue(AudioTrack track)
+    public void queue(AudioTrack track, boolean queueFirst)
     {
         durationInMilliSeconds += track.getDuration();
+        if (queueFirst)
+        {
+            queue.add(0, track);
+        }
         queue.add(track);
     }
 

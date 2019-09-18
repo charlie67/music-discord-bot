@@ -5,6 +5,7 @@ import bot.commands.audio.JoinCommand;
 import bot.commands.audio.LeaveCommand;
 import bot.commands.audio.NowPlayingCommand;
 import bot.commands.audio.PlayCommand;
+import bot.commands.audio.PlayTopCommand;
 import bot.commands.audio.QueueCommand;
 import bot.commands.audio.RemoveCommand;
 import bot.commands.audio.SeekCommand;
@@ -36,9 +37,10 @@ public class BotController
         builder.setPrefix("-");
         builder.setActivity(null);
         builder.setOwnerId("106139573561626624");
-        builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager), new QueueCommand(),
-                new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(), new ClearQueueCommand(),
-                new RemoveCommand(), new SeekCommand(), new PingCommand(), new ShuffleCommand());
+        builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager),
+                new PlayTopCommand(playerManager), new QueueCommand(),new LeaveCommand(), new NowPlayingCommand(),
+                new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
+                new PingCommand(), new ShuffleCommand());
 
         CommandClient client = builder.build();
 
