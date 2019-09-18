@@ -22,6 +22,7 @@ public class YouTubeUtilsTest
     public void getYoutubeThumbnail()
     {
         AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez");
+        assertNotNull(audioTrack);
 
         String thumbnail = YouTubeUtils.getYoutubeThumbnail(audioTrack);
         assertEquals(thumbnail, "http://img.youtube.com/vi/I-sH53vXP2A/0.jpg");
