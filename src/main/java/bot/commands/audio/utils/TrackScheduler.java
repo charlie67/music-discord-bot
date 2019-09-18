@@ -66,6 +66,7 @@ public class TrackScheduler extends AudioEventAdapter
         if (queueFirst)
         {
             queue.add(0, track);
+            return;
         }
         queue.add(track);
     }
