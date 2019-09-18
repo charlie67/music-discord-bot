@@ -10,13 +10,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TrackScheduler extends AudioEventAdapter
 {
-    private ArrayList<AudioTrack> queue = new ArrayList<>();
+    private List<AudioTrack> queue = new ArrayList<>();
     private Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
 
     private long durationInMilliSeconds = 0;
@@ -96,12 +94,12 @@ public class TrackScheduler extends AudioEventAdapter
         return null;
     }
 
-    public void setQueue(ArrayList<AudioTrack> queue)
+    public void setQueue(List<AudioTrack> queue)
     {
         this.queue = queue;
     }
 
-    public ArrayList<AudioTrack> getQueue()
+    public List<AudioTrack> getQueue()
     {
         return queue;
     }

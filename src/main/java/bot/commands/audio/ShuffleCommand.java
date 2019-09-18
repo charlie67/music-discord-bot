@@ -34,7 +34,7 @@ public class ShuffleCommand extends Command
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
 
-        ArrayList<AudioTrack> queue = trackScheduler.getQueue();
+        List<AudioTrack> queue = trackScheduler.getQueue();
         Collections.shuffle(queue);
         trackScheduler.setQueue(queue);
 
