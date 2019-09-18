@@ -45,6 +45,8 @@ public class BotController
 
         CommandClient client = builder.build();
 
-        JDA jda = new JDABuilder(GetSystemEnvironmentOrDefaultValue.get("DISCORD_BOT_KEY")).addEventListeners(client, new VoiceChannelEventListener()).build();
+        String token = GetSystemEnvironmentOrDefaultValue.get("DISCORD_BOT_KEY");
+        System.out.println(token);
+        JDA jda = new JDABuilder(token).addEventListeners(client, new VoiceChannelEventListener()).build();
     }
 }
