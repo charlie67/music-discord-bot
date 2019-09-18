@@ -1,5 +1,5 @@
 version: '2'
 services:
   discord-bot:
-    image: discord-music-bot
+    image: charlie67/discord-music-bot:master
     hostname: discord-music-bot
