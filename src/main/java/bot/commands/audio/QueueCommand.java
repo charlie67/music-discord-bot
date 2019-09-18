@@ -12,7 +12,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.awt.Color;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueueCommand extends Command
@@ -32,7 +34,7 @@ public class QueueCommand extends Command
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         if (audioPlayerSendHandler == null)
         {
-            channel.sendMessage("Queue is empty").queue();
+            channel.sendMessage("**Queue is empty**").queue();
             return;
         }
 
@@ -41,23 +43,59 @@ public class QueueCommand extends Command
 
         if (queue.size() == 0)
         {
-            channel.sendMessage("Queue is empty").queue();
+            channel.sendMessage("**Queue is empty**").queue();
             return;
         }
 
+        double totalPages = Math.ceil((double) queue.size() / 10);
+        int page = 1;
+
+        if (!event.getArgs().equals(""))
+        {
+            try
+            {
+                page = Integer.parseInt(event.getArgs());
+
+                if (page > totalPages)
+                {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e)
+            {
+                event.getChannel().sendMessage("**Cannot display that page**").queue();
+                return;
+            }
+        }
+
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setAuthor(String.format("Queue for %s", event.getGuild().getName()));
-        double pages = Math.ceil((double) queue.size() / 10);
-        eb.setFooter(String.format("%d songs in queue | tab 1/%.0f", queue.size(), pages));
+        eb.setFooter(String.format("Page %d/%.0f", page, totalPages), event.getAuthor().getAvatarUrl());
+
+        //get a random colour for the embed
+        Random rand = new Random();
+        // Java 'Color' class takes 3 floats, from 0 to 1.
+        float r = rand.nextFloat();
+        float g = rand.nextFloat();
+        float b = rand.nextFloat();
+        Color randomColor = new Color(r, g, b);
+        eb.setColor(randomColor);
 
         AtomicInteger ordinal = new AtomicInteger(1);
-        Paginator.Builder pb = new Paginator.Builder();
-        queue.forEach(audioTrack -> {
-            pb.addItems(String.format("`%d.` [%s](%s) | %s\n\n", ordinal.getAndIncrement(), audioTrack.getInfo().title, audioTrack.getInfo().uri, TimeUtils.timeString(audioTrack.getDuration() / 1000)));
-        });
-        pb.setItemsPerPage(10);
-        pb.setEventWaiter(new EventWaiter());
+        StringBuilder sb = new StringBuilder();
 
-        pb.build().display(channel);
+        for (AudioTrack audioTrack : queue)
+        {
+            int itemPosition = ordinal.getAndIncrement();
+            if (itemPosition < 10 * page + 1 - 10) continue;
+
+            sb.append(String.format("`%d.` [%s](%s) | %s\n\n", itemPosition, audioTrack.getInfo().title, audioTrack.getInfo().uri, TimeUtils.timeString(audioTrack.getDuration() / 1000)));
+
+            if (ordinal.get() > 10 * page) break;
+        }
+
+        sb.append(String.format("%d songs in queue | %s total duration", queue.size(), TimeUtils.timeString(trackScheduler.getDurationInMilliSeconds() / 1000)));
+
+        eb.setDescription(sb);
+
+        event.getChannel().sendMessage(eb.build()).queue();
     }
 }
