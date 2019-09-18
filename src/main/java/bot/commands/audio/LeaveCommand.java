@@ -1,5 +1,7 @@
 package bot.commands.audio;
 
+import bot.commands.audio.utils.AudioPlayerSendHandler;
+import bot.utils.UnicodeEmote;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -25,6 +27,9 @@ public class LeaveCommand extends Command
             return;
         }
 
+        AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
+        audioPlayerSendHandler.getAudioPlayer().stopTrack();
         audioManager.closeAudioConnection();
+        event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
     }
 }
