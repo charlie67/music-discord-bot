@@ -8,6 +8,8 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.net.ConnectException;
+
 public class PlayCommand extends Command
 {
     private final AudioPlayerManager playerManager;
@@ -16,7 +18,7 @@ public class PlayCommand extends Command
     {
         this.playerManager = playerManager;
         this.name = "play";
-        this.help = "Play the requested song";
+        this.help = "Plays a song with the given name or url.";
     }
 
     @Override
@@ -34,7 +36,14 @@ public class PlayCommand extends Command
 
         if (!audioManager.isConnected())
         {
-            JoinCommand.joinVoiceChannel(event, playerManager);
+            try
+            {
+                JoinCommand.joinVoiceChannel(event, playerManager);
+            } catch (ConnectException e)
+            {
+                event.getChannel().sendMessage("You need to be in a voice channel.").queue();
+                return;
+            }
         }
         event.getChannel().sendMessage("Searching for `").append(argument).append("`").queue();
         event.getChannel().sendTyping().queue();
