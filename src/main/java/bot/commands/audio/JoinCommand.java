@@ -9,6 +9,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.net.ConnectException;
+
 public class JoinCommand extends Command
 {
     //The audio player manager that the audio player will be created from
@@ -23,17 +25,22 @@ public class JoinCommand extends Command
     @Override
     protected void execute(CommandEvent event)
     {
-        joinVoiceChannel(event, playerManager);
+        try
+        {
+            joinVoiceChannel(event, playerManager);
+        } catch (ConnectException e)
+        {
+            event.getChannel().sendMessage("You need to be in a voice channel.").queue();
+        }
     }
 
-    static void joinVoiceChannel(CommandEvent event, AudioPlayerManager playerManager)
+    static void joinVoiceChannel(CommandEvent event, AudioPlayerManager playerManager) throws ConnectException
     {
         GuildVoiceState voiceState = event.getMember().getVoiceState();
 
         if (voiceState == null || !voiceState.inVoiceChannel())
         {
-            event.getChannel().sendMessage("You need to be in a voice channel.").queue();
-            return;
+            throw new ConnectException("Unable to join the voice channel");
         }
 
         AudioManager audioManager = event.getGuild().getAudioManager();
