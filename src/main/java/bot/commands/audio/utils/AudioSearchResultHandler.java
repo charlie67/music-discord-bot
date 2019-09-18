@@ -101,7 +101,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
 //        eb.setDescription(String.format("Queue position \t Estimated time until playing \n%d \t%s Song Duration: %s", queueSize, TimeUtils.timeString(timeUntilPlaying / 1000), TimeUtils.timeString(track.getDuration() / 1000)));
         eb.addField("Song duration", TimeUtils.timeString(track.getDuration() / 1000), true);
         eb.addField("Channel", track.getInfo().author, true);
-        eb.addField("Queue position", String.valueOf(queueSize), true);
+        eb.addField("Queue position", playTop ? "1" : String.valueOf(queueSize), true);
 
         //the song will be played when the queue has finished and the currently playing song has stopped
         long timeUntilPlaying;
