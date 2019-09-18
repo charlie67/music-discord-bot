@@ -11,6 +11,7 @@ import bot.commands.audio.RemoveCommand;
 import bot.commands.audio.SeekCommand;
 import bot.commands.audio.ShuffleCommand;
 import bot.commands.audio.SkipSongCommand;
+import bot.commands.audio.SkipToCommand;
 import bot.commands.audio.utils.VoiceChannelEventListener;
 import bot.commands.utilities.PingCommand;
 import bot.utils.GetSystemEnvironmentOrDefaultValue;
@@ -40,7 +41,7 @@ public class BotController
         builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager),
                 new PlayTopCommand(playerManager), new QueueCommand(),new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
-                new PingCommand(), new ShuffleCommand());
+                new PingCommand(), new ShuffleCommand(), new SkipToCommand());
 
         CommandClient client = builder.build();
 
