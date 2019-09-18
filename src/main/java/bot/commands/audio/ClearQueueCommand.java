@@ -26,7 +26,7 @@ public class ClearQueueCommand extends Command
         }
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
-        audioPlayerSendHandler.getTrackScheduler().getQueue().clear();
+        audioPlayerSendHandler.getTrackScheduler().clearQueue();
         event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
     }
 }
