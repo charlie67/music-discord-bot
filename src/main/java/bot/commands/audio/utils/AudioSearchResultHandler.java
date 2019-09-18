@@ -42,7 +42,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
             trackScheduler.queue(track, playTop);
         }
 
-        event.getChannel().sendMessage(String.format("Queued `%d` tracks", playlist.getTracks().size())).queue();
+        event.getChannel().sendMessage(String.format("**Queued `%d` tracks**", playlist.getTracks().size())).queue();
 
         if (audioPlayerSendHandler.getAudioPlayer().getPlayingTrack() == null)
         {
