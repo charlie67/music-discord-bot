@@ -2,6 +2,3 @@ language: java
 
 jdk:
   - openjdk8
-
-./gradlew assemble
-./gradlew check
