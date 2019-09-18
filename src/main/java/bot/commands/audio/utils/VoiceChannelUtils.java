@@ -33,7 +33,7 @@ public class VoiceChannelUtils
 
         if (argument.isEmpty())
         {
-            event.getChannel().sendMessage("Need to provide something to play").queue();
+            event.getChannel().sendMessage("**Need to provide something to play**").queue();
             return;
         }
 
@@ -46,7 +46,7 @@ public class VoiceChannelUtils
                 VoiceChannelUtils.joinVoiceChannel(event, playerManager);
             } catch (IllegalArgumentException e)
             {
-                event.getChannel().sendMessage("You need to be in a voice channel.").queue();
+                event.getChannel().sendMessage("**You need to be in a voice channel.**").queue();
                 return;
             }
         }
