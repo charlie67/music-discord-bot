@@ -1,0 +1,5 @@
+version: '2'
+services:
+  discord-bot:
+    image: discord-music-bot
+    hostname: discord-music-bot
