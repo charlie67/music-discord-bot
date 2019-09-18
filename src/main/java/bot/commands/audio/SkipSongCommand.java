@@ -1,6 +1,7 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
+import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.utils.UnicodeEmote;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -17,15 +18,17 @@ public class SkipSongCommand extends Command
     @Override
     protected void execute(CommandEvent event)
     {
-        AudioManager audioManager = event.getGuild().getAudioManager();
-
-        if (!audioManager.isConnected())
+        AudioPlayerSendHandler audioPlayerSendHandler;
+        try
         {
-            event.getChannel().sendMessage("Not currently connected to the voice channel").queue();
+            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getGuild());
+        }
+        catch (IllegalArgumentException e)
+        {
+            event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
             return;
         }
 
-        AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         if (audioPlayerSendHandler != null)
         {
             audioPlayerSendHandler.getAudioPlayer().stopTrack();
@@ -33,3 +36,4 @@ public class SkipSongCommand extends Command
         }
     }
 }
+

@@ -1,13 +1,9 @@
 package bot.commands.audio;
 
-import bot.commands.audio.utils.AudioPlayerSendHandler;
-import bot.commands.audio.utils.TrackScheduler;
+import bot.commands.audio.utils.VoiceChannelUtils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.net.ConnectException;
 
@@ -27,29 +23,11 @@ public class JoinCommand extends Command
     {
         try
         {
-            joinVoiceChannel(event, playerManager);
-        } catch (ConnectException e)
+            VoiceChannelUtils.joinVoiceChannel(event, playerManager);
+        } catch (IllegalArgumentException e)
         {
             event.getChannel().sendMessage("You need to be in a voice channel.").queue();
         }
     }
 
-    static void joinVoiceChannel(CommandEvent event, AudioPlayerManager playerManager) throws ConnectException
-    {
-        GuildVoiceState voiceState = event.getMember().getVoiceState();
-
-        if (voiceState == null || !voiceState.inVoiceChannel())
-        {
-            throw new ConnectException("Unable to join the voice channel");
-        }
-
-        AudioManager audioManager = event.getGuild().getAudioManager();
-
-        AudioPlayer player = playerManager.createPlayer();
-        TrackScheduler trackScheduler = new TrackScheduler();
-        player.addListener(trackScheduler);
-
-        audioManager.setSendingHandler(new AudioPlayerSendHandler(player, trackScheduler));
-        audioManager.openAudioConnection(voiceState.getChannel());
-    }
 }

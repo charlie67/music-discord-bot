@@ -1,6 +1,7 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
+import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.utils.UnicodeEmote;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -20,14 +21,17 @@ public class LeaveCommand extends Command
     protected void execute(CommandEvent event)
     {
         AudioManager audioManager = event.getGuild().getAudioManager();
-
-        if (!audioManager.isConnected())
+        AudioPlayerSendHandler audioPlayerSendHandler;
+        try
         {
-            event.getChannel().sendMessage("Not currently connected to the voice channel").queue();
+            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getGuild());
+        }
+        catch (IllegalArgumentException e)
+        {
+            event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
             return;
         }
 
-        AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         audioPlayerSendHandler.getAudioPlayer().stopTrack();
         audioManager.closeAudioConnection();
         event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
