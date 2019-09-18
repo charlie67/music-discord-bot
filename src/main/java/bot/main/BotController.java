@@ -39,14 +39,12 @@ public class BotController
         builder.setActivity(null);
         builder.setOwnerId("106139573561626624");
         builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager),
-                new PlayTopCommand(playerManager), new QueueCommand(),new LeaveCommand(), new NowPlayingCommand(),
+                new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand());
 
         CommandClient client = builder.build();
 
-        String token = GetSystemEnvironmentOrDefaultValue.get("DISCORD_BOT_KEY");
-        System.out.println(token);
-        JDA jda = new JDABuilder(token).addEventListeners(client, new VoiceChannelEventListener()).build();
+        JDA jda = new JDABuilder(GetSystemEnvironmentOrDefaultValue.get("DISCORD_BOT_KEY")).addEventListeners(client, new VoiceChannelEventListener()).build();
     }
 }
