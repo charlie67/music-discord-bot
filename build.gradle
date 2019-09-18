@@ -6,6 +6,9 @@ version '0.1'
 
 sourceCompatibility = 1.8
 
+apply plugin: 'application'
+mainClassName = "bot.main.BotController"
+
 repositories {
     mavenCentral()
     jcenter()
@@ -31,4 +34,26 @@ dependencies {
     compile 'com.google.api-client:google-api-client:1.23.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev212-1.25.0'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'bot.main.BotController'
+        )
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'bot.main.BotController'
+    }
+    baseName = project.name + '-all'
+    from {
+        (configurations.compile.findAll { !it.path.endsWith(".pom") }).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
 }
