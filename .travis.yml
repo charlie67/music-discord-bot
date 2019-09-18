@@ -3,4 +3,8 @@ language: java
 jdk:
   - openjdk8
 
-script: docker-build.sh
+services:
+  - docker
+
+script:
+  - "./docker-build.sh"
