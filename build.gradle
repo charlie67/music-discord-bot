@@ -36,7 +36,7 @@ dependencies {
     compile 'com.google.apis:google-api-services-youtube:v3-rev212-1.25.0'
 
     //reddit
-    implementation 'net.dean.jraw:JRAW:1.1.0'
+    compile 'net.dean.jraw:JRAW:1.1.0'
 }
 
 jar {
