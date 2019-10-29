@@ -9,3 +9,4 @@ Java Discord bot
 | BOT_USER_ID          | The User ID for the bots account                               |
 | REDDIT_CLIENT_ID     | The Reddit API client ID                               |
 | REDDIT_CLIENT_SECRET | The Reddit API client secret                             |
+| OWNER_ID             | The Discord ID of the bot owner                   |

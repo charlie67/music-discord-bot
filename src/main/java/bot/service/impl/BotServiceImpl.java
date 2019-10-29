@@ -1,4 +1,4 @@
-package bot.main;
+package bot.service.impl;
 
 import bot.commands.audio.ClearQueueCommand;
 import bot.commands.audio.JoinCommand;
@@ -15,7 +15,7 @@ import bot.commands.audio.SkipToCommand;
 import bot.commands.audio.utils.VoiceChannelEventListener;
 import bot.commands.image.RedditSearchCommand;
 import bot.commands.utilities.PingCommand;
-import bot.utils.GetSystemEnvironmentOrDefaultValue;
+import bot.service.BotService;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -23,22 +23,32 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.security.auth.login.LoginException;
 
-public class BotController
+public class BotServiceImpl implements BotService
 {
+    @Value("${DISCORD_BOT_KEY}")
+    private String DISCORD_BOT_KEY;
 
-    public static void main(String[] args) throws LoginException
+    @Value("${OWNER_ID}")
+    private String OWNER_ID;
+
+    private JDA jda;
+    private AudioPlayerManager playerManager;
+
+    @Override
+    public void startBot() throws LoginException, InterruptedException
     {
-        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
 
         CommandClientBuilder builder = new CommandClientBuilder();
 
         builder.setPrefix("-");
         builder.setActivity(null);
-        builder.setOwnerId("106139573561626624");
+        builder.setOwnerId(OWNER_ID);
         builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager),
                 new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
@@ -46,6 +56,23 @@ public class BotController
 
         CommandClient client = builder.build();
 
-        JDA jda = new JDABuilder(GetSystemEnvironmentOrDefaultValue.get("DISCORD_BOT_KEY")).addEventListeners(client, new VoiceChannelEventListener()).build();
+        this.jda = new JDABuilder(DISCORD_BOT_KEY).addEventListeners(client, new VoiceChannelEventListener()).build();
+    }
+
+    @Override
+    public void shutdownBot()
+    {
+        this.jda.shutdown();
+    }
+
+    @Override
+    public JDA getJda()
+    {
+        return jda;
+    }
+
+    public AudioPlayerManager getAudioPlayerManager()
+    {
+        return playerManager;
     }
 }
