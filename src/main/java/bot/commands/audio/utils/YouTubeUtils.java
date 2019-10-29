@@ -1,6 +1,5 @@
 package bot.commands.audio.utils;
 
-import bot.utils.GetSystemEnvironmentOrDefaultValue;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -13,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,6 +23,9 @@ import java.util.Random;
 
 public class YouTubeUtils
 {
+    @Value("${YOUTUBE_API_KEY}")
+    private static String YOUTUBE_API_KEY;
+
     static AudioTrack searchForVideo(String argument)
     {
         YoutubeAudioSourceManager ytAudioSourceManager = new YoutubeAudioSourceManager();
@@ -66,7 +69,7 @@ public class YouTubeUtils
         YouTube.Search.List search = youtube.search().list("id,snippet");
 
         //set the API key
-        search.setKey(GetSystemEnvironmentOrDefaultValue.get("YOUTUBE_API_KEY"));
+        search.setKey(YOUTUBE_API_KEY);
         search.setRelatedToVideoId(videoID);
         search.setMaxResults(4L);
 
