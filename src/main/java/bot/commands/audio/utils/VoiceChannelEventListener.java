@@ -21,7 +21,7 @@ public class VoiceChannelEventListener extends ListenerAdapter
     @SystemEnv("BOT_USER_ID")
     private String BOT_USER_ID;
 
-    VoiceChannelEventListener() {
+    public VoiceChannelEventListener() {
         super();
 
         Injector.injectSystemEnvValue(this);
