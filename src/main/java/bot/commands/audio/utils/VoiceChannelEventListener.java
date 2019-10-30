@@ -1,5 +1,6 @@
 package bot.commands.audio.utils;
 
+import bot.utils.GetSystemEnvironmentOrDefaultValue;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
@@ -7,7 +8,6 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -17,8 +17,7 @@ import java.util.TimerTask;
 public class VoiceChannelEventListener extends ListenerAdapter
 {
     /** The discord ID of the bot used to check if the bot is alone in the voice channel*/
-    @Value("${BOT_USER_ID}")
-    private static String BOT_USER_ID;
+    private static final String BOT_USER_ID = GetSystemEnvironmentOrDefaultValue.get("BOT_USER_ID");
 
     @Override
     public void onGuildVoiceMove(@Nonnull GuildVoiceMoveEvent event)

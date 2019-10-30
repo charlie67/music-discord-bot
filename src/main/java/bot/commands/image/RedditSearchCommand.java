@@ -1,5 +1,6 @@
 package bot.commands.image;
 
+import bot.utils.GetSystemEnvironmentOrDefaultValue;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dean.jraw.RedditClient;
@@ -13,19 +14,12 @@ import net.dean.jraw.oauth.Credentials;
 import net.dean.jraw.oauth.OAuthHelper;
 import net.dean.jraw.pagination.DefaultPaginator;
 import net.dean.jraw.references.SubredditReference;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Random;
 import java.util.UUID;
 
 public class RedditSearchCommand extends Command
 {
-    @Value("${REDDIT_CLIENT_ID}")
-    private static String REDDIT_CLIENT_ID;
-
-    @Value("${REDDIT_CLIENT_SECRET}")
-    private static String REDDIT_CLIENT_SECRET;
-
     public RedditSearchCommand()
     {
         this.name = "redditsearch";
@@ -44,7 +38,7 @@ public class RedditSearchCommand extends Command
         }
 
         // Assuming we have a 'script' reddit app
-        Credentials oauthCreds = Credentials.userless(REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, new UUID(1, 99999));
+        Credentials oauthCreds = Credentials.userless(GetSystemEnvironmentOrDefaultValue.get("REDDIT_CLIENT_ID"), GetSystemEnvironmentOrDefaultValue.get("REDDIT_CLIENT_SECRET"), new UUID(1, 99999));
 
         // Create a unique User-Agent for our bot
         UserAgent userAgent = new UserAgent("bot", "hireddit", "0", "me");
