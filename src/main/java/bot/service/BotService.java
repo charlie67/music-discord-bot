@@ -9,7 +9,7 @@ import javax.security.auth.login.LoginException;
 @Service
 public interface BotService {
 
-    void startBot() throws LoginException, InterruptedException;
+    void startBot() throws LoginException;
 
     void shutdownBot();
 

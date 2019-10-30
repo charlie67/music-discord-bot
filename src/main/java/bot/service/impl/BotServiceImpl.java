@@ -39,7 +39,7 @@ public class BotServiceImpl implements BotService
     private AudioPlayerManager playerManager;
 
     @Override
-    public void startBot() throws LoginException, InterruptedException
+    public void startBot() throws LoginException
     {
         playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
