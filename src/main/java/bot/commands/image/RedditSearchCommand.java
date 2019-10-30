@@ -1,6 +1,8 @@
 package bot.commands.image;
 
 import bot.utils.GetSystemEnvironmentOrDefaultValue;
+import bot.utils.Injector;
+import bot.utils.SystemEnv;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dean.jraw.RedditClient;
@@ -20,10 +22,18 @@ import java.util.UUID;
 
 public class RedditSearchCommand extends Command
 {
+    @SystemEnv("REDDIT_CLIENT_ID")
+    private String REDDIT_CLIENT_ID;
+
+    @SystemEnv("REDDIT_CLIENT_SECRET")
+    private String REDDIT_CLIENT_SECRET;
+
     public RedditSearchCommand()
     {
         this.name = "redditsearch";
         this.help = "Search reddit for an image from a supplied subreddit";
+
+        Injector.injectSystemEnvValue(this);
     }
 
     @Override
@@ -38,7 +48,7 @@ public class RedditSearchCommand extends Command
         }
 
         // Assuming we have a 'script' reddit app
-        Credentials oauthCreds = Credentials.userless(GetSystemEnvironmentOrDefaultValue.get("REDDIT_CLIENT_ID"), GetSystemEnvironmentOrDefaultValue.get("REDDIT_CLIENT_SECRET"), new UUID(1, 99999));
+        Credentials oauthCreds = Credentials.userless(REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, new UUID(1, 99999));
 
         // Create a unique User-Agent for our bot
         UserAgent userAgent = new UserAgent("bot", "hireddit", "0", "me");
