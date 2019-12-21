@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '2.2.0.RELEASE'
 }
 
 version '0.1'
@@ -49,20 +50,7 @@ jar {
     manifest {
         attributes(
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'bot.main.BotController'
+                'Main-Class': mainClassName
         )
     }
-}
-
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'bot.ApplicationBootstrap'
-    }
-    baseName = project.name + '-all'
-    from {
-        (configurations.compile.findAll { !it.path.endsWith(".pom") }).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    with jar
 }
