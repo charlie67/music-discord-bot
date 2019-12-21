@@ -56,7 +56,7 @@ jar {
 
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Main-Class': 'bot.main.BotController'
+        attributes 'Main-Class': 'bot.ApplicationBootstrap'
     }
     baseName = project.name + '-all'
     from {
