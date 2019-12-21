@@ -23,7 +23,7 @@ public class JoinCommand extends Command
     {
         try
         {
-            VoiceChannelUtils.joinVoiceChannel(event, playerManager);
+            VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), playerManager);
         } catch (IllegalArgumentException e)
         {
             event.getChannel().sendMessage("You need to be in a voice channel.").queue();

@@ -26,9 +26,8 @@ public class YouTubeUtils
 {
     static AudioTrack searchForVideo(String argument)
     {
-        YoutubeAudioSourceManager ytAudioSourceManager = new YoutubeAudioSourceManager();
-        YoutubeSearchProvider yt = new YoutubeSearchProvider(ytAudioSourceManager);
-        BasicAudioPlaylist playlist = (BasicAudioPlaylist) yt.loadSearchResult(argument);
+        YoutubeSearchProvider yt = new YoutubeSearchProvider();
+        BasicAudioPlaylist playlist = (BasicAudioPlaylist) yt.loadSearchResult(argument, null);
         List<AudioTrack> tracks = playlist.getTracks();
 
         if (tracks.size() > 0)

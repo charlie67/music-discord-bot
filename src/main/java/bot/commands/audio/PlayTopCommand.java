@@ -25,6 +25,6 @@ public class PlayTopCommand extends Command
     @Override
     protected void execute(CommandEvent event)
     {
-        VoiceChannelUtils.SearchAndPlaySong(event, true, playerManager);
+        VoiceChannelUtils.SearchAndPlaySong(event.getJDA(), event.getArgs(), event.getGuild().getId(), event.getChannel().getId(), event.getMember().getId(), true, playerManager);
     }
 }

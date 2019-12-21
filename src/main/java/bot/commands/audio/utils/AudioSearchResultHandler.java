@@ -7,25 +7,27 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dean.jraw.models.Message;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.awt.Color;
 
 public class AudioSearchResultHandler implements AudioLoadResultHandler
 {
     private TrackScheduler trackScheduler;
-    private CommandEvent event;
     private AudioPlayerSendHandler audioPlayerSendHandler;
     private String argument;
     private boolean playTop;
+    private MessageChannel channel;
 
-    AudioSearchResultHandler(TrackScheduler trackScheduler, CommandEvent event, AudioPlayerSendHandler audioPlayerSendHandler, String argument, boolean playTop)
+    AudioSearchResultHandler(TrackScheduler trackScheduler, AudioPlayerSendHandler audioPlayerSendHandler, MessageChannel channel, String argument, boolean playTop)
     {
         this.trackScheduler = trackScheduler;
-        this.event = event;
         this.audioPlayerSendHandler = audioPlayerSendHandler;
         this.argument = argument;
         this.playTop = playTop;
+        this.channel = channel;
     }
 
     @Override
@@ -42,7 +44,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
             trackScheduler.queue(track, playTop);
         }
 
-        event.getChannel().sendMessage(String.format("**Queued `%d` tracks**", playlist.getTracks().size())).queue();
+        channel.sendMessage(String.format("**Queued `%d` tracks**", playlist.getTracks().size())).queue();
 
         if (audioPlayerSendHandler.getAudioPlayer().getPlayingTrack() == null)
         {
@@ -63,7 +65,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         }
         else
         {
-            event.getChannel().sendMessage(String.format("%s didn't match a video", argument)).queue();
+            channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
         }
     }
 
@@ -73,7 +75,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         trackScheduler.queue(track, playTop);
 
         EmbedBuilder eb = getAudioTrackMessage(track, trackScheduler.getQueueSize(), queueDurationInMilliSeconds);
-        event.getChannel().sendMessage(eb.build()).queue();
+        channel.sendMessage(eb.build()).queue();
 
         if (audioPlayerSendHandler.getAudioPlayer().getPlayingTrack() == null)
         {
@@ -84,7 +86,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     @Override
     public void loadFailed(FriendlyException throwable)
     {
-        event.getChannel().sendMessage("Loading failed for that video").queue();
+        channel.sendMessage("Loading failed for that video").queue();
     }
 
     private EmbedBuilder getAudioTrackMessage(AudioTrack track, int queueSize, long queueDurationInMilliSeconds)
