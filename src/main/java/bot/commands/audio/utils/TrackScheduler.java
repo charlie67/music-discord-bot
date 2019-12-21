@@ -22,7 +22,7 @@ public class TrackScheduler extends AudioEventAdapter
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
-        LOGGER.info(String.format("Track ended %s", endReason.toString()));
+        LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason.toString());
 
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
         {
