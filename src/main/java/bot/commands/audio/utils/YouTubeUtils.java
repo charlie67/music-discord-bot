@@ -7,11 +7,15 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,11 +26,17 @@ import java.util.Random;
 
 public class YouTubeUtils
 {
+    private static Logger LOGGER = LogManager.getLogger(YouTubeUtils.class);
+
     static AudioTrack searchForVideo(String argument)
     {
+        LOGGER.info("Searching for {}", argument);
+
         YoutubeSearchProvider yt = new YoutubeSearchProvider();
-        BasicAudioPlaylist playlist = (BasicAudioPlaylist) yt.loadSearchResult(argument, null);
+        BasicAudioPlaylist playlist = (BasicAudioPlaylist) yt.loadSearchResult(argument, audioTrackInfo -> new YoutubeAudioTrack(audioTrackInfo, new YoutubeAudioSourceManager()));
         List<AudioTrack> tracks = playlist.getTracks();
+
+        LOGGER.info("Received {} results", tracks.size());
 
         if (tracks.size() > 0)
         {
