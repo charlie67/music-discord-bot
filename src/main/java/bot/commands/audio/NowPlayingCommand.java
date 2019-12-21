@@ -9,9 +9,8 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class NowPlayingCommand extends Command
 {

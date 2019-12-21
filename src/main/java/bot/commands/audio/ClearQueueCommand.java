@@ -5,7 +5,6 @@ import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.utils.UnicodeEmote;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import net.dv8tion.jda.api.managers.AudioManager;
 
 public class ClearQueueCommand extends Command
 {

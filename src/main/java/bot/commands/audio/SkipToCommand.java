@@ -3,13 +3,11 @@ package bot.commands.audio;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.TrackScheduler;
 import bot.commands.audio.utils.VoiceChannelUtils;
-import bot.commands.audio.utils.YouTubeUtils;
 import bot.utils.UnicodeEmote;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SkipToCommand extends Command

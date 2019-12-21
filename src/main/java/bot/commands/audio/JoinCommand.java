@@ -5,8 +5,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
-import java.net.ConnectException;
-
 public class JoinCommand extends Command
 {
     //The audio player manager that the audio player will be created from

@@ -1,6 +1,5 @@
 package bot.commands.image;
 
-import bot.utils.GetSystemEnvironmentOrDefaultValue;
 import bot.utils.Injector;
 import bot.utils.SystemEnv;
 import com.jagrosh.jdautilities.command.Command;
