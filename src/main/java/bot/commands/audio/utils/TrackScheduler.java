@@ -40,6 +40,7 @@ public class TrackScheduler extends AudioEventAdapter
         {
             String oldTrackId = track.getInfo().identifier;
             AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
+            durationInMilliSeconds += nextTrack.getDuration();
             queue.add(nextTrack);
             player.playTrack(nextTrack());
 
