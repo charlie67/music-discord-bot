@@ -83,7 +83,7 @@ public class RedditSearchCommand extends Command
         event.getChannel().sendMessage(subredditHashComponent.getNewUrlItem()).queue();
     }
 
-    private class SubredditHashComponent
+    class SubredditHashComponent
     {
         long timeStored;
         private List<Submission> subredditItems;
