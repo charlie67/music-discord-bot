@@ -7,4 +7,5 @@ services:
   - docker
 
 script:
+  - "./gradlew build --scan -s"
   - "./docker-build.sh"
