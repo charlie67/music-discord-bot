@@ -16,7 +16,9 @@ import net.dean.jraw.oauth.OAuthHelper;
 import net.dean.jraw.pagination.DefaultPaginator;
 import net.dean.jraw.references.SubredditReference;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class RedditSearchCommand extends Command
@@ -27,12 +29,26 @@ public class RedditSearchCommand extends Command
     @SystemEnv("REDDIT_CLIENT_SECRET")
     private String REDDIT_CLIENT_SECRET;
 
+    private RedditClient reddit;
+
+    //maps subreddit onto links for that subreddit
+    private HashMap<String, SubredditHashComponent> subredditHashMap = new HashMap<>();
+
     public RedditSearchCommand()
     {
         this.name = "redditsearch";
         this.help = "Search reddit for an image from a supplied subreddit";
 
         Injector.injectSystemEnvValue(this);
+
+        // Assuming we have a 'script' reddit app
+        Credentials oauthCreds = Credentials.userless(REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, new UUID(1, 99999));
+
+        // Create a unique User-Agent for our bot
+        UserAgent userAgent = new UserAgent("bot", "hireddit", "0", "me");
+
+        // Authenticate our client
+        reddit = OAuthHelper.automatic(new OkHttpNetworkAdapter(userAgent), oauthCreds);
     }
 
     @Override
@@ -46,22 +62,59 @@ public class RedditSearchCommand extends Command
             return;
         }
 
-        // Assuming we have a 'script' reddit app
-        Credentials oauthCreds = Credentials.userless(REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, new UUID(1, 99999));
+        SubredditHashComponent subredditHashComponent;
 
-        // Create a unique User-Agent for our bot
-        UserAgent userAgent = new UserAgent("bot", "hireddit", "0", "me");
+        if (subredditHashMap.containsKey(subreddit))
+        {
+            subredditHashComponent = subredditHashMap.get(subreddit);
 
-        // Authenticate our client
-        RedditClient reddit = OAuthHelper.automatic(new OkHttpNetworkAdapter(userAgent), oauthCreds);
+            if (subredditHashComponent.timeStored - System.currentTimeMillis() > 86400000)
+            {
+                subredditHashComponent = new SubredditHashComponent(System.currentTimeMillis(), subreddit);
+                subredditHashMap.put(subreddit, subredditHashComponent);
+            }
+        }
+        else
+        {
+            subredditHashComponent = new SubredditHashComponent(System.currentTimeMillis(), subreddit);
+            subredditHashMap.put(subreddit, subredditHashComponent);
+        }
 
-        SubredditReference subredditReference = reddit.subreddit(subreddit);
-        DefaultPaginator<Submission> paginator = subredditReference.posts().sorting(SubredditSort.TOP) .timePeriod(TimePeriod.ALL) .limit(50).build();
-
-        Listing<Submission> top50MostPopular = paginator.next();
-
-        Submission submission = top50MostPopular.get(new Random().nextInt(49));
-        event.getChannel().sendMessage(submission.getUrl()).queue();
+        event.getChannel().sendMessage(subredditHashComponent.getNewUrlItem()).queue();
     }
 
+    private class SubredditHashComponent
+    {
+        long timeStored;
+        private List<Submission> subredditItems;
+        private DefaultPaginator<Submission> paginator;
+        private int itemCounter = 0;
+
+        SubredditHashComponent(long timeStored, String subreddit)
+        {
+            this.timeStored = timeStored;
+            this.subredditItems = new ArrayList<>();
+
+            SubredditReference subredditReference = reddit.subreddit(subreddit);
+            paginator = subredditReference.posts().sorting(SubredditSort.TOP).timePeriod(TimePeriod.ALL).build();
+
+            Listing<Submission> top50MostPopular = paginator.next();
+            subredditItems.addAll(top50MostPopular.getChildren());
+        }
+
+        void extendList()
+        {
+            subredditItems.addAll(paginator.next());
+        }
+
+        String getNewUrlItem()
+        {
+            if (itemCounter >= subredditItems.size())
+            {
+                extendList();
+            }
+            return subredditItems.get(itemCounter++).getUrl();
+        }
+
+    }
 }
