@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -44,6 +45,7 @@ public class PlayTopCommandTest
     }
 
     @Test
+    @Ignore
     public void testExecute()
     {
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
