@@ -68,7 +68,7 @@ public class RedditSearchCommand extends Command
         {
             subredditHashComponent = subredditHashMap.get(subreddit);
 
-            if (subredditHashComponent.timeStored - System.currentTimeMillis() > 86400000)
+            if (subredditHashComponent.timeStored - System.currentTimeMillis() > 604800000)
             {
                 subredditHashComponent = new SubredditHashComponent(System.currentTimeMillis(), subreddit);
                 subredditHashMap.put(subreddit, subredditHashComponent);
