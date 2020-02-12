@@ -71,7 +71,11 @@ public class RedditSearchCommand extends Command
             if (subredditHashComponent.timeStored - System.currentTimeMillis() > 604800000)
             {
                 subredditHashComponent = new SubredditHashComponent(System.currentTimeMillis(), subreddit);
-                subredditHashMap.put(subreddit, subredditHashComponent);
+
+                if (!subreddit.equals("randnsfw") && !subreddit.equals("rand"))
+                {
+                    subredditHashMap.put(subreddit, subredditHashComponent);
+                }
             }
         }
         else
