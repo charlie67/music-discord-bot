@@ -1,5 +1,6 @@
 package bot.commands.image;
 
+import bot.utils.TextChannelResponses;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -45,7 +46,7 @@ public class RedditSearchCommandTest
         command.execute(mockCommandEvent);
 
         assertTrue(messageQueued.get());
-        assertEquals(stringArgumentCaptor.getAllValues().get(0), "Provide a subreddit to search for");
+        assertEquals(stringArgumentCaptor.getValue(), TextChannelResponses.NO_SUBREDDIT_PROVIDED);
     }
 
     @Test

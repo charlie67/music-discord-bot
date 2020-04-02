@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNotNull;
 public class YouTubeUtilsTest
 {
     @Test
-    public void searchForVideo()
+    public void searchForVideo() throws IllegalAccessException
     {
         AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez");
 
@@ -20,7 +20,7 @@ public class YouTubeUtilsTest
     }
 
     @Test
-    public void getYoutubeThumbnail()
+    public void getYoutubeThumbnail() throws IllegalAccessException
     {
         AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez");
         assertNotNull(audioTrack);
