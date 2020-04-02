@@ -22,9 +22,9 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.0.0'
     compile 'org.awaitility:awaitility:4.0.1'
 
-    compile 'net.dv8tion:JDA:4.0.0_44'
-    compile 'com.sedmelluq:lavaplayer:1.3.32'
-    compile 'com.jagrosh:jda-utilities:3.0.1'
+    compile 'net.dv8tion:JDA:+'
+    compile 'com.sedmelluq:lavaplayer:+'
+    compile 'com.jagrosh:jda-utilities:+'
 
     //youtube
     compile 'com.google.api-client:google-api-client:1.23.0'
