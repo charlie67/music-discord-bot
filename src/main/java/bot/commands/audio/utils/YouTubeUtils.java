@@ -10,6 +10,8 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
+import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import org.apache.http.NameValuePair;
@@ -28,24 +30,36 @@ public class YouTubeUtils
 {
     private static Logger LOGGER = LogManager.getLogger(YouTubeUtils.class);
 
-    static AudioTrack searchForVideo(String argument)
+    static AudioTrack searchForVideo(String argument) throws IllegalAccessException
     {
         LOGGER.info("Searching for {}", argument);
 
+        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(true);
         YoutubeSearchProvider yt = new YoutubeSearchProvider();
-        BasicAudioPlaylist playlist = (BasicAudioPlaylist) yt.loadSearchResult(argument, audioTrackInfo -> new YoutubeAudioTrack(audioTrackInfo, new YoutubeAudioSourceManager()));
-        List<AudioTrack> tracks = playlist.getTracks();
 
-        LOGGER.info("Received {} results", tracks.size());
+        AudioItem result = yt.loadSearchResult(argument, audioTrackInfo -> new YoutubeAudioTrack(audioTrackInfo, youtube));
 
-        if (tracks.size() > 0)
+        if (result instanceof BasicAudioPlaylist)
         {
-            return tracks.get(0);
+            BasicAudioPlaylist playlist = (BasicAudioPlaylist) result;
+            List<AudioTrack> tracks = playlist.getTracks();
+
+            LOGGER.info("Received {} results", tracks.size());
+
+            if (tracks.size() > 0)
+            {
+                return tracks.get(0);
+            }
+            else
+            {
+                return null;
+            }
         }
         else
         {
-            return null;
+            throw new IllegalAccessException("Youtube Search Result is not instance of BasicAudioPlaylist " + result.getClass().toString());
         }
+
     }
 
     public static String getYoutubeThumbnail(AudioTrack np)
@@ -64,7 +78,7 @@ public class YouTubeUtils
         }
     }
 
-    static AudioTrack getRelatedVideo(String videoID) throws IOException
+    static AudioTrack getRelatedVideo(String videoID) throws IOException, IllegalAccessException
     {
         YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request ->
         {
