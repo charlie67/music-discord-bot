@@ -2,6 +2,7 @@ package bot.commands.audio.utils;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
@@ -35,18 +36,20 @@ public class TrackScheduler extends AudioEventAdapter
             return;
         }
 
-
-        try
+        if (track instanceof YoutubeAudioTrack)
         {
-            String oldTrackId = track.getInfo().identifier;
-            AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
-            durationInMilliSeconds += nextTrack.getDuration();
-            queue.add(nextTrack);
-            player.playTrack(nextTrack());
+            try
+            {
+                String oldTrackId = track.getInfo().identifier;
+                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
+                durationInMilliSeconds += nextTrack.getDuration();
+                queue.add(nextTrack);
+                player.playTrack(nextTrack());
 
-        } catch (IOException e)
-        {
-            LOGGER.error("Encountered error when trying to find a related video", e);
+            } catch (IOException | IllegalAccessException e)
+            {
+                LOGGER.error("Encountered error when trying to find a related video", e);
+            }
         }
     }
 

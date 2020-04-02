@@ -1,5 +1,6 @@
 package bot.commands.audio.utils;
 
+import bot.utils.TextChannelResponses;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.JDA;
@@ -60,6 +61,7 @@ public class VoiceChannelUtils
             throw new IllegalArgumentException("Channel is NULL is the ID correct?");
         }
 
+        // The user who triggered the command
         Member member = guild.getMemberById(memberID);
         if (member == null)
         {
@@ -68,7 +70,7 @@ public class VoiceChannelUtils
 
         if (argument.isEmpty())
         {
-            channel.sendMessage("**Need to provide something to play**").queue();
+            channel.sendMessage(TextChannelResponses.NO_ARGUMENT_PROVIDED_TO_PLAY_COMMAND).queue();
             return;
         }
 
@@ -82,15 +84,22 @@ public class VoiceChannelUtils
                 VoiceChannelUtils.joinVoiceChannel(member, guild, playerManager);
             } catch (IllegalArgumentException e)
             {
-                channel.sendMessage("**You need to be in a voice channel.**").queue();
+                channel.sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
                 return;
             }
         }
+
+        if (audioManager.getConnectedChannel() != null && !audioManager.getConnectedChannel().getMembers().contains(member))
+        {
+            channel.sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
+        }
+
         channel.sendMessage("Searching for `").append(argument).append("`").queue();
         channel.sendTyping().queue();
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
+
 
         playerManager.loadItem(argument, new AudioSearchResultHandler(trackScheduler, audioPlayerSendHandler, channel, argument, playTop));
     }

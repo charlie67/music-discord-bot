@@ -1,5 +1,7 @@
 package bot.commands.audio.utils;
 
+import bot.utils.TextChannelResponses;
+import bot.controller.AudioController;
 import bot.utils.TimeUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -8,11 +10,15 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.Color;
 
 public class AudioSearchResultHandler implements AudioLoadResultHandler
 {
+    private Logger LOGGER = LogManager.getLogger(AudioController.class);
+
     private TrackScheduler trackScheduler;
     private AudioPlayerSendHandler audioPlayerSendHandler;
     private String argument;
@@ -55,16 +61,26 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     public void noMatches()
     {
         //This means that the argument didn't match a particular source so search for it on youtube instead
-        AudioTrack track = YouTubeUtils.searchForVideo(argument);
+        try
+        {
+            AudioTrack track = YouTubeUtils.searchForVideo(argument);
 
-        if (track != null)
-        {
-            queueTrackAndStartNextSong(track);
+            if (track != null)
+            {
+                queueTrackAndStartNextSong(track);
+            }
+            else
+            {
+                channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
+            }
         }
-        else
+        catch (IllegalAccessException e)
         {
-            channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
+            channel.sendMessage(TextChannelResponses.ERROR_LOADING_VIDEO).queue();
+            LOGGER.error("Error when searching for YouTube video encountered the wrong result type returned", e);
         }
+
+
     }
 
     private void queueTrackAndStartNextSong(AudioTrack track)
