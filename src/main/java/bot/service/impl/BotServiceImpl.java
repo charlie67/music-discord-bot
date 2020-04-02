@@ -27,6 +27,13 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.security.auth.login.LoginException;
 
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
+
 public class BotServiceImpl implements BotService
 {
     @Value("${DISCORD_BOT_KEY}")
@@ -56,7 +63,9 @@ public class BotServiceImpl implements BotService
 
         CommandClient client = builder.build();
 
-        this.jda = new JDABuilder(DISCORD_BOT_KEY).addEventListeners(client, new VoiceChannelEventListener()).build();
+        this.jda = JDABuilder.create(DISCORD_BOT_KEY,
+                GUILD_MEMBERS, GUILD_VOICE_STATES, GUILD_MESSAGES,
+                GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS).addEventListeners(client, new VoiceChannelEventListener()).build();
     }
 
     @Override
