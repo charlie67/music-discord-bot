@@ -92,6 +92,7 @@ public class VoiceChannelUtils
         if (audioManager.getConnectedChannel() != null && !audioManager.getConnectedChannel().getMembers().contains(member))
         {
             channel.sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
+            return;
         }
 
         channel.sendMessage("Searching for `").append(argument).append("`").queue();
