@@ -21,12 +21,8 @@ import static org.mockito.Mockito.when;
 
 public class RedditSearchCommandTest
 {
-    @Test
-    public void testRedditSearchWhenNoArgsSpecified()
+    CommandEvent getMockRedditSearchMessageAction(ArgumentCaptor<String> stringArgumentCaptor, AtomicBoolean messageQueued, String subreddit)
     {
-        RedditSearchCommand command = new RedditSearchCommand();
-
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
         MessageAction mockMessageAction = mock(MessageAction.class);
         doAnswer(invocation ->
         {
@@ -36,17 +32,58 @@ public class RedditSearchCommandTest
 
         MessageChannel mockMessageChannel = mock(MessageChannel.class);
 
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(mockMessageChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
 
         CommandEvent mockCommandEvent = mock(CommandEvent.class);
-        when(mockCommandEvent.getArgs()).thenReturn("");
+        when(mockCommandEvent.getArgs()).thenReturn(subreddit);
         when(mockCommandEvent.getChannel()).thenReturn(mockMessageChannel);
+
+        return mockCommandEvent;
+    }
+
+    @Test
+    public void testRedditSearchWhenNoArgsSpecified()
+    {
+        RedditSearchCommand command = new RedditSearchCommand();
+
+        AtomicBoolean messageQueued = new AtomicBoolean(false);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued, "");
 
         command.execute(mockCommandEvent);
 
         assertTrue(messageQueued.get());
-        assertEquals(stringArgumentCaptor.getValue(), TextChannelResponses.NO_SUBREDDIT_PROVIDED);
+        assertEquals(TextChannelResponses.NO_SUBREDDIT_PROVIDED, stringArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testRedditSearchWhenSubredditCantBeAccessed()
+    {
+        RedditSearchCommand command = new RedditSearchCommand();
+
+        AtomicBoolean messageQueued = new AtomicBoolean(false);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued, "the_donald");
+
+        command.execute(mockCommandEvent);
+
+        assertTrue(messageQueued.get());
+        assertEquals(TextChannelResponses.UNABLE_TO_SEARCH_FOR_SUBREDDIT, stringArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testRedditSearchWhenSubHasNoPosts()
+    {
+        RedditSearchCommand command = new RedditSearchCommand();
+
+        AtomicBoolean messageQueued = new AtomicBoolean(false);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued, "emptytestsub");
+
+        command.execute(mockCommandEvent);
+
+        assertTrue(messageQueued.get());
+        assertEquals(TextChannelResponses.UNABLE_TO_GET_POSTS_FOR_SUBREDDIT, stringArgumentCaptor.getValue());
     }
 
     @Test
@@ -54,17 +91,9 @@ public class RedditSearchCommandTest
     {
         RedditSearchCommand command = new RedditSearchCommand();
 
-        MessageAction mockMessageAction = mock(MessageAction.class);
-        doAnswer(invocation -> null).when(mockMessageAction).queue();
-
-        MessageChannel mockMessageChannel = mock(MessageChannel.class);
-
+        AtomicBoolean messageQueued = new AtomicBoolean(false);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        when(mockMessageChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
-
-        CommandEvent mockCommandEvent = mock(CommandEvent.class);
-        when(mockCommandEvent.getArgs()).thenReturn("pics");
-        when(mockCommandEvent.getChannel()).thenReturn(mockMessageChannel);
+        CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued, "pics");
 
         int NUM_EXECUTIONS = 100;
 
@@ -76,7 +105,7 @@ public class RedditSearchCommandTest
 
         List<String> values = stringArgumentCaptor.getAllValues();
 
-        assertEquals(values.size(), NUM_EXECUTIONS);
-        assertEquals(new HashSet<>(values).size(), NUM_EXECUTIONS);
+        assertEquals(NUM_EXECUTIONS, values.size());
+        assertEquals(NUM_EXECUTIONS, new HashSet<>(values).size());
     }
 }
