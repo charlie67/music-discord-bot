@@ -12,14 +12,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +21,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,10 +28,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereAudioGetsPlayed;
 import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereItErrorsOut;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -157,55 +148,24 @@ public class PlayCommandTest
     @Test
     public void testExecuteWithArgument()
     {
-        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-        AudioSourceManagers.registerRemoteSources(playerManager);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<MessageEmbed> messageEmbedArgumentCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
+        Answer<Void> messageQueuedAnswer = invocation -> null;
 
-        MessageAction mockMessageAction = mock(MessageAction.class);
-        when(mockMessageAction.append(anyString())).thenReturn(mockMessageAction);
-
-        RestAction mockRestAction = mock(RestAction.class);
-        doAnswer(invocation -> null).when(mockMessageAction).queue();
+        AudioTrack mockAudioTrack = new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""),
+                new YoutubeAudioSourceManager());
 
         AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
-        when(mockAudioPlayer.getPlayingTrack()).thenReturn(new YoutubeAudioTrack(new AudioTrackInfo("1", "",
-                999999999, "", true, ""), new YoutubeAudioSourceManager()));
-
-        Member mockMember = mock(Member.class);
-        when(mockMember.getId()).thenReturn("mockMemberId");
-
-        VoiceChannel mockVoiceChannel = mock(VoiceChannel.class);
-        ArrayList<Member> memberList = new ArrayList<>();
-        memberList.add(mockMember);
-        when(mockVoiceChannel.getMembers()).thenReturn(memberList);
-
-        AudioManager mockAudioManager = mock(AudioManager.class);
-        when(mockAudioManager.isConnected()).thenReturn(true);
-        when(mockAudioManager.getConnectedChannel()).thenReturn(mockVoiceChannel);
+        when(mockAudioPlayer.getPlayingTrack()).thenReturn(mockAudioTrack);
         AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer,
                 new TrackScheduler());
-        when(mockAudioManager.getSendingHandler()).thenReturn(audioPlayerSendHandler);
 
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        TextChannel mockTextChannel = mock(TextChannel.class);
-        when(mockTextChannel.sendTyping()).thenReturn(mockRestAction);
-        when(mockTextChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
-        when(mockTextChannel.getId()).thenReturn("mockMessageChannelId");
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereAudioGetsPlayed(stringArgumentCaptor,
+                "textChannelId", "mockMemberId", "mockGuildId", "Fallen Kingdom", true,
+                audioPlayerSendHandler, messageEmbedArgumentCaptor, messageQueuedAnswer);
 
-        Guild mockGuild = mock(Guild.class);
-        when(mockGuild.getId()).thenReturn("mockGuildId");
-        when(mockGuild.getTextChannelById(anyString())).thenReturn(mockTextChannel);
-        when(mockGuild.getMemberById(anyString())).thenReturn(mockMember);
-        when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
-
-        JDA mockJDA = mock(JDA.class);
-        when(mockJDA.getGuildById(anyString())).thenReturn(mockGuild);
-
-        CommandEvent mockCommandEvent = mock(CommandEvent.class);
-        when(mockCommandEvent.getJDA()).thenReturn(mockJDA);
-        when(mockCommandEvent.getArgs()).thenReturn("Fallen Kingdom");
-        when(mockCommandEvent.getChannel()).thenReturn(mockTextChannel);
-        when(mockCommandEvent.getGuild()).thenReturn(mockGuild);
-        when(mockCommandEvent.getMember()).thenReturn(mockMember);
+        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerRemoteSources(playerManager);
 
         PlayCommand playCommand = new PlayCommand(playerManager);
         playCommand.execute(mockCommandEvent);
@@ -214,5 +174,6 @@ public class PlayCommandTest
         List<AudioTrack> queue = audioPlayerSendHandler.getTrackScheduler().getQueue();
         assertTrue(queue.size() > 0);
         assertTrue(queue.get(0) instanceof YoutubeAudioTrack);
+        assertTrue(stringArgumentCaptor.getAllValues().get(1).startsWith("Fallen Kingdom"));
     }
 }
