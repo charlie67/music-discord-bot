@@ -1,8 +1,8 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
-import bot.utils.TextChannelResponses;
 import bot.commands.audio.utils.TrackScheduler;
+import bot.utils.TextChannelResponses;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -26,27 +26,28 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static bot.commands.audio.TestUtils.createMockCommandEventForAudioWithArguments;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereItErrorsOut;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayCommandTest
 {
     @Before
-    public void init() {
+    public void init()
+    {
         MockitoAnnotations.initMocks(this);
     }
 
@@ -55,8 +56,15 @@ public class PlayCommandTest
     {
         AtomicBoolean messageQueued = new AtomicBoolean(false);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        Answer<Void> messageQueuedAnswer = invocation ->
+        {
+            messageQueued.set(true);
+            return null;
+        };
 
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, "mockTextChannelId", "mockMemberId", "mockGuildId", "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(stringArgumentCaptor,
+                "mockTextChannelId",
+                "mockMemberId", "mockGuildId", "", messageQueuedAnswer);
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -71,10 +79,8 @@ public class PlayCommandTest
     @Test(expected = IllegalArgumentException.class)
     public void testExecuteWithNullGuildId() throws IllegalArgumentException
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, "mockTextChannelId", "mockMemberId", null, "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(
+                "mockTextChannelId", "mockMemberId", null, "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -86,10 +92,8 @@ public class PlayCommandTest
     @Test(expected = IllegalArgumentException.class)
     public void testExecuteWithEmptyGuildId() throws IllegalArgumentException
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, "mockTextChannelId", "mockMemberId", "", "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(
+                "mockTextChannelId", "mockMemberId", "", "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -101,10 +105,8 @@ public class PlayCommandTest
     @Test(expected = IllegalArgumentException.class)
     public void testExecuteWithNullTextChannelId() throws IllegalArgumentException
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, null, "mockMemberId", "mockGuildId", "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(null,
+                "mockMemberId", "mockGuildId", "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -116,10 +118,8 @@ public class PlayCommandTest
     @Test(expected = IllegalArgumentException.class)
     public void testExecuteWithEmptyTextChannelId() throws IllegalArgumentException
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, "", "mockMemberId", "mockGuildId", "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut("",
+                "mockMemberId", "mockGuildId", "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -131,10 +131,8 @@ public class PlayCommandTest
     @Test(expected = IllegalArgumentException.class)
     public void testExecuteWithNullMemberId() throws IllegalArgumentException
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, "textChannelId", null, "mockGuildId", "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(
+                "textChannelId", null, "mockGuildId", "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -146,10 +144,8 @@ public class PlayCommandTest
     @Test(expected = IllegalArgumentException.class)
     public void testExecuteWithEmptyMemberId() throws IllegalArgumentException
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        CommandEvent mockCommandEvent = createMockCommandEventForAudioWithArguments(stringArgumentCaptor, "textChannelId", "", "mockGuildId", "", messageQueued);
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(
+                "textChannelId", "", "mockGuildId", "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -171,7 +167,8 @@ public class PlayCommandTest
         doAnswer(invocation -> null).when(mockMessageAction).queue();
 
         AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
-        when(mockAudioPlayer.getPlayingTrack()).thenReturn(new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""), new YoutubeAudioSourceManager()));
+        when(mockAudioPlayer.getPlayingTrack()).thenReturn(new YoutubeAudioTrack(new AudioTrackInfo("1", "",
+                999999999, "", true, ""), new YoutubeAudioSourceManager()));
 
         Member mockMember = mock(Member.class);
         when(mockMember.getId()).thenReturn("mockMemberId");
@@ -184,7 +181,8 @@ public class PlayCommandTest
         AudioManager mockAudioManager = mock(AudioManager.class);
         when(mockAudioManager.isConnected()).thenReturn(true);
         when(mockAudioManager.getConnectedChannel()).thenReturn(mockVoiceChannel);
-        AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer, new TrackScheduler());
+        AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer,
+                new TrackScheduler());
         when(mockAudioManager.getSendingHandler()).thenReturn(audioPlayerSendHandler);
 
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -212,9 +210,9 @@ public class PlayCommandTest
         PlayCommand playCommand = new PlayCommand(playerManager);
         playCommand.execute(mockCommandEvent);
 
-        await().atMost(10, SECONDS).until(() -> audioPlayerSendHandler.getTrackScheduler().getQueue().size()>0);
+        await().atMost(10, SECONDS).until(() -> audioPlayerSendHandler.getTrackScheduler().getQueue().size() > 0);
         List<AudioTrack> queue = audioPlayerSendHandler.getTrackScheduler().getQueue();
-        assertTrue(queue.size()>0);
+        assertTrue(queue.size() > 0);
         assertTrue(queue.get(0) instanceof YoutubeAudioTrack);
     }
 }
