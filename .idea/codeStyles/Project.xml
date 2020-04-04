@@ -13,6 +13,8 @@
       <option name="METHOD_BRACE_STYLE" value="2" />
       <option name="LAMBDA_BRACE_STYLE" value="2" />
       <option name="ELSE_ON_NEW_LINE" value="true" />
+      <option name="WRAP_LONG_LINES" value="true" />
+      <option name="WRAP_ON_TYPING" value="1" />
     </codeStyleSettings>
   </code_scheme>
 </component>
