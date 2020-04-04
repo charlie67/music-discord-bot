@@ -31,7 +31,8 @@ public class VoiceChannelUtils
         audioManager.openAudioConnection(voiceState.getChannel());
     }
 
-    public static void SearchAndPlaySong(JDA jda, String argument, String guildID, String textChannelId, String memberID, boolean playTop, AudioPlayerManager playerManager) throws IllegalArgumentException
+    public static void SearchAndPlaySong(JDA jda, String argument, String guildID, String textChannelId,
+                                         String memberID, boolean playTop, AudioPlayerManager playerManager) throws IllegalArgumentException
     {
         if (guildID == null || guildID.equals(""))
         {
@@ -101,7 +102,8 @@ public class VoiceChannelUtils
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
 
 
-        playerManager.loadItem(argument, new AudioSearchResultHandler(trackScheduler, audioPlayerSendHandler, channel, argument, playTop));
+        playerManager.loadItem(argument, new AudioSearchResultHandler(trackScheduler, audioPlayerSendHandler, channel
+                , argument, playTop));
     }
 
     public static AudioPlayerSendHandler getAudioPlayerSendHandler(Guild guild) throws IllegalArgumentException

@@ -11,7 +11,6 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
-import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import org.apache.http.NameValuePair;
@@ -30,14 +29,15 @@ public class YouTubeUtils
 {
     private static Logger LOGGER = LogManager.getLogger(YouTubeUtils.class);
 
-    static AudioTrack searchForVideo(String argument) throws IllegalAccessException
+    static AudioTrack searchForVideo(String argument, int timesCalled) throws IllegalAccessException
     {
         LOGGER.info("Searching for {}", argument);
 
         YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(true);
         YoutubeSearchProvider yt = new YoutubeSearchProvider();
 
-        AudioItem result = yt.loadSearchResult(argument, audioTrackInfo -> new YoutubeAudioTrack(audioTrackInfo, youtube));
+        AudioItem result = yt.loadSearchResult(argument, audioTrackInfo -> new YoutubeAudioTrack(audioTrackInfo,
+                youtube));
 
         if (result instanceof BasicAudioPlaylist)
         {
@@ -57,6 +57,11 @@ public class YouTubeUtils
         }
         else
         {
+            // Try again if this is the first failure
+            if (timesCalled == 0)
+            {
+                return searchForVideo(argument, 1);
+            }
             throw new IllegalAccessException("Youtube Search Result is not instance of BasicAudioPlaylist " + result.getClass().toString());
         }
 
@@ -103,6 +108,6 @@ public class YouTubeUtils
 
         String id = (String) ((ResourceId) video.get("id")).get("videoId");
 
-        return searchForVideo(id);
+        return searchForVideo(id, 0);
     }
 }

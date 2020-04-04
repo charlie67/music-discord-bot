@@ -1,7 +1,7 @@
 package bot.commands.audio.utils;
 
-import bot.utils.TextChannelResponses;
 import bot.controller.AudioController;
+import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -25,7 +25,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     private boolean playTop;
     private MessageChannel channel;
 
-    AudioSearchResultHandler(TrackScheduler trackScheduler, AudioPlayerSendHandler audioPlayerSendHandler, MessageChannel channel, String argument, boolean playTop)
+    AudioSearchResultHandler(TrackScheduler trackScheduler, AudioPlayerSendHandler audioPlayerSendHandler,
+                             MessageChannel channel, String argument, boolean playTop)
     {
         this.trackScheduler = trackScheduler;
         this.audioPlayerSendHandler = audioPlayerSendHandler;
@@ -63,7 +64,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         //This means that the argument didn't match a particular source so search for it on youtube instead
         try
         {
-            AudioTrack track = YouTubeUtils.searchForVideo(argument);
+            AudioTrack track = YouTubeUtils.searchForVideo(argument, 0);
 
             if (track != null)
             {
@@ -73,8 +74,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
             {
                 channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
             }
-        }
-        catch (IllegalAccessException e)
+        } catch (IllegalAccessException e)
         {
             channel.sendMessage(TextChannelResponses.ERROR_LOADING_VIDEO).queue();
             LOGGER.error("Error when searching for YouTube video encountered the wrong result type returned", e);
@@ -114,7 +114,6 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
             eb.setThumbnail(url);
             eb.setColor(Color.RED);
         }
-//        eb.setDescription(String.format("Queue position \t Estimated time until playing \n%d \t%s Song Duration: %s", queueSize, TimeUtils.timeString(timeUntilPlaying / 1000), TimeUtils.timeString(track.getDuration() / 1000)));
         eb.addField("Song duration", TimeUtils.timeString(track.getDuration() / 1000), true);
         eb.addField("Channel", track.getInfo().author, true);
         eb.addField("Queue position", playTop ? "1" : String.valueOf(queueSize), true);
@@ -122,7 +121,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         //the song will be played when the queue has finished and the currently playing song has stopped
         long timeUntilPlaying;
         AudioTrack nowPlayingTrack = audioPlayerSendHandler.getAudioPlayer().getPlayingTrack();
-        timeUntilPlaying = nowPlayingTrack == null ? 0 : (queueDurationInMilliSeconds + (nowPlayingTrack.getDuration() - nowPlayingTrack.getPosition()));
+        timeUntilPlaying = nowPlayingTrack == null ? 0 :
+                (queueDurationInMilliSeconds + (nowPlayingTrack.getDuration() - nowPlayingTrack.getPosition()));
         eb.addField("Estimated time until playing", TimeUtils.timeString(timeUntilPlaying / 1000), true);
         return eb;
     }
