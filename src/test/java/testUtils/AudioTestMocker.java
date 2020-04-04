@@ -84,7 +84,6 @@ public class AudioTestMocker
                                                                                         Answer<Void> messageQueuedAnswer)
     {
         MessageAction mockMessageAction = mock(MessageAction.class);
-        doAnswer(messageQueuedAnswer).when(mockMessageAction).queue();
         doAnswer(invocation -> mockMessageAction).when(mockMessageAction).append(stringArgumentCaptor.capture());
 
         RestAction mockRestAction = mock(RestAction.class);

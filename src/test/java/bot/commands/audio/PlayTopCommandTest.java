@@ -21,7 +21,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
@@ -44,14 +43,9 @@ public class PlayTopCommandTest
     @Test
     public void testExecute()
     {
-        AtomicBoolean messageQueued = new AtomicBoolean(false);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<MessageEmbed> messageEmbedArgumentCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
-        Answer<Void> messageQueuedAnswer = invocation ->
-        {
-            messageQueued.set(true);
-            return null;
-        };
+        Answer<Void> messageQueuedAnswer = invocation -> null;
 
         AudioTrack mockAudioTrack = new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""),
                 new YoutubeAudioSourceManager());
@@ -87,6 +81,5 @@ public class PlayTopCommandTest
         assertTrue(queue.get(0) instanceof YoutubeAudioTrack);
         assertNotEquals(firstTopTrack, queue.get(0));
         assertEquals("A song 2", stringArgumentCaptor.getAllValues().get(4));
-
     }
 }
