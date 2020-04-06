@@ -1,6 +1,7 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
+import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -12,16 +13,17 @@ public class SeekCommand extends Command
     public SeekCommand()
     {
         this.name = "seek";
-        this.help = "\tSeeks to a certain point in the current track.";
+        this.help = "Seeks to a certain point in the current track.";
     }
-        @Override
+
+    @Override
     protected void execute(CommandEvent event)
     {
         AudioManager audioManager = event.getGuild().getAudioManager();
 
         if (!audioManager.isConnected())
         {
-            event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
+            event.getChannel().sendMessage(TextChannelResponses.BOT_NOT_CONNECTED_TO_VOICE).queue();
             return;
         }
 
@@ -32,37 +34,58 @@ public class SeekCommand extends Command
 
         int seekTime;
 
+        try
+        {
+            seekTime = getSeekTime(seekPoint);
+        }
+        catch(IllegalArgumentException e)
+        {
+            event.getChannel().sendMessage(TextChannelResponses.SEEK_COMMAND_FORMAT).queue();
+            return;
+        }
+
+        if (seekTime * 1000 > np.getDuration() || !np.isSeekable())
+        {
+            event.getChannel().sendMessage(TextChannelResponses.SEEK_POINT_LONGER_THAN_SONG).queue();
+            return;
+        }
+
+        event.getChannel().sendMessage(String.format(TextChannelResponses.SEEKING_TO_INFORMATION,
+                TimeUtils.timeString(seekTime))).queue();
+
+        np.setPosition(seekTime * 1000);
+    }
+
+    private int getSeekTime(String seekPoint) throws IllegalArgumentException
+    {
+        int seekTime;
         if (seekPoint.contains(":"))
         {
             //it is in the format mins:seconds
             String[] parts = seekPoint.split(":");
 
-            //parts[0] is mins and parts[1[ is seconds
-
-            seekTime = Integer.parseInt(parts[0]) * 60;
-            seekTime += Integer.parseInt(parts[1]);
+            if (parts.length == 3)
+            {
+                // it is in hours minutes and seconds
+                seekTime = Integer.parseInt(parts[0]) * 60 * 60;
+                seekTime += Integer.parseInt(parts[1]) * 60;
+                seekTime += Integer.parseInt(parts[2]);
+            }
+            else if (parts.length == 2)
+            {
+                //parts[0] is mins and parts[1] is seconds
+                seekTime = Integer.parseInt(parts[0]) * 60;
+                seekTime += Integer.parseInt(parts[1]);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Too many : in seek command " + seekPoint);
+            }
         }
         else
         {
-            try
-            {
-                seekTime = Integer.parseInt(seekPoint);
-            }
-            catch (NumberFormatException e)
-            {
-                event.getChannel().sendMessage("**Invalid format**, example formats: \n `0:01` `1:45`").queue();
-                return;
-            }
+            seekTime = Integer.parseInt(seekPoint);
         }
-
-        if (seekTime*1000 > np.getDuration() || !np.isSeekable())
-        {
-            event.getChannel().sendMessage("**Cannot seek to a position longer than the song**").queue();
-            return;
-        }
-
-        event.getChannel().sendMessage(String.format("**Seeking to** `%s`", TimeUtils.timeString(seekTime))).queue();
-
-        np.setPosition(seekTime * 1000);
+        return seekTime;
     }
 }
