@@ -1,16 +1,19 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.VoiceChannelUtils;
+import bot.utils.TextChannelResponses;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 public class JoinCommand extends Command
 {
     //The audio player manager that the audio player will be created from
     private final AudioPlayerManager playerManager;
 
-    public JoinCommand(AudioPlayerManager playerManager) {
+    public JoinCommand(AudioPlayerManager playerManager)
+    {
         this.playerManager = playerManager;
         this.name = "join";
         this.help = "Joins the voice channel that the user is currently connected to";
@@ -22,9 +25,14 @@ public class JoinCommand extends Command
         try
         {
             VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), playerManager);
-        } catch (IllegalArgumentException e)
+        }
+        catch(IllegalArgumentException e)
         {
-            event.getChannel().sendMessage("You need to be in a voice channel.").queue();
+            event.getChannel().sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
+        }
+        catch(InsufficientPermissionException e)
+        {
+            event.getChannel().sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
         }
     }
 

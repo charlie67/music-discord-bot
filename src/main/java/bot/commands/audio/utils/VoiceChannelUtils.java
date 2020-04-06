@@ -8,11 +8,21 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 public class VoiceChannelUtils
 {
-    public static void joinVoiceChannel(Member member, Guild guild, AudioPlayerManager playerManager) throws IllegalArgumentException
+    /**
+     * Connect to the voice channel that member is in
+     *
+     * @param member        The member to join
+     * @param guild         The server that the member is in
+     * @param playerManager The player manager for this guild
+     * @throws IllegalArgumentException        If the voice channel can't be joined
+     * @throws InsufficientPermissionException If the bot lacks the permission to join the voice channel
+     */
+    public static void joinVoiceChannel(Member member, Guild guild, AudioPlayerManager playerManager) throws IllegalArgumentException, InsufficientPermissionException
     {
         GuildVoiceState voiceState = member.getVoiceState();
 
@@ -83,7 +93,13 @@ public class VoiceChannelUtils
             try
             {
                 VoiceChannelUtils.joinVoiceChannel(member, guild, playerManager);
-            } catch (IllegalArgumentException e)
+            }
+            catch(InsufficientPermissionException e)
+            {
+                channel.sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
+                return;
+            }
+            catch(IllegalArgumentException e)
             {
                 channel.sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
                 return;

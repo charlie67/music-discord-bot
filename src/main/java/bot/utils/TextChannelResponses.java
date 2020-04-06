@@ -5,6 +5,8 @@ public class TextChannelResponses
     public static final String NOT_CONNECTED_TO_VOICE_MESSAGE = "**You need to be in a voice channel.**";
     public static final String NO_ARGUMENT_PROVIDED_TO_PLAY_COMMAND = "**Need to provide something to play**";
     public static final String ERROR_LOADING_VIDEO = "**There was a problem loading that video.**";
+    public static final String DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL = "**Do not have permission to join your voice " +
+            "channel**";
 
     public static final String BOT_NOT_CONNECTED_TO_VOICE = "**Not currently connected to the voice channel**";
 
