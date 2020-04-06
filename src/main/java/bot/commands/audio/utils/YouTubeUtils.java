@@ -1,6 +1,7 @@
 package bot.commands.audio.utils;
 
 import bot.utils.GetSystemEnvironmentOrDefaultValue;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -76,14 +77,15 @@ public class YouTubeUtils
             List<NameValuePair> params = URLEncodedUtils.parse(new URI(youtubeUrl), StandardCharsets.UTF_8);
             String videoID = params.get(0).getValue();
             return "http://img.youtube.com/vi/" + videoID + "/0.jpg";
-        } catch (URISyntaxException e)
+        }
+        catch(URISyntaxException e)
         {
             e.printStackTrace();
             return "";
         }
     }
 
-    static AudioTrack getRelatedVideo(String videoID) throws IOException, IllegalAccessException
+    static AudioTrack getRelatedVideo(String videoID) throws IOException, IllegalAccessException, GoogleJsonResponseException
     {
         YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request ->
         {

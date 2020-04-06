@@ -4,9 +4,12 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class YouTubeUtilsTest
 {
@@ -30,5 +33,13 @@ public class YouTubeUtilsTest
 
         String thumbnail = YouTubeUtils.getYoutubeThumbnail(audioTrack);
         assertFalse(thumbnail.isEmpty());
+    }
+
+    @Test
+    public void getRelatedVideoSuccessfullyFindsAVideo() throws IOException, IllegalAccessException
+    {
+        AudioTrack audioTrack = YouTubeUtils.getRelatedVideo("ImnnGjR6RWo");
+
+        assertTrue(audioTrack instanceof YoutubeAudioTrack);
     }
 }
