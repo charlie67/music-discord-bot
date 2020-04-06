@@ -17,11 +17,16 @@ import java.util.TimerTask;
 
 public class VoiceChannelEventListener extends ListenerAdapter
 {
-    /** The discord ID of the bot used to check if the bot is alone in the voice channel*/
+    public static final int VOICE_CHECK_DELAY = 60 * 1000;
+
+    /**
+     * The discord ID of the bot used to check if the bot is alone in the voice channel
+     */
     @SystemEnv("BOT_USER_ID")
     private String BOT_USER_ID;
 
-    public VoiceChannelEventListener() {
+    public VoiceChannelEventListener()
+    {
         super();
 
         Injector.injectSystemEnvValue(this);
@@ -46,11 +51,12 @@ public class VoiceChannelEventListener extends ListenerAdapter
             {
                 int membersInVoiceChannel = event.getChannelLeft().getMembers().size();
 
-                if (membersInVoiceChannel == 1) {
+                if (membersInVoiceChannel == 1)
+                {
                     leaveVoiceChannel(event);
                 }
             }
-        }, 60 * 1000);
+        }, VOICE_CHECK_DELAY);
     }
 
     @Override
@@ -63,15 +69,19 @@ public class VoiceChannelEventListener extends ListenerAdapter
         AudioManager audioManager = event.getGuild().getAudioManager();
         VoiceChannel connectedChannel = audioManager.getConnectedChannel();
 
-        if (connectedChannel == null || !connectedChannel.getId().equals(event.getChannelLeft().getId())) {
+        if (connectedChannel == null || !connectedChannel.getId().equals(event.getChannelLeft().getId()))
+        {
             return;
         }
 
         boolean botAlone = membersLeft.size() == 1 && !leftMemberIsBot;
 
-        if (leftMemberIsBot || membersLeft.size() == 0) {
+        if (leftMemberIsBot || membersLeft.size() == 0)
+        {
             leaveVoiceChannel(event);
-        } else if (botAlone) {
+        }
+        else if (botAlone)
+        {
             //set a timer for 1 minute to call leaveVoiceChannel and cancel it if someone comes back
             Timer timer = new Timer();
             timer.schedule(new TimerTask()
@@ -81,11 +91,12 @@ public class VoiceChannelEventListener extends ListenerAdapter
                 {
                     int membersInVoiceChannel = event.getChannelLeft().getMembers().size();
 
-                    if (membersInVoiceChannel == 1) {
+                    if (membersInVoiceChannel == 1)
+                    {
                         leaveVoiceChannel(event);
                     }
                 }
-            }, 60 * 1000);
+            }, VOICE_CHECK_DELAY);
         }
     }
 
@@ -100,7 +111,8 @@ public class VoiceChannelEventListener extends ListenerAdapter
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
 
-        if (audioPlayerSendHandler == null) {
+        if (audioPlayerSendHandler == null)
+        {
             return;
         }
 
