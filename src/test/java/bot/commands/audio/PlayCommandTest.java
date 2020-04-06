@@ -31,7 +31,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereAudioGetsPlayed;
+import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereChannelCantBeFound;
+import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereGuildCantBeFound;
 import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereItErrorsOut;
+import static testUtils.AudioTestMocker.createMockCommandEventForPlayCommandWhereMemberCantBeFound;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayCommandTest
@@ -137,6 +140,45 @@ public class PlayCommandTest
     {
         CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereItErrorsOut(
                 "textChannelId", "", "mockGuildId", "");
+
+        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerRemoteSources(playerManager);
+
+        PlayCommand playCommand = new PlayCommand(playerManager);
+        playCommand.execute(mockCommandEvent);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPlayFailsWithExceptionWhenGuildWithIdCantBeFound() throws IllegalArgumentException
+    {
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereGuildCantBeFound(
+                "textChannelId", "memberId", "guildId", "");
+
+        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerRemoteSources(playerManager);
+
+        PlayCommand playCommand = new PlayCommand(playerManager);
+        playCommand.execute(mockCommandEvent);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPlayFailsWithExceptionWhenChannelWithIdCantBeFound() throws IllegalArgumentException
+    {
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereChannelCantBeFound(
+                "textChannelId", "memberId", "guildId", "");
+
+        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerRemoteSources(playerManager);
+
+        PlayCommand playCommand = new PlayCommand(playerManager);
+        playCommand.execute(mockCommandEvent);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPlayFailsWithExceptionWhenMemberWithIdCantBeFound() throws IllegalArgumentException
+    {
+        CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereMemberCantBeFound(
+                "textChannelId", "memberId", "guildId", "");
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
