@@ -14,14 +14,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RedditSearchCommandTest
 {
-    CommandEvent getMockRedditSearchMessageAction(ArgumentCaptor<String> stringArgumentCaptor, AtomicBoolean messageQueued, String subreddit)
+    CommandEvent getMockRedditSearchMessageAction(ArgumentCaptor<String> stringArgumentCaptor, AtomicBoolean messageQueued
+            , String subreddit)
     {
         MessageAction mockMessageAction = mock(MessageAction.class);
         doAnswer(invocation ->
@@ -78,7 +78,8 @@ public class RedditSearchCommandTest
 
         AtomicBoolean messageQueued = new AtomicBoolean(false);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued, "emptytestsub");
+        CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued,
+                "emptytestsub");
 
         command.execute(mockCommandEvent);
 
@@ -100,7 +101,7 @@ public class RedditSearchCommandTest
         for (int i = 0; i < NUM_EXECUTIONS; i++)
         {
             command.execute(mockCommandEvent);
-            TimeUnit.SECONDS.sleep(2);
+            TimeUnit.MILLISECONDS.sleep(500);
         }
 
         List<String> values = stringArgumentCaptor.getAllValues();
