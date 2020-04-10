@@ -24,9 +24,9 @@ public class VoiceChannelUtils
      */
     public static void joinVoiceChannel(Member member, Guild guild, AudioPlayerManager playerManager) throws IllegalArgumentException, InsufficientPermissionException
     {
-        GuildVoiceState voiceState = member.getVoiceState();
+        GuildVoiceState memberVoiceState = member.getVoiceState();
 
-        if (voiceState == null || !voiceState.inVoiceChannel())
+        if (memberVoiceState == null || !memberVoiceState.inVoiceChannel())
         {
             throw new IllegalArgumentException("Unable to join the voice channel");
         }
@@ -38,7 +38,7 @@ public class VoiceChannelUtils
         player.addListener(trackScheduler);
 
         audioManager.setSendingHandler(new AudioPlayerSendHandler(player, trackScheduler));
-        audioManager.openAudioConnection(voiceState.getChannel());
+        audioManager.openAudioConnection(memberVoiceState.getChannel());
     }
 
     public static void SearchAndPlaySong(JDA jda, String argument, String guildId, String textChannelId,
