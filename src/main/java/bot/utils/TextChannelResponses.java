@@ -14,6 +14,9 @@ public class TextChannelResponses
     public static final String SEEK_COMMAND_FORMAT = "**Invalid format**, example formats: \n `0:01`, `1:45`, '2:23:55'";
     public static final String SEEKING_TO_INFORMATION = "**Seeking to** `%s`";
 
+    public static final String TRYING_TO_RESUME_PLAYING_SONG = "**The song is not paused.**";
+    public static final String TRYING_TO_PAUSE_PAUSED_SONG = "**Song is already paused.**";
+
     public static final String NO_SUBREDDIT_PROVIDED = "**You need to provide a subreddit to search for.**";
     public static final String UNABLE_TO_SEARCH_FOR_SUBREDDIT = "**Unable to search for that subreddit**";
     public static final String UNABLE_TO_GET_POSTS_FOR_SUBREDDIT = "**Unable to get posts for that subreddit**";

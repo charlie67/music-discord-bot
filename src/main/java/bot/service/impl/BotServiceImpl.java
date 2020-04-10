@@ -4,10 +4,12 @@ import bot.commands.audio.ClearQueueCommand;
 import bot.commands.audio.JoinCommand;
 import bot.commands.audio.LeaveCommand;
 import bot.commands.audio.NowPlayingCommand;
+import bot.commands.audio.PauseCommand;
 import bot.commands.audio.PlayCommand;
 import bot.commands.audio.PlayTopCommand;
 import bot.commands.audio.QueueCommand;
 import bot.commands.audio.RemoveCommand;
+import bot.commands.audio.ResumeCommand;
 import bot.commands.audio.SeekCommand;
 import bot.commands.audio.ShuffleCommand;
 import bot.commands.audio.SkipSongCommand;
@@ -59,13 +61,15 @@ public class BotServiceImpl implements BotService
         builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager),
                 new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
-                new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand());
+                new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
+                new PauseCommand(), new ResumeCommand());
 
         CommandClient client = builder.build();
 
         this.jda = JDABuilder.create(DISCORD_BOT_KEY,
                 GUILD_MEMBERS, GUILD_VOICE_STATES, GUILD_MESSAGES,
-                GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS).addEventListeners(client, new VoiceChannelEventListener()).build();
+                GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS).addEventListeners(client,
+                new VoiceChannelEventListener()).build();
     }
 
     @Override
