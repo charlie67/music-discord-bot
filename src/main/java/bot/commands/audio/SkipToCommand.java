@@ -17,15 +17,16 @@ public class SkipToCommand extends Command
         this.name = "skipto";
         this.help = "Skips to a certain position in the queue.";
     }
+
     @Override
     protected void execute(CommandEvent event)
     {
         AudioPlayerSendHandler audioPlayerSendHandler;
         try
         {
-            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getGuild());
+            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
         }
-        catch (IllegalArgumentException e)
+        catch(IllegalArgumentException e)
         {
             event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
             return;
@@ -37,7 +38,7 @@ public class SkipToCommand extends Command
         {
             elementSkipTo = Integer.parseInt(event.getArgs());
         }
-        catch (NumberFormatException e)
+        catch(NumberFormatException e)
         {
             event.getChannel().sendMessage("**You need to provide a number to skip to.**").queue();
             return;
@@ -46,7 +47,7 @@ public class SkipToCommand extends Command
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
 
         List<AudioTrack> queue = trackScheduler.getQueue();
-        List<AudioTrack> sublistQueue = queue.subList(elementSkipTo-1, queue.size());
+        List<AudioTrack> sublistQueue = queue.subList(elementSkipTo - 1, queue.size());
 
         trackScheduler.setQueue(sublistQueue);
         audioPlayerSendHandler.getAudioPlayer().stopTrack();

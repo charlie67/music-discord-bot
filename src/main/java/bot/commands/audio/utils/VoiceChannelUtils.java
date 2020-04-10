@@ -41,10 +41,10 @@ public class VoiceChannelUtils
         audioManager.openAudioConnection(voiceState.getChannel());
     }
 
-    public static void SearchAndPlaySong(JDA jda, String argument, String guildID, String textChannelId,
-                                         String memberID, boolean playTop, AudioPlayerManager playerManager) throws IllegalArgumentException
+    public static void SearchAndPlaySong(JDA jda, String argument, String guildId, String textChannelId,
+                                         String memberId, boolean playTop, AudioPlayerManager playerManager) throws IllegalArgumentException
     {
-        if (guildID == null || guildID.equals(""))
+        if (guildId == null || guildId.equals(""))
         {
             throw new IllegalArgumentException("Guild ID is NULL");
         }
@@ -54,13 +54,13 @@ public class VoiceChannelUtils
             throw new IllegalArgumentException("message channel ID is NULL");
         }
 
-        if (memberID == null || memberID.equals(""))
+        if (memberId == null || memberId.equals(""))
         {
             throw new IllegalArgumentException("member ID is NULL");
         }
 
 
-        Guild guild = jda.getGuildById(guildID);
+        Guild guild = jda.getGuildById(guildId);
         if (guild == null)
         {
             throw new IllegalArgumentException("Guild is NULL is the ID correct?");
@@ -73,7 +73,7 @@ public class VoiceChannelUtils
         }
 
         // The user who triggered the command
-        Member member = guild.getMemberById(memberID);
+        Member member = guild.getMemberById(memberId);
         if (member == null)
         {
             throw new IllegalArgumentException("Member is NULL is the ID correct?");
@@ -123,8 +123,19 @@ public class VoiceChannelUtils
                 , argument, playTop));
     }
 
-    public static AudioPlayerSendHandler getAudioPlayerSendHandler(Guild guild) throws IllegalArgumentException
+    public static AudioPlayerSendHandler getAudioPlayerSendHandler(JDA jda, String guildId) throws IllegalArgumentException
     {
+        if (guildId == null || guildId.equals(""))
+        {
+            throw new IllegalArgumentException("Guild ID is NULL");
+        }
+
+        Guild guild = jda.getGuildById(guildId);
+        if (guild == null)
+        {
+            throw new IllegalArgumentException("Guild is NULL is the ID correct?");
+        }
+
         AudioManager audioManager = guild.getAudioManager();
 
         if (!audioManager.isConnected())

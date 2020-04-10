@@ -1,5 +1,6 @@
 package bot.controller;
 
+import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.service.BotService;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AudioController
 {
     private final BotService botService;
-    private Logger LOGGER = LogManager.getLogger(AudioController.class);
+    private final Logger LOGGER = LogManager.getLogger(AudioController.class);
 
     public AudioController(BotService botService)
     {
@@ -30,13 +31,38 @@ public class AudioController
     {
         try
         {
-            VoiceChannelUtils.SearchAndPlaySong(botService.getJda(), argument, guildId, textChannelId, memberId, top, botService.getAudioPlayerManager());
-        } catch (IllegalArgumentException e)
+            VoiceChannelUtils.SearchAndPlaySong(botService.getJda(), argument, guildId, textChannelId, memberId, top,
+                    botService.getAudioPlayerManager());
+        }
+        catch(IllegalArgumentException e)
         {
-            LOGGER.error(e);
+            LOGGER.error("Error performing play command", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/skip")
+    public ResponseEntity<String> addNewSong(@RequestParam String guildId)
+    {
+        AudioPlayerSendHandler audioPlayerSendHandler;
+        try
+        {
+            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(botService.getJda(), guildId);
+        }
+        catch(IllegalArgumentException e)
+        {
+            LOGGER.error("Error performing skip command", e);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (audioPlayerSendHandler != null)
+        {
+            audioPlayerSendHandler.getAudioPlayer().stopTrack();
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
     }
 }

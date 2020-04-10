@@ -20,9 +20,9 @@ public class ClearQueueCommand extends Command
         AudioPlayerSendHandler audioPlayerSendHandler;
         try
         {
-            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getGuild());
+            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
         }
-        catch (IllegalArgumentException e)
+        catch(IllegalArgumentException e)
         {
             event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
             return;

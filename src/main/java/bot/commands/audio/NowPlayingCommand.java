@@ -28,9 +28,9 @@ public class NowPlayingCommand extends Command
         AudioPlayerSendHandler audioPlayerSendHandler;
         try
         {
-            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getGuild());
+            audioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
         }
-        catch (IllegalArgumentException e)
+        catch(IllegalArgumentException e)
         {
             event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
             return;
@@ -53,7 +53,8 @@ public class NowPlayingCommand extends Command
         }
         eb.setAuthor("Now playing");
         eb.setTitle(np.getInfo().title, np.getInfo().uri);
-        eb.setDescription(String.format("%s / %s", TimeUtils.timeString(np.getPosition() / 1000), TimeUtils.timeString(np.getDuration() / 1000)));
+        eb.setDescription(String.format("%s / %s", TimeUtils.timeString(np.getPosition() / 1000),
+                TimeUtils.timeString(np.getDuration() / 1000)));
         event.getChannel().sendMessage(eb.build()).queue();
     }
 

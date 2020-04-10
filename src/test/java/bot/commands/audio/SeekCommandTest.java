@@ -3,14 +3,22 @@ package bot.commands.audio;
 import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockitoAnnotations;
 import testUtils.SeekCommandTestMocker;
 
 import static org.junit.Assert.assertEquals;
 
 public class SeekCommandTest
 {
+    @Before
+    public void init()
+    {
+        MockitoAnnotations.initMocks(this);
+    }
+    
     @Test
     public void seekWithHoursMinutesSeconds()
     {
