@@ -11,7 +11,7 @@ public class TextChannelResponses
     public static final String BOT_NOT_CONNECTED_TO_VOICE = "**Not currently connected to the voice channel**";
 
     public static final String SEEK_POINT_LONGER_THAN_SONG = "**Cannot seek to a position longer than the song**";
-    public static final String SEEK_COMMAND_FORMAT = "**Invalid format**, example formats: \n `0:01`, `1:45`, 2:23:55";
+    public static final String SEEK_COMMAND_FORMAT = "**Invalid format**, example formats: \n `0:01`, `1:45`, '2:23:55'";
     public static final String SEEKING_TO_INFORMATION = "**Seeking to** `%s`";
 
     public static final String NO_SUBREDDIT_PROVIDED = "**You need to provide a subreddit to search for.**";
