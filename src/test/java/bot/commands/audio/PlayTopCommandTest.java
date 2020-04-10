@@ -18,7 +18,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.List;
 
@@ -45,7 +44,6 @@ public class PlayTopCommandTest
     {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<MessageEmbed> messageEmbedArgumentCaptor = ArgumentCaptor.forClass(MessageEmbed.class);
-        Answer<Void> messageQueuedAnswer = invocation -> null;
 
         AudioTrack mockAudioTrack = new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""),
                 new YoutubeAudioSourceManager());
@@ -57,7 +55,7 @@ public class PlayTopCommandTest
 
         CommandEvent mockCommandEvent = createMockCommandEventForPlayCommandWhereAudioGetsPlayed(stringArgumentCaptor,
                 "textChannelId", "mockMemberId", "mockGuildId", "Fallen Kingdom", true,
-                audioPlayerSendHandler, messageEmbedArgumentCaptor, messageQueuedAnswer);
+                audioPlayerSendHandler, messageEmbedArgumentCaptor);
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);

@@ -2,12 +2,15 @@ package testUtils;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -158,6 +161,184 @@ public class AudioTestMocker
         return mockCommandEvent;
     }
 
+    public static CommandEvent createMockCommandEventForPlayCommandWhereBotLacksPermissionToJoinVoiceChannel(ArgumentCaptor<String> stringArgumentCaptor,
+                                                                                                             String textChannelId,
+                                                                                                             String memberId,
+                                                                                                             String guildId,
+                                                                                                             String mockVoiceChannelId,
+                                                                                                             String commandArgument,
+                                                                                                             AudioSendHandler audioPlayerSendHandler)
+    {
+        MessageAction mockMessageAction = mock(MessageAction.class);
+        doAnswer(invocation -> mockMessageAction).when(mockMessageAction).append(stringArgumentCaptor.capture());
+        doAnswer(invocation -> null).when(mockMessageAction).queue();
+
+        RestAction mockRestAction = mock(RestAction.class);
+
+        TextChannel mockTextChannel = mock(TextChannel.class);
+        when(mockTextChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
+        when(mockTextChannel.getId()).thenReturn(textChannelId);
+        when(mockTextChannel.sendTyping()).thenReturn(mockRestAction);
+
+        Member mockMember = mock(Member.class);
+        Guild mockGuild = mock(Guild.class);
+
+        VoiceChannel mockVoiceChannel = mock(VoiceChannel.class);
+        ArrayList<Member> memberList = new ArrayList<>();
+        memberList.add(mockMember);
+        when(mockVoiceChannel.getMembers()).thenReturn(memberList);
+        when(mockVoiceChannel.getId()).thenReturn(mockVoiceChannelId);
+
+        GuildVoiceState mockGuildVoiceState = mock(GuildVoiceState.class);
+        when(mockGuildVoiceState.inVoiceChannel()).thenReturn(true);
+
+        when(mockMember.getId()).thenReturn(memberId);
+        when(mockMember.getVoiceState()).thenReturn(mockGuildVoiceState);
+
+        AudioManager mockAudioManager = mock(AudioManager.class);
+        when(mockAudioManager.isConnected()).thenReturn(false);
+        when(mockAudioManager.getConnectedChannel()).thenReturn(mockVoiceChannel);
+        when(mockAudioManager.getSendingHandler()).thenReturn(audioPlayerSendHandler);
+        doAnswer(invocation ->
+        {
+            throw new InsufficientPermissionException(mockGuild, Permission.ADMINISTRATOR);
+        }).when(mockAudioManager).openAudioConnection(any());
+
+        when(mockGuild.getId()).thenReturn(guildId);
+        when(mockGuild.getTextChannelById(anyString())).thenReturn(mockTextChannel);
+        when(mockGuild.getMemberById(anyString())).thenReturn(mockMember);
+        when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
+
+        JDA mockJDA = mock(JDA.class);
+        when(mockJDA.getGuildById(anyString())).thenReturn(mockGuild);
+
+        CommandEvent mockCommandEvent = mock(CommandEvent.class);
+        when(mockCommandEvent.getJDA()).thenReturn(mockJDA);
+        when(mockCommandEvent.getArgs()).thenReturn(commandArgument);
+        when(mockCommandEvent.getChannel()).thenReturn(mockTextChannel);
+        when(mockCommandEvent.getGuild()).thenReturn(mockGuild);
+        when(mockCommandEvent.getMember()).thenReturn(mockMember);
+
+        return mockCommandEvent;
+    }
+
+    public static CommandEvent createMockCommandEventForPlayCommandWhereMemberNotInVoiceChannel(ArgumentCaptor<String> stringArgumentCaptor,
+                                                                                                String textChannelId,
+                                                                                                String memberId,
+                                                                                                String guildId,
+                                                                                                String mockVoiceChannelId,
+                                                                                                String commandArgument,
+                                                                                                AudioSendHandler audioPlayerSendHandler)
+    {
+        MessageAction mockMessageAction = mock(MessageAction.class);
+        doAnswer(invocation -> mockMessageAction).when(mockMessageAction).append(stringArgumentCaptor.capture());
+        doAnswer(invocation -> null).when(mockMessageAction).queue();
+
+        RestAction mockRestAction = mock(RestAction.class);
+
+        TextChannel mockTextChannel = mock(TextChannel.class);
+        when(mockTextChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
+        when(mockTextChannel.getId()).thenReturn(textChannelId);
+        when(mockTextChannel.sendTyping()).thenReturn(mockRestAction);
+
+        Member mockMember = mock(Member.class);
+
+        VoiceChannel mockVoiceChannel = mock(VoiceChannel.class);
+        ArrayList<Member> memberList = new ArrayList<>();
+        memberList.add(mockMember);
+        when(mockVoiceChannel.getMembers()).thenReturn(memberList);
+        when(mockVoiceChannel.getId()).thenReturn(mockVoiceChannelId);
+
+        GuildVoiceState mockGuildVoiceState = mock(GuildVoiceState.class);
+        when(mockGuildVoiceState.inVoiceChannel()).thenReturn(false);
+
+        when(mockMember.getId()).thenReturn(memberId);
+        when(mockMember.getVoiceState()).thenReturn(mockGuildVoiceState);
+
+        AudioManager mockAudioManager = mock(AudioManager.class);
+        when(mockAudioManager.isConnected()).thenReturn(false);
+        when(mockAudioManager.getConnectedChannel()).thenReturn(mockVoiceChannel);
+        when(mockAudioManager.getSendingHandler()).thenReturn(audioPlayerSendHandler);
+
+        Guild mockGuild = mock(Guild.class);
+        when(mockGuild.getId()).thenReturn(guildId);
+        when(mockGuild.getTextChannelById(anyString())).thenReturn(mockTextChannel);
+        when(mockGuild.getMemberById(anyString())).thenReturn(mockMember);
+        when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
+
+        JDA mockJDA = mock(JDA.class);
+        when(mockJDA.getGuildById(anyString())).thenReturn(mockGuild);
+
+        CommandEvent mockCommandEvent = mock(CommandEvent.class);
+        when(mockCommandEvent.getJDA()).thenReturn(mockJDA);
+        when(mockCommandEvent.getArgs()).thenReturn(commandArgument);
+        when(mockCommandEvent.getChannel()).thenReturn(mockTextChannel);
+        when(mockCommandEvent.getGuild()).thenReturn(mockGuild);
+        when(mockCommandEvent.getMember()).thenReturn(mockMember);
+
+        return mockCommandEvent;
+    }
+
+    public static CommandEvent createMockCommandEventForPlayCommandWhereVoiceChannelNeedsToBeJoinedAudioGetsPlayed(ArgumentCaptor<String> stringArgumentCaptor,
+                                                                                                                   String textChannelId,
+                                                                                                                   String memberId,
+                                                                                                                   String guildId,
+                                                                                                                   String mockVoiceChannelId,
+                                                                                                                   String commandArgument,
+                                                                                                                   AudioSendHandler audioPlayerSendHandler,
+                                                                                                                   ArgumentCaptor<VoiceChannel> voiceChannelArgumentCaptor)
+    {
+        MessageAction mockMessageAction = mock(MessageAction.class);
+        doAnswer(invocation -> mockMessageAction).when(mockMessageAction).append(stringArgumentCaptor.capture());
+        doAnswer(invocation -> null).when(mockMessageAction).queue();
+
+        RestAction mockRestAction = mock(RestAction.class);
+
+        TextChannel mockTextChannel = mock(TextChannel.class);
+        when(mockTextChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
+        when(mockTextChannel.getId()).thenReturn(textChannelId);
+        when(mockTextChannel.sendTyping()).thenReturn(mockRestAction);
+
+        Member mockMember = mock(Member.class);
+
+        VoiceChannel mockVoiceChannel = mock(VoiceChannel.class);
+        ArrayList<Member> memberList = new ArrayList<>();
+        memberList.add(mockMember);
+        when(mockVoiceChannel.getMembers()).thenReturn(memberList);
+        when(mockVoiceChannel.getId()).thenReturn(mockVoiceChannelId);
+
+        GuildVoiceState mockGuildVoiceState = mock(GuildVoiceState.class);
+        when(mockGuildVoiceState.inVoiceChannel()).thenReturn(true);
+        when(mockGuildVoiceState.getChannel()).thenReturn(mockVoiceChannel);
+
+        when(mockMember.getId()).thenReturn(memberId);
+        when(mockMember.getVoiceState()).thenReturn(mockGuildVoiceState);
+
+        AudioManager mockAudioManager = mock(AudioManager.class);
+        when(mockAudioManager.isConnected()).thenReturn(false);
+        when(mockAudioManager.getConnectedChannel()).thenReturn(mockVoiceChannel);
+        when(mockAudioManager.getSendingHandler()).thenReturn(audioPlayerSendHandler);
+        doAnswer(invocation -> null).when(mockAudioManager).openAudioConnection(voiceChannelArgumentCaptor.capture());
+
+        Guild mockGuild = mock(Guild.class);
+        when(mockGuild.getId()).thenReturn(guildId);
+        when(mockGuild.getTextChannelById(anyString())).thenReturn(mockTextChannel);
+        when(mockGuild.getMemberById(anyString())).thenReturn(mockMember);
+        when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
+
+        JDA mockJDA = mock(JDA.class);
+        when(mockJDA.getGuildById(anyString())).thenReturn(mockGuild);
+
+        CommandEvent mockCommandEvent = mock(CommandEvent.class);
+        when(mockCommandEvent.getJDA()).thenReturn(mockJDA);
+        when(mockCommandEvent.getArgs()).thenReturn(commandArgument);
+        when(mockCommandEvent.getChannel()).thenReturn(mockTextChannel);
+        when(mockCommandEvent.getGuild()).thenReturn(mockGuild);
+        when(mockCommandEvent.getMember()).thenReturn(mockMember);
+
+        return mockCommandEvent;
+    }
+
     public static CommandEvent createMockCommandEventForPlayCommandWhereAudioGetsPlayed(ArgumentCaptor<String> stringArgumentCaptor,
                                                                                         String textChannelId,
                                                                                         String memberId,
@@ -165,8 +346,7 @@ public class AudioTestMocker
                                                                                         String commandArgument,
                                                                                         boolean isVoiceConnected,
                                                                                         AudioSendHandler audioPlayerSendHandler,
-                                                                                        ArgumentCaptor<MessageEmbed> messageEmbedArgumentCaptor,
-                                                                                        Answer<Void> messageQueuedAnswer)
+                                                                                        ArgumentCaptor<MessageEmbed> messageEmbedArgumentCaptor)
     {
         MessageAction mockMessageAction = mock(MessageAction.class);
         doAnswer(invocation -> mockMessageAction).when(mockMessageAction).append(stringArgumentCaptor.capture());
