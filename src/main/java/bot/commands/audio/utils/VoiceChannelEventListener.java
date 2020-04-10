@@ -17,6 +17,7 @@ import java.util.TimerTask;
 
 public class VoiceChannelEventListener extends ListenerAdapter
 {
+    // 60 milliseconds
     public static final int VOICE_CHECK_DELAY = 60 * 1000;
 
     /**
