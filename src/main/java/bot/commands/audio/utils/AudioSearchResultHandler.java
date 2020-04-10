@@ -1,6 +1,5 @@
 package bot.commands.audio.utils;
 
-import bot.controller.AudioController;
 import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -17,13 +16,13 @@ import java.awt.Color;
 
 public class AudioSearchResultHandler implements AudioLoadResultHandler
 {
-    private Logger LOGGER = LogManager.getLogger(AudioController.class);
+    private final Logger LOGGER = LogManager.getLogger(AudioSearchResultHandler.class);
 
-    private TrackScheduler trackScheduler;
-    private AudioPlayerSendHandler audioPlayerSendHandler;
-    private String argument;
-    private boolean playTop;
-    private MessageChannel channel;
+    private final TrackScheduler trackScheduler;
+    private final AudioPlayerSendHandler audioPlayerSendHandler;
+    private final String argument;
+    private final boolean playTop;
+    private final MessageChannel channel;
 
     AudioSearchResultHandler(TrackScheduler trackScheduler, AudioPlayerSendHandler audioPlayerSendHandler,
                              MessageChannel channel, String argument, boolean playTop)
@@ -74,7 +73,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
             {
                 channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
             }
-        } catch (IllegalAccessException e)
+        }
+        catch(IllegalAccessException e)
         {
             channel.sendMessage(TextChannelResponses.ERROR_LOADING_VIDEO).queue();
             LOGGER.error("Error when searching for YouTube video encountered the wrong result type returned", e);
