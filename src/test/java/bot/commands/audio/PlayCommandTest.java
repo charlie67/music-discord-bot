@@ -64,11 +64,7 @@ public class PlayCommandTest
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<VoiceChannel> voiceChannelArgumentCaptor = ArgumentCaptor.forClass(VoiceChannel.class);
 
-        AudioTrack mockAudioTrack = new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""),
-                new YoutubeAudioSourceManager());
-
         AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
-        when(mockAudioPlayer.getPlayingTrack()).thenReturn(mockAudioTrack);
         AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer,
                 new TrackScheduler());
 
@@ -95,18 +91,10 @@ public class PlayCommandTest
 
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
-        AudioTrack mockAudioTrack = new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""),
-                new YoutubeAudioSourceManager());
-
-        AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
-        when(mockAudioPlayer.getPlayingTrack()).thenReturn(mockAudioTrack);
-        AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer,
-                new TrackScheduler());
-
         CommandEvent mockCommandEvent =
                 createMockCommandEventForPlayCommandWhereMemberNotInVoiceChannel(stringArgumentCaptor,
-                        MOCK_TEXT_CHANNEL_ID, MOCK_MEMBER_ID, MOCK_GUILD_ID, MOCK_VOICE_CHANNEL_ID, COMMAND_ARGUMENT,
-                        audioPlayerSendHandler);
+                        MOCK_TEXT_CHANNEL_ID, MOCK_MEMBER_ID, MOCK_GUILD_ID, COMMAND_ARGUMENT
+                );
 
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
@@ -125,11 +113,7 @@ public class PlayCommandTest
 
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
-        AudioTrack mockAudioTrack = new YoutubeAudioTrack(new AudioTrackInfo("1", "", 999999999, "", true, ""),
-                new YoutubeAudioSourceManager());
-
         AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
-        when(mockAudioPlayer.getPlayingTrack()).thenReturn(mockAudioTrack);
         AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer,
                 new TrackScheduler());
 
@@ -318,6 +302,5 @@ public class PlayCommandTest
         assertTrue(queue.size() > 0);
         assertTrue(queue.get(0) instanceof YoutubeAudioTrack);
         assertTrue(stringArgumentCaptor.getAllValues().get(1).startsWith("Fallen Kingdom"));
-        assertEquals("Added to queue", messageEmbedArgumentCaptor.getValue().getAuthor().getName());
     }
 }
