@@ -70,12 +70,17 @@ public class VoiceChannelEventListener extends ListenerAdapter
         AudioManager audioManager = event.getGuild().getAudioManager();
         VoiceChannel connectedChannel = audioManager.getConnectedChannel();
 
+        // because this event is triggered whenever anything happens in the server need to check to see if the bot was
+        // even connected to that voice channel
         if (connectedChannel == null || !connectedChannel.getId().equals(event.getChannelLeft().getId()))
         {
             return;
         }
 
-        boolean botAlone = membersLeft.size() == 1 && !leftMemberIsBot;
+        boolean onlyBotsLeft = isOnlyBotsLeft(event.getChannelLeft().getMembers());
+
+        // The bot can be considered alone if it's by itself or if it's alone with another bot
+        boolean botAlone = (membersLeft.size() == 1 && !leftMemberIsBot) || onlyBotsLeft;
 
         if (leftMemberIsBot || membersLeft.size() == 0)
         {
@@ -91,14 +96,30 @@ public class VoiceChannelEventListener extends ListenerAdapter
                 public void run()
                 {
                     int membersInVoiceChannel = event.getChannelLeft().getMembers().size();
+                    boolean onlyBotsLeft = isOnlyBotsLeft(event.getChannelLeft().getMembers());
 
-                    if (membersInVoiceChannel == 1)
+                    if (membersInVoiceChannel == 1 || onlyBotsLeft)
                     {
                         leaveVoiceChannel(event);
                     }
                 }
             }, VOICE_CHECK_DELAY);
         }
+    }
+
+    private boolean isOnlyBotsLeft(@Nonnull List<Member> membersInChannel)
+    {
+        boolean onlyBotsLeft = true;
+        for (Member member : membersInChannel)
+        {
+            // If the member is not a bot then set the boolean to false and break the loop
+            if (!member.getUser().isBot())
+            {
+                onlyBotsLeft = false;
+                break;
+            }
+        }
+        return onlyBotsLeft;
     }
 
     /**
