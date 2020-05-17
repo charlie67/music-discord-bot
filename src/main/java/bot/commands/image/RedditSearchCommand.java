@@ -27,7 +27,7 @@ import java.util.UUID;
 
 public class RedditSearchCommand extends Command
 {
-    private Logger LOGGER = LogManager.getLogger(RedditSearchCommand.class);
+    private final Logger LOGGER = LogManager.getLogger(RedditSearchCommand.class);
 
     @SystemEnv("REDDIT_CLIENT_ID")
     private String REDDIT_CLIENT_ID;
@@ -35,10 +35,10 @@ public class RedditSearchCommand extends Command
     @SystemEnv("REDDIT_CLIENT_SECRET")
     private String REDDIT_CLIENT_SECRET;
 
-    private RedditClient reddit;
+    private final RedditClient reddit;
 
     //maps subreddit onto links for that subreddit
-    private HashMap<String, SubredditHashComponent> subredditHashMap = new HashMap<>();
+    private final HashMap<String, SubredditHashComponent> subredditHashMap = new HashMap<>();
 
     public RedditSearchCommand()
     {
@@ -76,10 +76,11 @@ public class RedditSearchCommand extends Command
 
             if (subredditHashComponent.timeStored - System.currentTimeMillis() > 604800000)
             {
-                try{
+                try
+                {
                     subredditHashComponent = new SubredditHashComponent(System.currentTimeMillis(), subreddit);
                 }
-                catch (ApiException e)
+                catch(ApiException e)
                 {
                     event.getChannel().sendMessage(TextChannelResponses.UNABLE_TO_SEARCH_FOR_SUBREDDIT).queue();
                     LOGGER.error("Encountered error when search for subreddit", e);
@@ -94,10 +95,11 @@ public class RedditSearchCommand extends Command
         }
         else
         {
-            try{
+            try
+            {
                 subredditHashComponent = new SubredditHashComponent(System.currentTimeMillis(), subreddit);
             }
-            catch (ApiException e)
+            catch(ApiException e)
             {
                 event.getChannel().sendMessage(TextChannelResponses.UNABLE_TO_SEARCH_FOR_SUBREDDIT).queue();
                 LOGGER.error("Encountered error when searching for subreddit", e);
@@ -109,9 +111,11 @@ public class RedditSearchCommand extends Command
             }
         }
 
-        try {
+        try
+        {
             event.getChannel().sendMessage(subredditHashComponent.getNewUrlItem()).queue();
-        } catch (IllegalAccessException e)
+        }
+        catch(IllegalAccessException e)
         {
             event.getChannel().sendMessage(TextChannelResponses.UNABLE_TO_GET_POSTS_FOR_SUBREDDIT).queue();
             LOGGER.error("Encountered error when trying to get posts from subreddit", e);
@@ -144,7 +148,7 @@ public class RedditSearchCommand extends Command
 
         String getNewUrlItem() throws IllegalAccessException
         {
-            if (subredditItems.size() == 0 )
+            if (subredditItems.size() == 0)
             {
                 throw new IllegalAccessException("No items in the subreddit to display");
             }
