@@ -3,6 +3,7 @@ package bot.commands.audio;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.commands.audio.utils.YouTubeUtils;
+import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -32,7 +33,7 @@ public class NowPlayingCommand extends Command
         }
         catch(IllegalArgumentException e)
         {
-            event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
+            event.getChannel().sendMessage(TextChannelResponses.BOT_NOT_CONNECTED_TO_VOICE).queue();
             return;
         }
 
@@ -40,7 +41,7 @@ public class NowPlayingCommand extends Command
 
         if (np == null)
         {
-            event.getChannel().sendMessage("Not currently playing anything").queue();
+            event.getChannel().sendMessage(TextChannelResponses.NOTHING_CURRENTLY_PLAYING).queue();
             return;
         }
 
