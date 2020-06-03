@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.managers.AudioManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.URI;
+import java.net.URL;
 
 public class VoiceChannelUtils
 {
@@ -137,7 +137,8 @@ public class VoiceChannelUtils
     {
         try
         {
-            URI uri = new URI(urlString);
+            URL url = new URL(urlString);
+            url.toURI();
             return true;
         }
         catch(Exception exception)
