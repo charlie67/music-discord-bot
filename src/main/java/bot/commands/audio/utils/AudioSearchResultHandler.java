@@ -42,6 +42,13 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     @Override
     public void playlistLoaded(AudioPlaylist playlist)
     {
+        if (playlist.isSearchResult())
+        {
+            AudioTrack audioTrack = playlist.getTracks().get(0);
+            queueTrackAndStartNextSong(audioTrack);
+            return;
+        }
+
         for (AudioTrack track : playlist.getTracks())
         {
             trackScheduler.queue(track, playTop);
