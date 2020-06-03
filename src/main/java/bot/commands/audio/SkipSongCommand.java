@@ -30,6 +30,9 @@ public class SkipSongCommand extends Command
 
         if (audioPlayerSendHandler != null)
         {
+            // disable looping
+            audioPlayerSendHandler.getTrackScheduler().setLoopTrack(null);
+
             audioPlayerSendHandler.getAudioPlayer().stopTrack();
             event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
         }
