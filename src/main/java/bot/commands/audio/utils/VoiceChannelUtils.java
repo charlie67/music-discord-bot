@@ -10,9 +10,15 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.net.URI;
 
 public class VoiceChannelUtils
 {
+    private static final Logger LOGGER = LogManager.getLogger(VoiceChannelUtils.class);
+
     /**
      * Connect to the voice channel that member is in
      *
@@ -118,9 +124,26 @@ public class VoiceChannelUtils
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
 
-
+        if (!isValidURL(argument))
+        {
+            LOGGER.info("argument is not a url so prepending ytsearch");
+            argument = "ytsearch: ".concat(argument);
+        }
         playerManager.loadItem(argument, new AudioSearchResultHandler(trackScheduler, audioPlayerSendHandler, channel
                 , argument, playTop));
+    }
+
+    private static boolean isValidURL(String urlString)
+    {
+        try
+        {
+            URI uri = new URI(urlString);
+            return true;
+        }
+        catch(Exception exception)
+        {
+            return false;
+        }
     }
 
     public static AudioPlayerSendHandler getAudioPlayerSendHandler(JDA jda, String guildId) throws IllegalArgumentException

@@ -1,7 +1,6 @@
 package bot.commands.audio.utils;
 
 import bot.utils.GetSystemEnvironmentOrDefaultValue;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -12,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import org.apache.http.NameValuePair;
@@ -28,9 +28,10 @@ import java.util.Random;
 
 public class YouTubeUtils
 {
-    private static Logger LOGGER = LogManager.getLogger(YouTubeUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(YouTubeUtils.class);
 
-    static AudioTrack searchForVideo(String argument, int timesCalled) throws IllegalAccessException
+    @Deprecated
+    static AudioTrack searchForVideo(String argument) throws IllegalAccessException
     {
         LOGGER.info("Searching for {}", argument);
 
@@ -58,12 +59,13 @@ public class YouTubeUtils
         }
         else
         {
-            // Try again if this is the first failure
-            if (timesCalled == 0)
+            if (result instanceof AudioReference)
             {
-                return searchForVideo(argument, 1);
+                LOGGER.error("Trying to search for a video but the result is an AudioReference, uri is {}, identifier is " +
+                        "{}", ((AudioReference) result).getUri(), ((AudioReference) result).getIdentifier());
             }
-            throw new IllegalAccessException("Youtube Search Result is not instance of BasicAudioPlaylist " + result.getClass().toString());
+
+            throw new IllegalAccessException("YouTube Search Result is not instance of BasicAudioPlaylist " + result.getClass().toString());
         }
 
     }
@@ -85,18 +87,21 @@ public class YouTubeUtils
         }
     }
 
-    static AudioTrack getRelatedVideo(String videoID) throws IOException, IllegalAccessException, GoogleJsonResponseException
+    static AudioTrack getRelatedVideo(String videoID) throws IOException
     {
+        LOGGER.info("finding related video for videoID {}", videoID);
         YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request ->
         {
         }).setApplicationName("bot").build();
 
         // Define the API request for retrieving search results.
-        YouTube.Search.List search = youtube.search().list("id,snippet");
+        YouTube.Search.List search = youtube.search().list("id");
 
         //set the API key
         search.setKey(GetSystemEnvironmentOrDefaultValue.get("YOUTUBE_API_KEY"));
         search.setRelatedToVideoId(videoID);
+        search.setEventType("none");
+        search.setSafeSearch("none");
         search.setMaxResults(4L);
 
         // Restrict the search results to only include videos. See:
@@ -105,11 +110,14 @@ public class YouTubeUtils
 
         SearchListResponse searchResponse = search.execute();
         List<SearchResult> searchResultList = searchResponse.getItems();
+        LOGGER.info("Found {} related videos", searchResultList.size());
 
         SearchResult video = searchResultList.get(new Random().nextInt(searchResultList.size()));
 
         String id = (String) ((ResourceId) video.get("id")).get("videoId");
+        LOGGER.info("Found videoID {} as the related video", id);
 
-        return searchForVideo(id, 0);
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
+        return (AudioTrack) youtubeAudioSourceManager.loadTrackWithVideoId(id, true);
     }
 }

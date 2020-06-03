@@ -1,6 +1,5 @@
 package bot.commands.audio.utils;
 
-import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -60,27 +59,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     @Override
     public void noMatches()
     {
-        //This means that the argument didn't match a particular source so search for it on youtube instead
-        try
-        {
-            AudioTrack track = YouTubeUtils.searchForVideo(argument, 0);
-
-            if (track != null)
-            {
-                queueTrackAndStartNextSong(track);
-            }
-            else
-            {
-                channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
-            }
-        }
-        catch(IllegalAccessException e)
-        {
-            channel.sendMessage(TextChannelResponses.ERROR_LOADING_VIDEO).queue();
-            LOGGER.error("Error when searching for YouTube video encountered the wrong result type returned", e);
-        }
-
-
+        channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
+        LOGGER.info("Couldn't find a match for {}", argument);
     }
 
     private void queueTrackAndStartNextSong(AudioTrack track)
