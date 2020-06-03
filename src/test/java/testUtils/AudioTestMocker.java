@@ -330,7 +330,7 @@ public class AudioTestMocker
 
         TextChannel mockTextChannel = mock(TextChannel.class);
         when(mockTextChannel.sendMessage(stringArgumentCaptor.capture())).thenReturn(mockMessageAction);
-        when(mockTextChannel.sendMessage(messageEmbedArgumentCaptor.capture())).thenReturn(mockMessageAction);
+//        when(mockTextChannel.sendMessage(messageEmbedArgumentCaptor.capture())).thenReturn(mockMessageAction);
         when(mockTextChannel.getId()).thenReturn(textChannelId);
         when(mockTextChannel.sendTyping()).thenReturn(mockRestAction);
 
