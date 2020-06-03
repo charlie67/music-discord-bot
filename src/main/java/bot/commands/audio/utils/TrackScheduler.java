@@ -55,7 +55,7 @@ public class TrackScheduler extends AudioEventAdapter
                 player.playTrack(nextTrack());
 
             }
-            catch(IOException | IllegalAccessException e)
+            catch(IOException | FriendlyException e)
             {
                 LOGGER.error("Encountered error when trying to find a related video", e);
             }

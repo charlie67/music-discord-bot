@@ -10,6 +10,7 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -87,7 +88,7 @@ public class YouTubeUtils
         }
     }
 
-    static AudioTrack getRelatedVideo(String videoID) throws IOException
+    static AudioTrack getRelatedVideo(String videoID) throws IOException, FriendlyException
     {
         LOGGER.info("finding related video for videoID {}", videoID);
         YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request ->
