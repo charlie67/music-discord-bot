@@ -16,7 +16,7 @@ public class YouTubeUtilsTest
     @Test
     public void searchForVideo() throws IllegalAccessException
     {
-        AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez", 0);
+        AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez");
 
         assert audioTrack instanceof YoutubeAudioTrack;
 
@@ -28,7 +28,7 @@ public class YouTubeUtilsTest
     @Test
     public void getYoutubeThumbnail() throws IllegalAccessException
     {
-        AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez", 0);
+        AudioTrack audioTrack = YouTubeUtils.searchForVideo("Fallen kingdom captain sparklez");
         assertNotNull(audioTrack);
 
         String thumbnail = YouTubeUtils.getYoutubeThumbnail(audioTrack);

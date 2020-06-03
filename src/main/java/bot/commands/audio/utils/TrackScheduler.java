@@ -18,6 +18,8 @@ public class TrackScheduler extends AudioEventAdapter
     private List<AudioTrack> queue = new ArrayList<>();
     private Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
 
+    private AudioTrack loopTrack = null;
+
     private long durationInMilliSeconds = 0;
 
     @Override
@@ -27,7 +29,13 @@ public class TrackScheduler extends AudioEventAdapter
 
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
         {
-        return;
+            return;
+        }
+
+        if (loopTrack != null)
+        {
+            player.playTrack(loopTrack.makeClone());
+            return;
         }
 
         if (queue.size() > 0)
@@ -46,7 +54,8 @@ public class TrackScheduler extends AudioEventAdapter
                 queue.add(nextTrack);
                 player.playTrack(nextTrack());
 
-            } catch (IOException | IllegalAccessException e)
+            }
+            catch(IOException | IllegalAccessException e)
             {
                 LOGGER.error("Encountered error when trying to find a related video", e);
             }
@@ -112,5 +121,15 @@ public class TrackScheduler extends AudioEventAdapter
     public long getDurationInMilliSeconds()
     {
         return durationInMilliSeconds;
+    }
+
+    public AudioTrack getLoopTrack()
+    {
+        return loopTrack;
+    }
+
+    public void setLoopTrack(AudioTrack loopTrack)
+    {
+        this.loopTrack = loopTrack;
     }
 }

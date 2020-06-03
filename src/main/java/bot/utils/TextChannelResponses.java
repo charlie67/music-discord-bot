@@ -8,6 +8,11 @@ public class TextChannelResponses
     public static final String DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL = "**Do not have permission to join your voice " +
             "channel**";
 
+    public static final String NOTHING_CURRENTLY_PLAYING = "**Nothing is currently playing**";
+
+    public static final String LOOP_ENABLED = "**Loop enabled!**";
+    public static final String LOOP_DISABLED = "**Loop disabled!**";
+
     public static final String BOT_NOT_CONNECTED_TO_VOICE = "**Not currently connected to the voice channel**";
 
     public static final String SEEK_POINT_LONGER_THAN_SONG = "**Cannot seek to a position longer than the song**";

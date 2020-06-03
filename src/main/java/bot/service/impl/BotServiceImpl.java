@@ -3,6 +3,7 @@ package bot.service.impl;
 import bot.commands.audio.ClearQueueCommand;
 import bot.commands.audio.JoinCommand;
 import bot.commands.audio.LeaveCommand;
+import bot.commands.audio.LoopCommand;
 import bot.commands.audio.NowPlayingCommand;
 import bot.commands.audio.PauseCommand;
 import bot.commands.audio.PlayCommand;
@@ -62,7 +63,7 @@ public class BotServiceImpl implements BotService
                 new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
-                new PauseCommand(), new ResumeCommand());
+                new PauseCommand(), new ResumeCommand(), new LoopCommand());
 
         CommandClient client = builder.build();
 
