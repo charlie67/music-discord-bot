@@ -299,7 +299,7 @@ public class PlayCommandTest
 
         await().atMost(10, SECONDS).until(() -> audioPlayerSendHandler.getTrackScheduler().getQueue().size() > 0);
         List<AudioTrack> queue = audioPlayerSendHandler.getTrackScheduler().getQueue();
-        assertTrue(queue.size() > 0);
+        assertEquals(1, queue.size());
         assertTrue(queue.get(0) instanceof YoutubeAudioTrack);
         assertTrue(stringArgumentCaptor.getAllValues().get(1).startsWith("Fallen Kingdom"));
     }

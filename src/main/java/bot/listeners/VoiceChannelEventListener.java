@@ -1,5 +1,6 @@
-package bot.commands.audio.utils;
+package bot.listeners;
 
+import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.utils.Injector;
 import bot.utils.SystemEnv;
 import net.dv8tion.jda.api.entities.Member;
