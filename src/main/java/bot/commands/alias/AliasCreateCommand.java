@@ -43,7 +43,7 @@ public class AliasCreateCommand extends Command
         String[] arguments = event.getArgs().split("\\s+");
 
         //check that at least 3 arguments are specified
-        if (arguments.length < 3)
+        if (arguments.length < 2)
         {
             event.getChannel().sendMessage(NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS).queue();
             return;
@@ -51,7 +51,7 @@ public class AliasCreateCommand extends Command
 
         String aliasName = arguments[0].toLowerCase();
         String aliasCommand = arguments[1].toLowerCase();
-        String aliasCommandArguments = arguments[2];
+        String aliasCommandArguments = arguments.length < 3 ? " " : arguments[2];
 
         if (allCurrentCommandNames.contains(aliasName))
         {
