@@ -1,5 +1,8 @@
 package bot.commands.alias;
 
+import com.jagrosh.jdautilities.command.CommandClient;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
 import java.util.HashMap;
 
 /**
@@ -17,10 +20,10 @@ public class GuildAliasHolder
         return aliasNameToAliasObject.containsKey(command);
     }
 
-    public void executeAlias(String command)
+    public void executeAlias(String command, MessageReceivedEvent event, CommandClient commandClient)
     {
         Alias alias = aliasNameToAliasObject.get(command);
-        alias.execute();
+        alias.execute(event, commandClient);
     }
 
     public void addCommandWithAlias(String command, Alias alias)

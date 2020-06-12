@@ -6,8 +6,10 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.Set;
 
+import static bot.utils.TextChannelResponses.ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND;
 import static bot.utils.TextChannelResponses.ALIAS_CREATED;
 import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
@@ -18,6 +20,8 @@ public class AliasCreateCommand extends Command
 
 
     private Set<String> allCurrentCommandNames;
+
+    private HashMap<String, Command> commandNameToCommandMap;
 
     private final AliasCommandEventListener aliasCommandEventListener;
 
@@ -55,11 +59,18 @@ public class AliasCreateCommand extends Command
             return;
         }
 
-        String aliasType = String.valueOf(aliasCommand);
+        // This is the command that the alias will execute when it is called
+        Command command = commandNameToCommandMap.get(aliasCommand);
+
+        if (command == null)
+        {
+            event.getChannel().sendMessage(String.format(ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND, aliasCommand)).queue();
+            return;
+        }
 
         String guildId = event.getGuild().getId();
 
-        Alias alias = new Alias(aliasName, aliasType, aliasCommandArguments, guildId);
+        Alias alias = new Alias(aliasName, aliasCommandArguments, command);
 
         GuildAliasHolder guildAliasHolder = aliasCommandEventListener.getGuildAliasHolderForGuildWithId(guildId);
 
@@ -81,4 +92,8 @@ public class AliasCreateCommand extends Command
         this.allCurrentCommandNames = allCurrentCommandNames;
     }
 
+    public void setCommandNameToCommandMap(HashMap<String, Command> commandNameToCommandMap)
+    {
+        this.commandNameToCommandMap = commandNameToCommandMap;
+    }
 }

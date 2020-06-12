@@ -78,6 +78,8 @@ public class BotServiceImpl implements BotService
                 new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand);
 
         CommandClient client = builder.build();
+        aliasCommandEventListener.setCommandClient(client);
+
         HashMap<String, Command> commandNameToCommandMap = new HashMap<>();
 
         Set<String> commandNameSet = new HashSet<>();
@@ -94,7 +96,7 @@ public class BotServiceImpl implements BotService
         });
 
         aliasCreateCommand.setAllCurrentCommandNames(commandNameSet);
-        // set commandNameToCommandMap onto the alias create command here
+        aliasCreateCommand.setCommandNameToCommandMap(commandNameToCommandMap);
 
         this.jda = JDABuilder.create(DISCORD_BOT_KEY,
                 GUILD_MEMBERS, GUILD_VOICE_STATES, GUILD_MESSAGES,

@@ -2,6 +2,7 @@ package bot.listeners;
 
 import bot.commands.alias.GuildAliasHolder;
 import bot.service.impl.BotServiceImpl;
+import com.jagrosh.jdautilities.command.CommandClient;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -10,10 +11,11 @@ import java.util.HashMap;
 
 public class AliasCommandEventListener extends ListenerAdapter
 {
-    HashMap<String, GuildAliasHolder> guildIdToGuildAliasHolderMap = new HashMap<>();
+    private final HashMap<String, GuildAliasHolder> guildIdToGuildAliasHolderMap = new HashMap<>();
+
+    private CommandClient commandClient;
 
     @Override
-
     public void onMessageReceived(@Nonnull MessageReceivedEvent event)
     {
         // Return if it's a bot
@@ -37,11 +39,11 @@ public class AliasCommandEventListener extends ListenerAdapter
             rawContent = rawContent.replace(BotServiceImpl.COMMAND_PREFIX, "");
             String[] parts = rawContent.split("\\s+");
 
-            String command = parts[0];
+            String commandAsString = parts[0];
 
-            if (guildAliasHolder.doesAliasExistForCommand(command))
+            if (guildAliasHolder.doesAliasExistForCommand(commandAsString))
             {
-                guildAliasHolder.executeAlias(command);
+                guildAliasHolder.executeAlias(commandAsString, event, commandClient);
             }
         }
     }
@@ -63,4 +65,8 @@ public class AliasCommandEventListener extends ListenerAdapter
         guildIdToGuildAliasHolderMap.put(guildId, guildAliasHolder);
     }
 
+    public void setCommandClient(CommandClient commandClient)
+    {
+        this.commandClient = commandClient;
+    }
 }
