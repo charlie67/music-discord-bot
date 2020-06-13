@@ -87,6 +87,11 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     @Override
     public void loadFailed(FriendlyException throwable)
     {
+        LOGGER.error("Failed to load video", throwable);
+        if (throwable.severity == FriendlyException.Severity.COMMON)
+        {
+            channel.sendMessage(String.format("Loading failed for that video %s", throwable.getMessage())).queue();
+        }
         channel.sendMessage("Loading failed for that video").queue();
     }
 
