@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -315,6 +317,8 @@ public class AliasCreateCommandTest
     @Test
     public void failTest()
     {
+        Logger LOGGER = LogManager.getLogger(AliasCreateCommandTest.class);
+        LOGGER.info("test log message");
         fail();
     }
 }
