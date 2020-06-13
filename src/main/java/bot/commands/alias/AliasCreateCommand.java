@@ -6,6 +6,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public class AliasCreateCommand extends Command
 
         String aliasName = arguments[0].toLowerCase();
         String aliasCommand = arguments[1].toLowerCase();
-        String aliasCommandArguments = arguments.length < 3 ? " " : arguments[2];
+        String aliasCommandArguments = arguments.length < 3 ? " " : sliceArgumentsToString(arguments, 2, arguments.length);
 
         if (allCurrentCommandNames.contains(aliasName))
         {
@@ -85,6 +86,22 @@ public class AliasCreateCommand extends Command
 
         LOGGER.info("Created alias for server {} with name {} that executes command {} with arguments {}", guildId,
                 aliasName, aliasCommand, aliasCommandArguments);
+    }
+
+    String sliceArgumentsToString(String[] arr, int start, int end)
+    {
+
+        // Get the slice of the Array
+        String[] slice = new String[end - start];
+
+        // Copy elements of arr to slice
+        for (int i = 0; i < slice.length; i++)
+        {
+            slice[i] = arr[start + i];
+        }
+
+        // return the slice
+        return Arrays.toString(slice).replace(",", "").replace("[", "").replace("]", "");
     }
 
     public void setAllCurrentCommandNames(Set<String> allCurrentCommandNames)

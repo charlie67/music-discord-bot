@@ -30,4 +30,10 @@ public class GuildAliasHolder
     {
         aliasNameToAliasObject.put(command, alias);
     }
+
+    public Alias getCommandWithAlias(String command)
+    {
+        return aliasNameToAliasObject.get(command);
+    }
+
 }

@@ -11,7 +11,7 @@ public class Alias
 {
     private final Logger LOGGER = LogManager.getLogger(Alias.class);
 
-    private final String aliasCommandArguments;
+    final String aliasCommandArguments;
 
     private final String aliasName;
 

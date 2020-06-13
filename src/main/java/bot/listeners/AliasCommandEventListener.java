@@ -37,13 +37,10 @@ public class AliasCommandEventListener extends ListenerAdapter
         if (rawContent.startsWith(BotServiceImpl.COMMAND_PREFIX))
         {
             rawContent = rawContent.replace(BotServiceImpl.COMMAND_PREFIX, "");
-            String[] parts = rawContent.split("\\s+");
 
-            String commandAsString = parts[0];
-
-            if (guildAliasHolder.doesAliasExistForCommand(commandAsString))
+            if (guildAliasHolder.doesAliasExistForCommand(rawContent))
             {
-                guildAliasHolder.executeAlias(commandAsString, event, commandClient);
+                guildAliasHolder.executeAlias(rawContent, event, commandClient);
             }
         }
     }
