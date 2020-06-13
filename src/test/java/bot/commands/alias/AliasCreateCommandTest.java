@@ -26,6 +26,7 @@ import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAN
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -309,5 +310,11 @@ public class AliasCreateCommandTest
 
         assertEquals(textChannelArgumentCaptor.getValue(), String.format(ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND,
                 ALIAS_COMMAND));
+    }
+
+    @Test
+    public void failTest()
+    {
+        fail();
     }
 }
