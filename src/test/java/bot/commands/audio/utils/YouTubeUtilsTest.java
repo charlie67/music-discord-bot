@@ -44,5 +44,7 @@ public class YouTubeUtilsTest
         AudioTrack audioTrack = YouTubeUtils.getRelatedVideo("ImnnGjR6RWo");
 
         assertTrue(audioTrack instanceof YoutubeAudioTrack);
+
+        assertNotNull(audioTrack.getIdentifier());
     }
 }
