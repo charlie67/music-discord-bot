@@ -13,7 +13,7 @@ public class GuildAliasHolder
     /**
      * This converts a alias name to a command object that can be executed
      */
-    HashMap<String, Alias> aliasNameToAliasObject = new HashMap<>();
+    private final HashMap<String, Alias> aliasNameToAliasObject = new HashMap<>();
 
     public boolean doesAliasExistForCommand(String command)
     {
@@ -36,4 +36,8 @@ public class GuildAliasHolder
         return aliasNameToAliasObject.get(command);
     }
 
+    public HashMap<String, Alias> getAliasNameToAliasObject()
+    {
+        return aliasNameToAliasObject;
+    }
 }

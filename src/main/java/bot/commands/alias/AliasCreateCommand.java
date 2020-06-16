@@ -13,6 +13,7 @@ import java.util.Set;
 import static bot.utils.TextChannelResponses.ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND;
 import static bot.utils.TextChannelResponses.ALIAS_CREATED;
 import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND;
+import static bot.utils.TextChannelResponses.HOW_TO_MAKE_ALIAS;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
 
 public class AliasCreateCommand extends Command
@@ -30,7 +31,7 @@ public class AliasCreateCommand extends Command
     {
         this.name = "aliascreate";
         this.aliases = new String[]{"alias", "ac"};
-        this.help = "Create a command alias";
+        this.help = "Create a new alias for a command. Created using " + HOW_TO_MAKE_ALIAS;
 
         this.aliasCommandEventListener = aliasCommandEventListener;
     }
@@ -95,10 +96,7 @@ public class AliasCreateCommand extends Command
         String[] slice = new String[end - start];
 
         // Copy elements of arr to slice
-        for (int i = 0; i < slice.length; i++)
-        {
-            slice[i] = arr[start + i];
-        }
+        if (slice.length >= 0) System.arraycopy(arr, start, slice, 0, slice.length);
 
         // return the slice
         return Arrays.toString(slice).replace(",", "").replace("[", "").replace("]", "");

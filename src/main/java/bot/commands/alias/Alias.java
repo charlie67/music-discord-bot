@@ -11,7 +11,7 @@ public class Alias
 {
     private final Logger LOGGER = LogManager.getLogger(Alias.class);
 
-    final String aliasCommandArguments;
+    private final String aliasCommandArguments;
 
     private final String aliasName;
 
@@ -29,5 +29,20 @@ public class Alias
     {
         LOGGER.info("Executing alias for command {}", aliasName);
         command.run(new CommandEvent(event, aliasCommandArguments, commandClient));
+    }
+
+    public String getAliasCommandArguments()
+    {
+        return aliasCommandArguments;
+    }
+
+    public String getAliasName()
+    {
+        return aliasName;
+    }
+
+    public Command getCommand()
+    {
+        return command;
     }
 }
