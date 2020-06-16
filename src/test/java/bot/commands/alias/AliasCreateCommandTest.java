@@ -84,7 +84,7 @@ public class AliasCreateCommandTest
         assertTrue(guildAliasHolder.doesAliasExistForCommand(ALIAS_NAME));
         Alias alias = guildAliasHolder.getCommandWithAlias(ALIAS_NAME);
 
-        assertEquals(ALIAS_ARGUMENTS, alias.aliasCommandArguments);
+        assertEquals(ALIAS_ARGUMENTS, alias.getAliasCommandArguments());
 
         assertEquals(textChannelArgumentCaptor.getValue(), String.format(ALIAS_CREATED, ALIAS_NAME, ALIAS_COMMAND,
                 ALIAS_ARGUMENTS));
@@ -119,7 +119,7 @@ public class AliasCreateCommandTest
         assertTrue(guildAliasHolder.doesAliasExistForCommand(ALIAS_NAME));
         Alias alias = guildAliasHolder.getCommandWithAlias(ALIAS_NAME);
 
-        assertEquals(ALIAS_ARGUMENTS, alias.aliasCommandArguments);
+        assertEquals(ALIAS_ARGUMENTS, alias.getAliasCommandArguments());
 
         assertEquals(textChannelArgumentCaptor.getValue(), String.format(ALIAS_CREATED, ALIAS_NAME, ALIAS_COMMAND,
                 ALIAS_ARGUMENTS));
@@ -154,7 +154,7 @@ public class AliasCreateCommandTest
         assertTrue(guildAliasHolder.doesAliasExistForCommand(ALIAS_NAME));
         Alias alias = guildAliasHolder.getCommandWithAlias(ALIAS_NAME);
 
-        assertEquals(ALIAS_ARGUMENTS, alias.aliasCommandArguments);
+        assertEquals(ALIAS_ARGUMENTS, alias.getAliasCommandArguments());
 
         assertEquals(textChannelArgumentCaptor.getValue(), String.format(ALIAS_CREATED, ALIAS_NAME, ALIAS_COMMAND,
                 ALIAS_ARGUMENTS));
