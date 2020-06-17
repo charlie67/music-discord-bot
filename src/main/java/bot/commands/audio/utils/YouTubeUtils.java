@@ -34,6 +34,10 @@ public class YouTubeUtils
     @Deprecated
     static AudioTrack searchForVideo(String argument) throws IllegalAccessException
     {
+        if (argument.startsWith("ytsearch:"))
+        {
+            argument = argument.replace("ytsearch:", "");
+        }
         LOGGER.info("Searching for {}", argument);
 
         YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(true);
