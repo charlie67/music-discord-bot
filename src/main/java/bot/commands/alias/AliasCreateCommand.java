@@ -19,8 +19,7 @@ import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_AL
 public class AliasCreateCommand extends Command
 {
     private final Logger LOGGER = LogManager.getLogger(AliasCreateCommand.class);
-
-
+    
     private Set<String> allCurrentCommandNames;
 
     private HashMap<String, Command> commandNameToCommandMap;
