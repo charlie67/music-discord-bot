@@ -84,7 +84,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         catch(IllegalAccessException e)
         {
             channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
-            LOGGER.error("Couldn't find a match for {}", argument);
+            LOGGER.error("Couldn't find a match for {}", argument, e);
         }
     }
 
