@@ -5,13 +5,17 @@ import bot.commands.audio.utils.TrackScheduler;
 import bot.utils.UnicodeEmote;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NOT_A_NUMBER;
+import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_TRACK_TO_REMOVE;
 
 public class RemoveCommand extends Command
 {
+    private final Logger LOGGER = LogManager.getLogger(RemoveCommand.class);
+
     public RemoveCommand()
     {
         this.name = "remove";
@@ -25,7 +29,7 @@ public class RemoveCommand extends Command
 
         if (argument.isEmpty())
         {
-            event.getChannel().sendMessage("Need to provide something to remove").queue();
+            event.getChannel().sendMessage(REMOVE_COMMAND_NOT_A_NUMBER).queue();
             return;
         }
 
@@ -34,32 +38,33 @@ public class RemoveCommand extends Command
         {
             trackToRemove = Integer.parseInt(argument);
         }
-        catch (NumberFormatException e)
+        catch(NumberFormatException e)
         {
-            event.getChannel().sendMessage("That's not a number").queue();
+            event.getChannel().sendMessage(String.format(REMOVE_COMMAND_NOT_A_NUMBER, argument)).queue();
             return;
         }
+        LOGGER.info("Remove track {} from the queue", trackToRemove);
 
         AudioManager audioManager = event.getGuild().getAudioManager();
 
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
 
-        if (audioPlayerSendHandler==null)
+        if (audioPlayerSendHandler == null)
         {
             return;
         }
 
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
 
-        List<AudioTrack> queue = trackScheduler.getQueue();
-
-        if (trackToRemove > queue.size())
+        try
         {
-            event.getChannel().sendMessage(String.format("There is not a track at position %d on the queue", trackToRemove)).queue();
+            trackScheduler.remove(trackToRemove - 1);
+        }
+        catch(IndexOutOfBoundsException e)
+        {
+            event.getChannel().sendMessage(String.format(REMOVE_COMMAND_NO_TRACK_TO_REMOVE, trackToRemove)).queue();
             return;
         }
-
-        queue.remove(trackToRemove);
         event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
     }
 }
