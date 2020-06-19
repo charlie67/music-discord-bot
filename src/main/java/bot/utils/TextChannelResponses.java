@@ -8,6 +8,10 @@ public class TextChannelResponses
     public static final String DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL = "**Do not have permission to join your voice " +
             "channel**";
 
+    public static final String REMOVE_COMMAND_NO_ARGUMENT = "**No song was provided to remove**";
+    public static final String REMOVE_COMMAND_NOT_A_NUMBER = "**%s is not a number**";
+    public static final String REMOVE_COMMAND_NO_TRACK_TO_REMOVE = "**There is not a track at position %d on the queue**";
+
     public static final String NOTHING_CURRENTLY_PLAYING = "**Nothing is currently playing**";
 
     public static final String LOOP_ENABLED = "**Loop enabled!**";

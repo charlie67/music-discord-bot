@@ -33,6 +33,7 @@ public class LeaveCommand extends Command
 
         audioPlayerSendHandler.getAudioPlayer().stopTrack();
         audioManager.closeAudioConnection();
+        audioPlayerSendHandler.getTrackScheduler().clearQueue();
         event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
     }
 }

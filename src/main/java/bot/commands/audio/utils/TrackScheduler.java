@@ -16,7 +16,7 @@ import java.util.List;
 public class TrackScheduler extends AudioEventAdapter
 {
     private List<AudioTrack> queue = new ArrayList<>();
-    private Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
+    private final Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
 
     private AudioTrack loopTrack = null;
 
@@ -90,7 +90,7 @@ public class TrackScheduler extends AudioEventAdapter
         queue.clear();
     }
 
-    int getQueueSize()
+    public int getQueueSize()
     {
         return queue.size();
     }
@@ -131,5 +131,10 @@ public class TrackScheduler extends AudioEventAdapter
     public void setLoopTrack(AudioTrack loopTrack)
     {
         this.loopTrack = loopTrack;
+    }
+
+    public void remove(int trackToRemove)
+    {
+        queue.remove(trackToRemove);
     }
 }
