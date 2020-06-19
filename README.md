@@ -10,3 +10,4 @@ Java Discord bot
 | REDDIT_CLIENT_ID     | The Reddit API client ID                               |
 | REDDIT_CLIENT_SECRET | The Reddit API client secret                             |
 | OWNER_ID             | The Discord ID of the bot owner                   |
+| MONGO_LOCATION       | The URL of the Mongo database
