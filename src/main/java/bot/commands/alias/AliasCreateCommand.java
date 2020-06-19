@@ -1,6 +1,8 @@
 package bot.commands.alias;
 
+import bot.Entities.GuildAliasHolderEntity;
 import bot.listeners.AliasCommandEventListener;
+import bot.repositories.GuildAliasHolderEntityRepository;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
@@ -19,20 +21,24 @@ import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_AL
 public class AliasCreateCommand extends Command
 {
     private final Logger LOGGER = LogManager.getLogger(AliasCreateCommand.class);
-    
+
     private Set<String> allCurrentCommandNames;
+
+    private final GuildAliasHolderEntityRepository guildAliasHolderEntityRepository;
 
     private HashMap<String, Command> commandNameToCommandMap;
 
     private final AliasCommandEventListener aliasCommandEventListener;
 
-    public AliasCreateCommand(AliasCommandEventListener aliasCommandEventListener)
+    public AliasCreateCommand(AliasCommandEventListener aliasCommandEventListener,
+                              GuildAliasHolderEntityRepository guildAliasHolderEntityRepository)
     {
         this.name = "aliascreate";
         this.aliases = new String[]{"alias", "ac"};
         this.help = "Create a new alias for a command. Created using " + HOW_TO_MAKE_ALIAS;
 
         this.aliasCommandEventListener = aliasCommandEventListener;
+        this.guildAliasHolderEntityRepository = guildAliasHolderEntityRepository;
     }
 
     @Override
@@ -77,11 +83,13 @@ public class AliasCreateCommand extends Command
 
         if (guildAliasHolder == null)
         {
-            guildAliasHolder = new GuildAliasHolder();
+            guildAliasHolder = new GuildAliasHolder(guildId);
             aliasCommandEventListener.putGuildAliasHolderForGuildWithId(guildId, guildAliasHolder);
         }
 
         guildAliasHolder.addCommandWithAlias(aliasName, alias);
+        guildAliasHolderEntityRepository.save((GuildAliasHolderEntity) guildAliasHolder);
+
         event.getChannel().sendMessage(String.format(ALIAS_CREATED, aliasName, aliasCommand, aliasCommandArguments)).queue();
 
         LOGGER.info("Created alias for server {} with name {} that executes command {} with arguments {}", guildId,
@@ -90,7 +98,6 @@ public class AliasCreateCommand extends Command
 
     String sliceArgumentsToString(String[] arr, int start, int end)
     {
-
         // Get the slice of the Array
         String[] slice = new String[end - start];
 

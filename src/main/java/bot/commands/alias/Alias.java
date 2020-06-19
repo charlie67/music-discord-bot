@@ -1,26 +1,35 @@
 package bot.commands.alias;
 
+import bot.Entities.AliasEntity;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.annotation.Transient;
 
-public class Alias
+public class Alias extends AliasEntity
 {
+    @Transient
     private final Logger LOGGER = LogManager.getLogger(Alias.class);
 
-    private final String aliasCommandArguments;
+    @Transient
+    private Command command;
 
-    private final String aliasName;
+    public Alias()
+    {
 
-    private final Command command;
+    }
+
+    public Alias(AliasEntity aliasEntity, Command command)
+    {
+        this(aliasEntity.getAliasName(), aliasEntity.getAliasCommandArguments(), command);
+    }
 
     public Alias(String aliasName, String aliasCommandArguments, Command command)
     {
-        this.aliasName = aliasName;
-        this.aliasCommandArguments = aliasCommandArguments;
+        super(aliasName, aliasCommandArguments, command.getName());
 
         this.command = command;
     }
@@ -29,11 +38,6 @@ public class Alias
     {
         LOGGER.info("Executing alias for command {}", aliasName);
         command.run(new CommandEvent(event, aliasCommandArguments, commandClient));
-    }
-
-    public String getAliasCommandArguments()
-    {
-        return aliasCommandArguments;
     }
 
     public String getAliasName()
