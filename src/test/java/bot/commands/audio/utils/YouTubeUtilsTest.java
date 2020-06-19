@@ -39,6 +39,7 @@ public class YouTubeUtilsTest
     }
 
     @Test
+    @Ignore
     public void getRelatedVideoSuccessfullyFindsAVideo() throws IOException
     {
         AudioTrack audioTrack = YouTubeUtils.getRelatedVideo("ImnnGjR6RWo");
