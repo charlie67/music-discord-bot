@@ -17,7 +17,7 @@ public class GuildAliasHolder extends GuildAliasHolderEntity
 {
     public GuildAliasHolder()
     {
-        
+
     }
 
     public GuildAliasHolder(String guildId)
@@ -51,7 +51,7 @@ public class GuildAliasHolder extends GuildAliasHolderEntity
     {
         aliasNameToAliasObject.put(command, alias);
 
-        super.addNewAliasEntity((AliasEntity) alias);
+        super.addNewAliasEntity(alias);
     }
 
     public Alias getCommandWithAlias(String command)
