@@ -29,4 +29,13 @@ public class TextChannelResponses
     public static final String NO_SUBREDDIT_PROVIDED = "**You need to provide a subreddit to search for.**";
     public static final String UNABLE_TO_SEARCH_FOR_SUBREDDIT = "**Unable to search for that subreddit**";
     public static final String UNABLE_TO_GET_POSTS_FOR_SUBREDDIT = "**Unable to get posts for that subreddit**";
+
+    public static final String HOW_TO_MAKE_ALIAS = "`-aliascreate ALIAS_NAME <Command to run when ALIAS_NAME is called>`";
+    public static final String NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS = "**Need more arguments to create an alias" +
+            ".**\n**Create an alias with**" + HOW_TO_MAKE_ALIAS;
+    public static final String ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND = "**%s is already used as the name of a command**";
+    public static final String ALIAS_CREATED = "**Alias created with name `%s` that executes command `%s` with arguments " +
+            "`%s`**";
+    public static final String ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND = "**%s is not a command**";
+    public static final String NO_ALIASES_SET = "**There are currently no aliases set**";
 }

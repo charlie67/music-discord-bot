@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.awt.Color;
 
+import static bot.utils.TextChannelResponses.ERROR_LOADING_VIDEO;
+
 public class AudioSearchResultHandler implements AudioLoadResultHandler
 {
     private final Logger LOGGER = LogManager.getLogger(AudioSearchResultHandler.class);
@@ -82,7 +84,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         catch(IllegalAccessException e)
         {
             channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
-            LOGGER.info("Couldn't find a match for {}", argument);
+            LOGGER.error("Couldn't find a match for {}", argument, e);
         }
     }
 
@@ -106,9 +108,9 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
         LOGGER.error("Failed to load video", throwable);
         if (throwable.severity == FriendlyException.Severity.COMMON)
         {
-            channel.sendMessage(String.format("Loading failed for that video %s", throwable.getMessage())).queue();
+            channel.sendMessage(String.format("Loading failed for %s", throwable.getMessage())).queue();
         }
-        channel.sendMessage("Loading failed for that video").queue();
+        channel.sendMessage(ERROR_LOADING_VIDEO).queue();
     }
 
     private EmbedBuilder getAudioTrackMessage(AudioTrack track, int queueSize, long queueDurationInMilliSeconds)
