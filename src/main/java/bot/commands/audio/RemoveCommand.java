@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NOT_A_NUMBER;
+import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_ARGUMENT;
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_TRACK_TO_REMOVE;
 
 public class RemoveCommand extends Command
@@ -19,7 +20,7 @@ public class RemoveCommand extends Command
     public RemoveCommand()
     {
         this.name = "remove";
-        this.help = "Remove the requested song from the queue";
+        this.help = "Remove the requested song from the queue.";
     }
 
     @Override
@@ -29,7 +30,7 @@ public class RemoveCommand extends Command
 
         if (argument.isEmpty())
         {
-            event.getChannel().sendMessage(REMOVE_COMMAND_NOT_A_NUMBER).queue();
+            event.getChannel().sendMessage(REMOVE_COMMAND_NO_ARGUMENT).queue();
             return;
         }
 
@@ -43,7 +44,7 @@ public class RemoveCommand extends Command
             event.getChannel().sendMessage(String.format(REMOVE_COMMAND_NOT_A_NUMBER, argument)).queue();
             return;
         }
-        LOGGER.info("Remove track {} from the queue", trackToRemove);
+        LOGGER.info("Removing track {} from the queue", trackToRemove);
 
         AudioManager audioManager = event.getGuild().getAudioManager();
 
@@ -51,6 +52,7 @@ public class RemoveCommand extends Command
 
         if (audioPlayerSendHandler == null)
         {
+            event.getChannel().sendMessage(String.format(REMOVE_COMMAND_NO_TRACK_TO_REMOVE, trackToRemove)).queue();
             return;
         }
 
@@ -62,6 +64,7 @@ public class RemoveCommand extends Command
         }
         catch(IndexOutOfBoundsException e)
         {
+            LOGGER.info("Track {} is not a track on the queue", trackToRemove);
             event.getChannel().sendMessage(String.format(REMOVE_COMMAND_NO_TRACK_TO_REMOVE, trackToRemove)).queue();
             return;
         }
