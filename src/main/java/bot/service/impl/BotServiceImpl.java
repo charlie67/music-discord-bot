@@ -3,6 +3,7 @@ package bot.service.impl;
 import bot.Entities.GuildAliasHolderEntity;
 import bot.commands.alias.Alias;
 import bot.commands.alias.AliasCreateCommand;
+import bot.commands.alias.AliasDeleteCommand;
 import bot.commands.alias.AliasListCommand;
 import bot.commands.alias.GuildAliasHolder;
 import bot.commands.audio.ClearQueueCommand;
@@ -73,14 +74,17 @@ public class BotServiceImpl implements BotService
         playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
 
-        CommandClientBuilder builder = new CommandClientBuilder();
-
         AliasCommandEventListener aliasCommandEventListener = new AliasCommandEventListener();
 
         AliasCreateCommand aliasCreateCommand = new AliasCreateCommand(aliasCommandEventListener,
                 guildAliasHolderEntityRepository);
+
+        AliasDeleteCommand aliasDeleteCommand = new AliasDeleteCommand(aliasCommandEventListener,
+                guildAliasHolderEntityRepository);
+
         AliasListCommand aliasListCommand = new AliasListCommand(aliasCommandEventListener);
 
+        CommandClientBuilder builder = new CommandClientBuilder();
         builder.setPrefix(COMMAND_PREFIX);
         builder.setActivity(null);
         builder.setOwnerId(OWNER_ID);
@@ -88,7 +92,8 @@ public class BotServiceImpl implements BotService
                 new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
-                new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand);
+                new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
+                aliasDeleteCommand);
 
         CommandClient client = builder.build();
         aliasCommandEventListener.setCommandClient(client);

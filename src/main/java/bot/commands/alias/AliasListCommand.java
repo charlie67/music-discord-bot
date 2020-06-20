@@ -29,7 +29,7 @@ public class AliasListCommand extends Command
         String guildId = event.getGuild().getId();
         GuildAliasHolder guildAliasHolder = aliasCommandEventListener.getGuildAliasHolderForGuildWithId(guildId);
 
-        if (guildAliasHolder == null)
+        if (guildAliasHolder == null || guildAliasHolder.getAliasEntityList().size() == 0)
         {
             event.getChannel().sendMessage(NO_ALIASES_SET).queue();
             return;
