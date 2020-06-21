@@ -36,8 +36,14 @@ public class TextChannelResponses
     public static final String ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND = "**%s is already used as the name of a command**";
     public static final String ALIAS_CREATED = "**Alias created with name `%s` that executes command `%s` with arguments " +
             "`%s`**";
+    public static final String ERROR_OCCURRED_CREATING_ALIAS = "**Error when creating alias with name `%s`**";
     public static final String ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND = "**%s is not a command**";
     public static final String NO_ALIASES_SET = "**There are currently no aliases set**";
+
+    public static final String ALIAS_REMOVED = "**Alias with name `%s` has been removed**";
+    public static final String ALIAS_DELETE_ERROR_OCCURRED = "**Something went wrong whilst removing that alias**";
+    public static final String ALIAS_DELETE_NONE_PROVIDED = "**You need to provide an alias to delete**";
+    public static final String ALIAS_DELETE_ALIAS_DOES_NOT_EXIST = "**Alias with name `%s` doesn't exist**";
 
     public static final String ECHO_COMMAND_NO_ARGS = "**You need to provide some text to echo.**";
 }

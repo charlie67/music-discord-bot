@@ -20,15 +20,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static bot.utils.TextChannelResponses.ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND;
 import static bot.utils.TextChannelResponses.ALIAS_CREATED;
 import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND;
+import static bot.utils.TextChannelResponses.ERROR_OCCURRED_CREATING_ALIAS;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static testUtils.MockTextChannelCreator.createMockTextChannelWhereTextIsSentNoTyping;
@@ -239,7 +242,6 @@ public class AliasCreateCommandTest
     {
         final String ALIAS_NAME = "play";
         final String ALIAS_COMMAND = "np";
-        final String ALIAS_ARGUMENTS = " ";
 
         ArgumentCaptor<String> textChannelArgumentCaptor = ArgumentCaptor.forClass(String.class);
         TextChannel mockTextChannel = createMockTextChannelWhereTextIsSentNoTyping(textChannelArgumentCaptor);
@@ -267,7 +269,6 @@ public class AliasCreateCommandTest
     {
         final String ALIAS_NAME = "alias_name";
         final String ALIAS_COMMAND = "";
-        final String ALIAS_ARGUMENTS = "";
 
         ArgumentCaptor<String> textChannelArgumentCaptor = ArgumentCaptor.forClass(String.class);
         TextChannel mockTextChannel = createMockTextChannelWhereTextIsSentNoTyping(textChannelArgumentCaptor);
@@ -316,5 +317,88 @@ public class AliasCreateCommandTest
 
         assertEquals(textChannelArgumentCaptor.getValue(), String.format(ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND,
                 ALIAS_COMMAND));
+    }
+
+    @Test
+    public void testAliasIsDeletedIfItAlreadyExists()
+    {
+        final String ALIAS_NAME = "dishwasher";
+        final String ALIAS_COMMAND = "play";
+        final String ALIAS_ARGUMENTS = "dishwasher song";
+
+        ArgumentCaptor<String> textChannelArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        TextChannel mockTextChannel = createMockTextChannelWhereTextIsSentNoTyping(textChannelArgumentCaptor);
+
+        ArgumentCaptor<String> guildIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        ArgumentCaptor<String> aliasNameArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        AtomicBoolean removedAlias = new AtomicBoolean(false);
+        GuildAliasHolder mockGuildAliasHolder = mock(GuildAliasHolder.class);
+        when(mockGuildAliasHolder.doesAliasExistForCommand(aliasNameArgumentCaptor.capture())).thenReturn(true);
+        doAnswer(invocation ->
+        {
+            removedAlias.set(true);
+            return null;
+        }).when(mockGuildAliasHolder).removeCommandWithAlias(aliasNameArgumentCaptor.capture());
+
+        AliasCommandEventListener aliasCommandEventListener = mock(AliasCommandEventListener.class);
+        when(aliasCommandEventListener.getGuildAliasHolderForGuildWithId(guildIdArgumentCaptor.capture())).thenReturn(mockGuildAliasHolder);
+
+        AliasCreateCommand aliasCreateCommand = new AliasCreateCommand(aliasCommandEventListener,
+                mock(GuildAliasHolderEntityRepository.class));
+        aliasCreateCommand.setAllCurrentCommandNames(ALL_CURRENT_COMMAND_NAMES);
+        aliasCreateCommand.setCommandNameToCommandMap(commandNameToCommandMap);
+
+        CommandEvent mockCommandEvent = mock(CommandEvent.class);
+        when(mockCommandEvent.getChannel()).thenReturn(mockTextChannel);
+        when(mockCommandEvent.getArgs()).thenReturn(ALIAS_NAME + " " + ALIAS_COMMAND + " " + ALIAS_ARGUMENTS);
+        when(mockCommandEvent.getGuild()).thenReturn(mock(Guild.class));
+        when(mockCommandEvent.getGuild().getId()).thenReturn(GUILD_ID);
+
+        aliasCreateCommand.execute(mockCommandEvent);
+
+        assertEquals(String.format(ALIAS_CREATED, ALIAS_NAME, ALIAS_COMMAND, ALIAS_ARGUMENTS),
+                textChannelArgumentCaptor.getValue());
+        assertTrue(removedAlias.get());
+    }
+
+    @Test
+    public void testFailsSuccessfullyIfAliasCantBeDeleted()
+    {
+        final String ALIAS_NAME = "dishwasher";
+        final String ALIAS_COMMAND = "play";
+        final String ALIAS_ARGUMENTS = "dishwasher song";
+
+        ArgumentCaptor<String> textChannelArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        TextChannel mockTextChannel = createMockTextChannelWhereTextIsSentNoTyping(textChannelArgumentCaptor);
+
+        ArgumentCaptor<String> aliasNameArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        GuildAliasHolder mockGuildAliasHolder = mock(GuildAliasHolder.class);
+        when(mockGuildAliasHolder.doesAliasExistForCommand(aliasNameArgumentCaptor.capture())).thenReturn(true);
+        doThrow(new IllegalArgumentException()).when(mockGuildAliasHolder).removeCommandWithAlias(aliasNameArgumentCaptor.capture());
+
+        AliasCommandEventListener aliasCommandEventListener = mock(AliasCommandEventListener.class);
+        when(aliasCommandEventListener.getGuildAliasHolderForGuildWithId(any())).thenReturn(mockGuildAliasHolder);
+
+        AliasCreateCommand aliasCreateCommand = new AliasCreateCommand(aliasCommandEventListener,
+                mock(GuildAliasHolderEntityRepository.class));
+        aliasCreateCommand.setAllCurrentCommandNames(ALL_CURRENT_COMMAND_NAMES);
+        aliasCreateCommand.setCommandNameToCommandMap(commandNameToCommandMap);
+
+        CommandEvent mockCommandEvent = mock(CommandEvent.class);
+        when(mockCommandEvent.getChannel()).thenReturn(mockTextChannel);
+        when(mockCommandEvent.getArgs()).thenReturn(ALIAS_NAME + " " + ALIAS_COMMAND + " " + ALIAS_ARGUMENTS);
+        when(mockCommandEvent.getGuild()).thenReturn(mock(Guild.class));
+        when(mockCommandEvent.getGuild().getId()).thenReturn(GUILD_ID);
+
+        aliasCreateCommand.execute(mockCommandEvent);
+
+        assertEquals(String.format(ERROR_OCCURRED_CREATING_ALIAS, ALIAS_NAME), textChannelArgumentCaptor.getValue());
+        aliasNameArgumentCaptor.getAllValues().forEach(alias_name ->
+        {
+            assertEquals(ALIAS_NAME, alias_name);
+        });
     }
 }

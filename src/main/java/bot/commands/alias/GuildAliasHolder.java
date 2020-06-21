@@ -15,9 +15,14 @@ import java.util.List;
  */
 public class GuildAliasHolder extends GuildAliasHolderEntity
 {
+    /**
+     * This converts a alias name to a command object that can be executed
+     */
+    @Transient
+    private final HashMap<String, Alias> aliasNameToAliasObject = new HashMap<>();
+
     public GuildAliasHolder()
     {
-
     }
 
     public GuildAliasHolder(String guildId)
@@ -29,12 +34,6 @@ public class GuildAliasHolder extends GuildAliasHolderEntity
     {
         super(guildId, aliasEntityList);
     }
-
-    /**
-     * This converts a alias name to a command object that can be executed
-     */
-    @Transient
-    private final HashMap<String, Alias> aliasNameToAliasObject = new HashMap<>();
 
     public boolean doesAliasExistForCommand(String command)
     {
@@ -52,6 +51,12 @@ public class GuildAliasHolder extends GuildAliasHolderEntity
         aliasNameToAliasObject.put(command, alias);
 
         super.addNewAliasEntity(alias);
+    }
+
+    public void removeCommandWithAlias(String command) throws IllegalArgumentException
+    {
+        aliasNameToAliasObject.remove(command);
+        super.removeAliasWithName(command);
     }
 
     public Alias getCommandWithAlias(String command)

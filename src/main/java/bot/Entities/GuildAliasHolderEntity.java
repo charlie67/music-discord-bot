@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Document(collection = "guildAliasHolders")
 public class GuildAliasHolderEntity
@@ -40,6 +41,26 @@ public class GuildAliasHolderEntity
     public void setGuildId(String guildId)
     {
         this.guildId = guildId;
+    }
+
+    public void removeAliasWithName(String aliasCommandName) throws IllegalArgumentException
+    {
+        AliasEntity aliasToRemove = null;
+
+        for (AliasEntity aliasEntity : aliasEntityList)
+        {
+            if (Objects.equals(aliasEntity.getAliasName(), aliasCommandName))
+            {
+                aliasToRemove = aliasEntity;
+            }
+        }
+
+        if (aliasToRemove == null)
+        {
+            throw new IllegalArgumentException(String.format("%s is not an alias that can be removed", aliasCommandName));
+        }
+
+        aliasEntityList.remove(aliasToRemove);
     }
 
     public List<AliasEntity> getAliasEntityList()

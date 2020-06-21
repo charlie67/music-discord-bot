@@ -3,6 +3,7 @@ package bot.service.impl;
 import bot.Entities.GuildAliasHolderEntity;
 import bot.commands.alias.Alias;
 import bot.commands.alias.AliasCreateCommand;
+import bot.commands.alias.AliasDeleteCommand;
 import bot.commands.alias.AliasListCommand;
 import bot.commands.alias.GuildAliasHolder;
 import bot.commands.audio.ClearQueueCommand;
@@ -59,8 +60,6 @@ public class BotServiceImpl implements BotService
     @Value("${OWNER_ID}")
     private String OWNER_ID;
 
-    private GuildAliasHolderEntityRepository guildAliasHolderEntityRepository;
-
     private JDA jda;
     private AudioPlayerManager playerManager;
 
@@ -69,19 +68,20 @@ public class BotServiceImpl implements BotService
     @Override
     public void startBot(GuildAliasHolderEntityRepository guildAliasHolderEntityRepository) throws LoginException
     {
-        this.guildAliasHolderEntityRepository = guildAliasHolderEntityRepository;
-
         playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
-
-        CommandClientBuilder builder = new CommandClientBuilder();
 
         AliasCommandEventListener aliasCommandEventListener = new AliasCommandEventListener();
 
         AliasCreateCommand aliasCreateCommand = new AliasCreateCommand(aliasCommandEventListener,
                 guildAliasHolderEntityRepository);
+
+        AliasDeleteCommand aliasDeleteCommand = new AliasDeleteCommand(aliasCommandEventListener,
+                guildAliasHolderEntityRepository);
+
         AliasListCommand aliasListCommand = new AliasListCommand(aliasCommandEventListener);
 
+        CommandClientBuilder builder = new CommandClientBuilder();
         builder.setPrefix(COMMAND_PREFIX);
         builder.setActivity(null);
         builder.setOwnerId(OWNER_ID);
@@ -90,7 +90,7 @@ public class BotServiceImpl implements BotService
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
                 new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
-                new EchoTextCommand());
+                aliasDeleteCommand, new EchoTextCommand());
 
         CommandClient client = builder.build();
         aliasCommandEventListener.setCommandClient(client);

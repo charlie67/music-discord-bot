@@ -15,6 +15,7 @@ import java.util.Set;
 import static bot.utils.TextChannelResponses.ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND;
 import static bot.utils.TextChannelResponses.ALIAS_CREATED;
 import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND;
+import static bot.utils.TextChannelResponses.ERROR_OCCURRED_CREATING_ALIAS;
 import static bot.utils.TextChannelResponses.HOW_TO_MAKE_ALIAS;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
 
@@ -85,6 +86,20 @@ public class AliasCreateCommand extends Command
         {
             guildAliasHolder = new GuildAliasHolder(guildId);
             aliasCommandEventListener.putGuildAliasHolderForGuildWithId(guildId, guildAliasHolder);
+        }
+
+        if (guildAliasHolder.doesAliasExistForCommand(aliasName))
+        {
+            try
+            {
+                guildAliasHolder.removeCommandWithAlias(aliasName);
+            }
+            catch(IllegalArgumentException e)
+            {
+                LOGGER.error("Error when removing alias for server {}", guildId, e);
+                event.getChannel().sendMessage(String.format(ERROR_OCCURRED_CREATING_ALIAS, aliasName)).queue();
+                return;
+            }
         }
 
         guildAliasHolder.addCommandWithAlias(aliasName, alias);
