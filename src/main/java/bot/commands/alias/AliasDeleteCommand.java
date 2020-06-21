@@ -8,9 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_ALIAS_DOES_NOT_EXIST;
+import static bot.utils.TextChannelResponses.ALIAS_DELETE_ERROR_OCCURRED;
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_NONE_PROVIDED;
 import static bot.utils.TextChannelResponses.ALIAS_REMOVED;
-import static bot.utils.TextChannelResponses.ERROR_OCCURRED_WHEN_REMOVING_ALIAS;
 
 public class AliasDeleteCommand extends Command
 {
@@ -60,7 +60,7 @@ public class AliasDeleteCommand extends Command
         catch(IllegalArgumentException e)
         {
             LOGGER.error("Error occurred when deleting alias for guild {}", guildId, e);
-            event.getChannel().sendMessage(ERROR_OCCURRED_WHEN_REMOVING_ALIAS).queue();
+            event.getChannel().sendMessage(ALIAS_DELETE_ERROR_OCCURRED).queue();
             return;
         }
 
