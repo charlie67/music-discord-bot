@@ -21,6 +21,7 @@ import bot.commands.audio.ShuffleCommand;
 import bot.commands.audio.SkipSongCommand;
 import bot.commands.audio.SkipToCommand;
 import bot.commands.image.RedditSearchCommand;
+import bot.commands.text.EchoTextCommand;
 import bot.commands.utilities.PingCommand;
 import bot.listeners.AliasCommandEventListener;
 import bot.listeners.VoiceChannelEventListener;
@@ -88,7 +89,8 @@ public class BotServiceImpl implements BotService
                 new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
-                new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand);
+                new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
+                new EchoTextCommand());
 
         CommandClient client = builder.build();
         aliasCommandEventListener.setCommandClient(client);

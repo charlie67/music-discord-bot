@@ -38,4 +38,6 @@ public class TextChannelResponses
             "`%s`**";
     public static final String ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND = "**%s is not a command**";
     public static final String NO_ALIASES_SET = "**There are currently no aliases set**";
+
+    public static final String ECHO_COMMAND_NO_ARGS = "**You need to provide some text to echo.**";
 }
