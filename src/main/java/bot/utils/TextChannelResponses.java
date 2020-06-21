@@ -44,4 +44,6 @@ public class TextChannelResponses
     public static final String ALIAS_DELETE_ERROR_OCCURRED = "**Something went wrong whilst removing that alias**";
     public static final String ALIAS_DELETE_NONE_PROVIDED = "**You need to provide an alias to delete**";
     public static final String ALIAS_DELETE_ALIAS_DOES_NOT_EXIST = "**Alias with name `%s` doesn't exist**";
+
+    public static final String ECHO_COMMAND_NO_ARGS = "**You need to provide some text to echo.**";
 }
