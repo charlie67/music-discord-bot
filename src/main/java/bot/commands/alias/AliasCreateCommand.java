@@ -15,6 +15,7 @@ import java.util.Set;
 import static bot.utils.TextChannelResponses.ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND;
 import static bot.utils.TextChannelResponses.ALIAS_CREATED;
 import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND;
+import static bot.utils.TextChannelResponses.ALIAS_TOO_LONG;
 import static bot.utils.TextChannelResponses.ERROR_OCCURRED_CREATING_ALIAS;
 import static bot.utils.TextChannelResponses.HOW_TO_MAKE_ALIAS;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
@@ -100,6 +101,13 @@ public class AliasCreateCommand extends Command
                 event.getChannel().sendMessage(String.format(ERROR_OCCURRED_CREATING_ALIAS, aliasName)).queue();
                 return;
             }
+        }
+
+        if (String.format(ALIAS_CREATED, aliasName, aliasCommand, aliasCommandArguments).length() > 1999)
+        {
+            LOGGER.error("Tried to create alias that was too long");
+            event.getChannel().sendMessage(ALIAS_TOO_LONG).queue();
+            return;
         }
 
         guildAliasHolder.addCommandWithAlias(aliasName, alias);
