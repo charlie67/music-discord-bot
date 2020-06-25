@@ -44,11 +44,15 @@ public class AliasListCommand extends Command
             aliases.add(alias);
         });
 
-        StringBuilder aliasListString = new StringBuilder();
+        // can only send 2000 characters in a single message so put each alias description onto eachAliasDescription and
+        // later combine ones that are less than 2000 characters into their own messages
+        ArrayList<String> eachAliasDescription = new ArrayList<>();
+
         int i = 1;
 
         for (Alias alias : aliases)
         {
+            StringBuilder aliasListString = new StringBuilder();
             aliasListString.append("`").append(i).append(":` `");
             aliasListString.append(alias.getAliasName());
             aliasListString.append("` executes command `");
@@ -58,8 +62,37 @@ public class AliasListCommand extends Command
             aliasListString.append("`");
             aliasListString.append("\n");
             i++;
+            eachAliasDescription.add(aliasListString.toString());
+        }
+        ArrayList<String> fullMessagesToSend = new ArrayList<>();
+
+        int index = -1;
+        for (String aliasDescription : eachAliasDescription)
+        {
+            if (fullMessagesToSend.isEmpty())
+            {
+                fullMessagesToSend.add(aliasDescription);
+                index++;
+            }
+            else
+            {
+                String previousMessage = fullMessagesToSend.get(index);
+
+                if (aliasDescription.length() + previousMessage.length() < 2000)
+                {
+                    fullMessagesToSend.remove(index);
+                    aliasDescription = previousMessage + aliasDescription;
+                    fullMessagesToSend.add(aliasDescription);
+                }
+                else
+                {
+                    fullMessagesToSend.add(aliasDescription);
+                    index++;
+                }
+            }
         }
 
-        event.getChannel().sendMessage(aliasListString.toString()).queue();
+
+        fullMessagesToSend.forEach(s -> event.getChannel().sendMessage(s).queue());
     }
 }
