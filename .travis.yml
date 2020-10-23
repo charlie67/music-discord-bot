@@ -7,7 +7,8 @@ services:
   - docker
   
 before_install:
-  - sudo apt-get -y install jq
+  - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+  - sudo chown travis:travis /etc/docker/daemon.json
 
 after_success:
   - "./docker-build.sh"
