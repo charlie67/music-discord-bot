@@ -5,6 +5,9 @@ jdk:
 
 services:
   - docker
+  
+before_install:
+  - sudo apt-get -y install jq
 
 after_success:
   - "./docker-build.sh"
