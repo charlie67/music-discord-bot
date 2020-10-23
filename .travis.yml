@@ -9,6 +9,7 @@ services:
 before_install:
   - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
   - sudo chown travis:travis /etc/docker/daemon.json
+  - sudo systemctl restart docker
 
 after_success:
   - "./docker-build.sh"
