@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Random;
 
 public class YouTubeUtils
 {
@@ -92,7 +91,8 @@ public class YouTubeUtils
         }
     }
 
-    static AudioTrack getRelatedVideo(String videoID) throws IOException, FriendlyException
+    static AudioTrack getRelatedVideo(String videoID, List<AudioTrack> history) throws IOException,
+            FriendlyException
     {
         LOGGER.info("finding related video for videoID {}", videoID);
         YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request ->
@@ -107,7 +107,7 @@ public class YouTubeUtils
         search.setRelatedToVideoId(videoID);
         search.setEventType("none");
         search.setSafeSearch("none");
-        search.setMaxResults(4L);
+        search.setMaxResults(5L);
 
         // Restrict the search results to only include videos. See:
         // https://developers.google.com/youtube/v3/docs/search/list#type
@@ -117,12 +117,39 @@ public class YouTubeUtils
         List<SearchResult> searchResultList = searchResponse.getItems();
         LOGGER.info("Found {} related videos", searchResultList.size());
 
-        SearchResult video = searchResultList.get(new Random().nextInt(searchResultList.size()));
+        int searchResultListPosition = 0;
+        SearchResult video;
+        String id = "";
 
-        String id = (String) ((ResourceId) video.get("id")).get("videoId");
+        // check if this video is in the history
+        do
+        {
+            if (searchResultListPosition >= searchResultList.size())
+            {
+                throw new IllegalArgumentException("Unable to find a related video - list was exhausted");
+            }
+
+            searchResultListPosition++;
+            video = searchResultList.get(searchResultListPosition);
+            id = (String) ((ResourceId) video.get("id")).get("videoId");
+        } while (isAudioTrackOnHistory(id, history));
+
+
         LOGGER.info("Found videoID {} as the related video", id);
 
         YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
         return (AudioTrack) youtubeAudioSourceManager.loadTrackWithVideoId(id, true);
+    }
+
+    private static boolean isAudioTrackOnHistory(String id, List<AudioTrack> history)
+    {
+        for (AudioTrack historyAudioTrack : history)
+        {
+            if (historyAudioTrack instanceof YoutubeAudioTrack && historyAudioTrack.getIdentifier().equals(id))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

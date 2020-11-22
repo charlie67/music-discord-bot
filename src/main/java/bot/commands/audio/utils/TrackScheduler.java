@@ -53,13 +53,13 @@ public class TrackScheduler extends AudioEventAdapter
             try
             {
                 String oldTrackId = track.getInfo().identifier;
-                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId);
+                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId, new ArrayList<>(historyQueue));
                 durationInMilliSeconds += nextTrack.getDuration();
                 queue.add(nextTrack);
                 player.playTrack(nextTrack());
 
             }
-            catch(IOException | FriendlyException e)
+            catch(IOException | IllegalArgumentException | FriendlyException e)
             {
                 LOGGER.error("Encountered error when trying to find a related video", e);
             }
