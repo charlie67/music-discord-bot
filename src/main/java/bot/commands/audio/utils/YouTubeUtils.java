@@ -119,7 +119,7 @@ public class YouTubeUtils
 
         int searchResultListPosition = 0;
         SearchResult video;
-        String id = "";
+        String id;
 
         // check if this video is in the history
         do
