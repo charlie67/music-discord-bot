@@ -1,6 +1,5 @@
 package bot;
 
-import bot.repositories.AliasEntityRepository;
 import bot.repositories.GuildAliasHolderEntityRepository;
 import bot.service.BotService;
 import org.springframework.boot.CommandLineRunner;
@@ -13,17 +12,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties
 public class ApplicationBootstrap implements CommandLineRunner
 {
-    private final AliasEntityRepository aliasEntityRepository;
-
     private final GuildAliasHolderEntityRepository guildAliasHolderEntityRepository;
 
     private final BotService botService;
 
-    public ApplicationBootstrap(BotService botService, AliasEntityRepository aliasEntityRepository,
-                                GuildAliasHolderEntityRepository guildAliasHolderEntityRepository)
+    public ApplicationBootstrap(BotService botService, GuildAliasHolderEntityRepository guildAliasHolderEntityRepository)
     {
         this.botService = botService;
-        this.aliasEntityRepository = aliasEntityRepository;
         this.guildAliasHolderEntityRepository = guildAliasHolderEntityRepository;
     }
 

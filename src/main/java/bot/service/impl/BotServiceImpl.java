@@ -7,6 +7,7 @@ import bot.commands.alias.AliasDeleteCommand;
 import bot.commands.alias.AliasListCommand;
 import bot.commands.alias.GuildAliasHolder;
 import bot.commands.audio.ClearQueueCommand;
+import bot.commands.audio.HistoryCommand;
 import bot.commands.audio.JoinCommand;
 import bot.commands.audio.LeaveCommand;
 import bot.commands.audio.LoopCommand;
@@ -90,7 +91,7 @@ public class BotServiceImpl implements BotService
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
                 new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
-                aliasDeleteCommand, new EchoTextCommand());
+                aliasDeleteCommand, new EchoTextCommand(), new HistoryCommand());
 
         CommandClient client = builder.build();
         aliasCommandEventListener.setCommandClient(client);

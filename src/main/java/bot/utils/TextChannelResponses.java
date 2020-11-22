@@ -47,4 +47,7 @@ public class TextChannelResponses
     public static final String ALIAS_TOO_LONG = "**That Alias is too long. It needs to be less than 2000 characters**";
 
     public static final String ECHO_COMMAND_NO_ARGS = "**You need to provide some text to echo.**";
+
+    public static final String NO_HISTORY_TO_SHOW = "**There is no history to show.**";
+    public static final String CANT_DISPLAY_QUEUE_PAGE = "**Cannot display that page**";
 }
