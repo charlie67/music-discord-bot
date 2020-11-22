@@ -67,9 +67,4 @@ public class GuildAliasHolderEntity
     {
         return aliasEntityList;
     }
-
-    public void setAliasEntityList(List<AliasEntity> aliasEntityList)
-    {
-        this.aliasEntityList = aliasEntityList;
-    }
 }

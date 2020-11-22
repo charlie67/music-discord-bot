@@ -1,5 +1,6 @@
 package bot.commands.audio.utils;
 
+import com.google.common.collect.EvictingQueue;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -22,10 +23,13 @@ public class TrackScheduler extends AudioEventAdapter
 
     private long durationInMilliSeconds = 0;
 
+    private final EvictingQueue<AudioTrack> historyQueue = EvictingQueue.create(20);
+
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
         LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason.toString());
+        historyQueue.add(track);
 
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
         {
@@ -136,5 +140,10 @@ public class TrackScheduler extends AudioEventAdapter
     public void remove(int trackToRemove)
     {
         queue.remove(trackToRemove);
+    }
+
+    public EvictingQueue<AudioTrack> getHistory()
+    {
+        return historyQueue;
     }
 }
