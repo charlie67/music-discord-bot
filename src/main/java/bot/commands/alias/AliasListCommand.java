@@ -1,48 +1,45 @@
 package bot.commands.alias;
 
-import bot.listeners.AliasCommandEventListener;
+import bot.Entities.AliasEntity;
+import bot.repositories.AliasEntityRepository;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static bot.utils.TextChannelResponses.NO_ALIASES_SET;
 
+@Component
 public class AliasListCommand extends Command
 {
-    private final AliasCommandEventListener aliasCommandEventListener;
+    private final AliasEntityRepository aliasEntityRepository;
 
-    public AliasListCommand(AliasCommandEventListener aliasCommandEventListener)
+    @Autowired
+    public AliasListCommand(AliasEntityRepository aliasEntityRepository)
     {
         this.name = "aliaslist";
         this.aliases = new String[]{"al"};
         this.help = "List all the aliases for this server";
 
-        this.aliasCommandEventListener = aliasCommandEventListener;
+        this.aliasEntityRepository = aliasEntityRepository;
     }
 
     @Override
     protected void execute(CommandEvent event)
     {
         String guildId = event.getGuild().getId();
-        GuildAliasHolder guildAliasHolder = aliasCommandEventListener.getGuildAliasHolderForGuildWithId(guildId);
+        Set<AliasEntity> aliasEntitySet = aliasEntityRepository.findAllByServerId(guildId);
 
-        if (guildAliasHolder == null || guildAliasHolder.getAliasEntityList().size() == 0)
+        if (aliasEntitySet.size() == 0)
         {
             event.getChannel().sendMessage(NO_ALIASES_SET).queue();
             return;
         }
-
-        HashMap<String, Alias> aliasHashMap = guildAliasHolder.getAliasNameToAliasObject();
-        List<Alias> aliases = new ArrayList<>();
-
-        aliasHashMap.keySet().forEach(key ->
-        {
-            Alias alias = aliasHashMap.get(key);
-            aliases.add(alias);
-        });
 
         // can only send 2000 characters in a single message so put each alias description onto eachAliasDescription and
         // later combine ones that are less than 2000 characters into their own messages
@@ -50,15 +47,15 @@ public class AliasListCommand extends Command
 
         int i = 1;
 
-        for (Alias alias : aliases)
+        for (AliasEntity alias : aliasEntitySet)
         {
             StringBuilder aliasListString = new StringBuilder();
             aliasListString.append("`").append(i).append(":` `");
-            aliasListString.append(alias.getAliasName());
+            aliasListString.append(alias.getName());
             aliasListString.append("` executes command `");
-            aliasListString.append(alias.getCommand().getName());
+            aliasListString.append(alias.getCommand());
             aliasListString.append("` with arguments `");
-            aliasListString.append(alias.getAliasCommandArguments());
+            aliasListString.append(alias.getArgs());
             aliasListString.append("`");
             aliasListString.append("\n");
             i++;
@@ -93,6 +90,6 @@ public class AliasListCommand extends Command
         }
 
 
-        fullMessagesToSend.forEach(s -> event.getChannel().sendMessage(s).queue());
+        fullMessagesToSend.forEach(message -> event.getChannel().sendMessage(message).queue());
     }
 }

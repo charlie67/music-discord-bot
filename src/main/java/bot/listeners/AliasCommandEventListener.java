@@ -1,19 +1,33 @@
 package bot.listeners;
 
-import bot.commands.alias.GuildAliasHolder;
-import bot.service.impl.BotServiceImpl;
-import com.jagrosh.jdautilities.command.CommandClient;
+import bot.Entities.AliasEntity;
+import bot.repositories.AliasEntityRepository;
+import bot.service.BotService;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 
+@Component
 public class AliasCommandEventListener extends ListenerAdapter
 {
-    private final HashMap<String, GuildAliasHolder> guildIdToGuildAliasHolderMap = new HashMap<>();
+    private final Logger LOGGER = LogManager.getLogger(AliasCommandEventListener.class);
 
-    private CommandClient commandClient;
+    private BotService botService;
+
+    private final AliasEntityRepository aliasEntityRepository;
+
+    @Autowired
+    public AliasCommandEventListener(AliasEntityRepository aliasEntityRepository)
+    {
+        this.aliasEntityRepository = aliasEntityRepository;
+    }
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event)
@@ -25,45 +39,32 @@ public class AliasCommandEventListener extends ListenerAdapter
         }
 
         String guildID = event.getGuild().getId();
-        GuildAliasHolder guildAliasHolder = guildIdToGuildAliasHolderMap.get(guildID);
-
-        if (guildAliasHolder == null)
-        {
-            return;
-        }
 
         String rawContent = event.getMessage().getContentRaw();
 
-        if (rawContent.startsWith(BotServiceImpl.COMMAND_PREFIX))
+        if (rawContent.startsWith(BotService.COMMAND_PREFIX))
         {
-            rawContent = rawContent.replace(BotServiceImpl.COMMAND_PREFIX, "");
+            String query = rawContent.replace(BotService.COMMAND_PREFIX, "");
 
-            if (guildAliasHolder.doesAliasExistForCommand(rawContent))
+            String[] queryParts = query.split("\\s+");
+            String commandName = queryParts[0];
+
+            AliasEntity aliasEntity = aliasEntityRepository.findByServerIdAndName(guildID, commandName);
+
+            if (aliasEntity == null)
             {
-                guildAliasHolder.executeAlias(rawContent, event, commandClient);
+                // not an alias
+                return;
             }
+
+            Command commandToExecute = botService.getCommandFromName(aliasEntity.getCommand());
+            commandToExecute.run(new CommandEvent(event, aliasEntity.getArgs(), botService.getClient()));
         }
     }
 
-    /**
-     * return the GuildAliasHolder that this class is holding will return NULL if a GuildAliasHolder doesn't exist for
-     * that guildID
-     *
-     * @param guildId The guild ID you want the GuildAliasHolder for
-     * @return The GuildAliasHolder if it exists or NULL if one doesn't exist for that Guild
-     */
-    public GuildAliasHolder getGuildAliasHolderForGuildWithId(String guildId)
+    // break a circular dependency
+    public void setBotService(BotService botService)
     {
-        return guildIdToGuildAliasHolderMap.get(guildId);
-    }
-
-    public void putGuildAliasHolderForGuildWithId(String guildId, GuildAliasHolder guildAliasHolder)
-    {
-        guildIdToGuildAliasHolderMap.put(guildId, guildAliasHolder);
-    }
-
-    public void setCommandClient(CommandClient commandClient)
-    {
-        this.commandClient = commandClient;
+        this.botService = botService;
     }
 }

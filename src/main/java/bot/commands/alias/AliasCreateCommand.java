@@ -1,54 +1,54 @@
 package bot.commands.alias;
 
-import bot.Entities.GuildAliasHolderEntity;
-import bot.listeners.AliasCommandEventListener;
-import bot.repositories.GuildAliasHolderEntityRepository;
+import bot.Entities.AliasEntity;
+import bot.repositories.AliasEntityRepository;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static bot.utils.TextChannelResponses.ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND;
 import static bot.utils.TextChannelResponses.ALIAS_CREATED;
 import static bot.utils.TextChannelResponses.ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND;
 import static bot.utils.TextChannelResponses.ALIAS_TOO_LONG;
-import static bot.utils.TextChannelResponses.ERROR_OCCURRED_CREATING_ALIAS;
 import static bot.utils.TextChannelResponses.HOW_TO_MAKE_ALIAS;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS;
 
+@Component
 public class AliasCreateCommand extends Command
 {
     private final Logger LOGGER = LogManager.getLogger(AliasCreateCommand.class);
 
     private Set<String> allCurrentCommandNames;
 
-    private final GuildAliasHolderEntityRepository guildAliasHolderEntityRepository;
+    private Map<String, Command> commandNameToCommandMap;
 
-    private HashMap<String, Command> commandNameToCommandMap;
+    private final AliasEntityRepository aliasEntityRepository;
 
-    private final AliasCommandEventListener aliasCommandEventListener;
-
-    public AliasCreateCommand(AliasCommandEventListener aliasCommandEventListener,
-                              GuildAliasHolderEntityRepository guildAliasHolderEntityRepository)
+    @Autowired
+    public AliasCreateCommand(AliasEntityRepository aliasEntityRepository)
     {
         this.name = "aliascreate";
         this.aliases = new String[]{"alias", "ac"};
         this.help = "Create a new alias for a command. Created using " + HOW_TO_MAKE_ALIAS;
 
-        this.aliasCommandEventListener = aliasCommandEventListener;
-        this.guildAliasHolderEntityRepository = guildAliasHolderEntityRepository;
+        this.aliasEntityRepository = aliasEntityRepository;
     }
 
     @Override
     protected void execute(CommandEvent event)
     {
+        event.getChannel().sendTyping().queue();
+
         //command is given as -alias NAME_OF_ALIAS <Command to run when alias is called>
         //e.g. -aliascreate song play http://youtube.com/somesong
-        //get the arguments and exxtract them into the different parts
+        //get the arguments and extract them into the different parts
         String[] arguments = event.getArgs().split("\\s+");
 
         //check that at least 3 arguments are specified
@@ -79,30 +79,7 @@ public class AliasCreateCommand extends Command
 
         String guildId = event.getGuild().getId();
 
-        Alias alias = new Alias(aliasName, aliasCommandArguments, command);
-
-        GuildAliasHolder guildAliasHolder = aliasCommandEventListener.getGuildAliasHolderForGuildWithId(guildId);
-
-        if (guildAliasHolder == null)
-        {
-            guildAliasHolder = new GuildAliasHolder(guildId);
-            aliasCommandEventListener.putGuildAliasHolderForGuildWithId(guildId, guildAliasHolder);
-        }
-
-        if (guildAliasHolder.doesAliasExistForCommand(aliasName))
-        {
-            try
-            {
-                guildAliasHolder.removeCommandWithAlias(aliasName);
-            }
-            catch(IllegalArgumentException e)
-            {
-                LOGGER.error("Error when removing alias for server {}", guildId, e);
-                event.getChannel().sendMessage(String.format(ERROR_OCCURRED_CREATING_ALIAS, aliasName)).queue();
-                return;
-            }
-        }
-
+        // a Discord message can't be longer than 2000 characters
         if (String.format(ALIAS_CREATED, aliasName, aliasCommand, aliasCommandArguments).length() > 1999)
         {
             LOGGER.error("Tried to create alias that was too long");
@@ -110,8 +87,27 @@ public class AliasCreateCommand extends Command
             return;
         }
 
-        guildAliasHolder.addCommandWithAlias(aliasName, alias);
-        guildAliasHolderEntityRepository.save((GuildAliasHolderEntity) guildAliasHolder);
+        // can't store anything longer than 255 characters in the database
+        if (aliasName.length() > 255 || aliasCommand.length() > 255 || aliasCommandArguments.length() > 255)
+        {
+            event.getChannel().sendMessage(ALIAS_TOO_LONG).queue();
+            return;
+        }
+
+        // if the alias already exists delete it
+        AliasEntity existingAlias = aliasEntityRepository.findByServerIdAndName(guildId, aliasName);
+        if (existingAlias != null)
+        {
+            aliasEntityRepository.delete(existingAlias);
+        }
+
+        AliasEntity aliasEntity = new AliasEntity()
+                .setArgs(aliasCommandArguments)
+                .setName(aliasName)
+                .setCommand(aliasCommand)
+                .setServerId(guildId);
+
+        aliasEntityRepository.save(aliasEntity);
 
         event.getChannel().sendMessage(String.format(ALIAS_CREATED, aliasName, aliasCommand, aliasCommandArguments)).queue();
 
@@ -136,7 +132,7 @@ public class AliasCreateCommand extends Command
         this.allCurrentCommandNames = allCurrentCommandNames;
     }
 
-    public void setCommandNameToCommandMap(HashMap<String, Command> commandNameToCommandMap)
+    public void setCommandNameToCommandMap(Map<String, Command> commandNameToCommandMap)
     {
         this.commandNameToCommandMap = commandNameToCommandMap;
     }

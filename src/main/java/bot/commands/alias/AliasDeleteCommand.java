@@ -1,34 +1,33 @@
 package bot.commands.alias;
 
+import bot.Entities.AliasEntity;
 import bot.listeners.AliasCommandEventListener;
-import bot.repositories.GuildAliasHolderEntityRepository;
+import bot.repositories.AliasEntityRepository;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_ALIAS_DOES_NOT_EXIST;
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_ERROR_OCCURRED;
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_NONE_PROVIDED;
 import static bot.utils.TextChannelResponses.ALIAS_REMOVED;
 
+@Component
 public class AliasDeleteCommand extends Command
 {
-    private final Logger LOGGER = LogManager.getLogger(AliasDeleteCommand.class);
+    private final AliasEntityRepository aliasEntityRepository;
 
-    private final AliasCommandEventListener aliasCommandEventListener;
-
-    private final GuildAliasHolderEntityRepository guildAliasHolderEntityRepository;
-
-    public AliasDeleteCommand(AliasCommandEventListener aliasCommandEventListener,
-                              GuildAliasHolderEntityRepository guildAliasHolderEntityRepository)
+    @Autowired
+    public AliasDeleteCommand(AliasEntityRepository aliasEntityRepository)
     {
         this.name = "aliasdelete";
         this.help = "Delete an alias with a specific name";
         this.aliases = new String[]{"ad"};
 
-        this.aliasCommandEventListener = aliasCommandEventListener;
-        this.guildAliasHolderEntityRepository = guildAliasHolderEntityRepository;
+        this.aliasEntityRepository= aliasEntityRepository;
     }
 
 
@@ -45,26 +44,17 @@ public class AliasDeleteCommand extends Command
 
         String guildId = event.getGuild().getId();
 
-        GuildAliasHolder guildAliasHolder = aliasCommandEventListener.getGuildAliasHolderForGuildWithId(guildId);
+        AliasEntity aliasEntityToDelete = aliasEntityRepository.findByServerIdAndName(guildId, aliasToDelete);
 
-        if (!guildAliasHolder.doesAliasExistForCommand(aliasToDelete))
+
+        if (aliasEntityToDelete == null)
         {
             event.getChannel().sendMessage(String.format(ALIAS_DELETE_ALIAS_DOES_NOT_EXIST, aliasToDelete)).queue();
             return;
         }
 
-        try
-        {
-            guildAliasHolder.removeCommandWithAlias(aliasToDelete);
-        }
-        catch(IllegalArgumentException e)
-        {
-            LOGGER.error("Error occurred when deleting alias for guild {}", guildId, e);
-            event.getChannel().sendMessage(ALIAS_DELETE_ERROR_OCCURRED).queue();
-            return;
-        }
+        aliasEntityRepository.delete(aliasEntityToDelete);
 
-        guildAliasHolderEntityRepository.save(guildAliasHolder);
 
         event.getChannel().sendMessage(String.format(ALIAS_REMOVED, aliasToDelete)).queue();
     }
