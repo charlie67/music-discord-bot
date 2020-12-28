@@ -1,58 +1,81 @@
 package bot.Entities;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-@Document(collection = "alias")
+@Entity
 public class AliasEntity
 {
-    @Field
-    public String aliasName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-    @Field
-    public String aliasCommandArguments;
+    private String serverId;
 
-    @Field
-    public String commandName;
+    private String name;
+
+    private String command;
+
+    private String args;
 
     public AliasEntity()
     {
+        // no args constructor
     }
 
-    public AliasEntity(String aliasName, String aliasCommandArguments, String commandName)
+    public Long getId()
     {
-        this.aliasName = aliasName;
-        this.aliasCommandArguments = aliasCommandArguments;
-        this.commandName = commandName;
+        return id;
     }
 
-    public String getAliasName()
+    public void setId(Long id)
     {
-        return aliasName;
+        this.id = id;
     }
 
-    public void setAliasName(String aliasName)
+    public String getServerId()
     {
-        this.aliasName = aliasName;
+        return serverId;
     }
 
-    public String getAliasCommandArguments()
+    public AliasEntity setServerId(String serverId)
     {
-        return aliasCommandArguments;
+        this.serverId = serverId;
+        return this;
     }
 
-    public void setAliasCommandArguments(String aliasCommandArguments)
+    public String getName()
     {
-        this.aliasCommandArguments = aliasCommandArguments;
+        return name;
     }
 
-    public String getCommandName()
+    public AliasEntity setName(String name)
     {
-        return commandName;
+        this.name = name;
+        return this;
     }
 
-    public void setCommandName(String commandName)
+    public String getCommand()
     {
-        this.commandName = commandName;
+        return command;
+    }
+
+    public AliasEntity setCommand(String command)
+    {
+        this.command = command;
+        return this;
+    }
+
+    public String getArgs()
+    {
+        return args;
+    }
+
+    public AliasEntity setArgs(String args)
+    {
+        this.args = args;
+        return this;
     }
 }

@@ -2,8 +2,13 @@ package bot.repositories;
 
 
 import bot.Entities.AliasEntity;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface AliasEntityRepository extends MongoRepository<AliasEntity, String>
+import java.util.Set;
+
+public interface AliasEntityRepository extends CrudRepository<AliasEntity, String>
 {
+    Set<AliasEntity> findAllByServerId(String serverId);
+
+    AliasEntity findByServerIdAndName(String serverId, String name);
 }
