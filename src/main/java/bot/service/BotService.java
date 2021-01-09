@@ -20,6 +20,7 @@ import bot.commands.audio.SkipSongCommand;
 import bot.commands.audio.SkipToCommand;
 import bot.commands.image.RedditSearchCommand;
 import bot.commands.text.EchoTextCommand;
+import bot.commands.text.WhisperTextCommand;
 import bot.commands.utilities.PingCommand;
 import bot.listeners.AliasCommandEventListener;
 import bot.listeners.VoiceChannelEventListener;
@@ -102,7 +103,7 @@ public class BotService
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
                 new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
-                aliasDeleteCommand, new EchoTextCommand());
+                aliasDeleteCommand, new EchoTextCommand(), new WhisperTextCommand());
 
         this.client = builder.build();
 
