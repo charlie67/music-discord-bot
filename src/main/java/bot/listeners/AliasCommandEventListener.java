@@ -48,6 +48,9 @@ public class AliasCommandEventListener extends ListenerAdapter
 
             String[] queryParts = query.split("\\s+");
             String commandName = queryParts[0];
+            queryParts[0] = "";
+
+            String commandExtraArgs = String.join(" ", queryParts).trim();
 
             AliasEntity aliasEntity = aliasEntityRepository.findByServerIdAndName(guildID, commandName);
 
@@ -57,8 +60,10 @@ public class AliasCommandEventListener extends ListenerAdapter
                 return;
             }
 
+            String args = aliasEntity.getArgs().equals("") ? aliasEntity.getArgs() : commandExtraArgs;
+
             Command commandToExecute = botService.getCommandFromName(aliasEntity.getCommand());
-            commandToExecute.run(new CommandEvent(event, aliasEntity.getArgs(), botService.getClient()));
+            commandToExecute.run(new CommandEvent(event, args, botService.getClient()));
         }
     }
 
