@@ -2,6 +2,12 @@ package bot.controller;
 
 import bot.service.BotService;
 import com.jagrosh.jdautilities.command.Command;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageActivity;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.internal.entities.AbstractMessage;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +41,44 @@ public class SendCommandController
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-//        command.run(new CommandEvent(new MessageReceivedEvent(botService.getJda())));
+//        command.run(new CommandEvent());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    class EndpointMessage extends AbstractMessage
+    {
+
+        public EndpointMessage(String content, String nonce, boolean isTTS, MessageChannel messageChannel, Member author)
+        {
+            super(content, nonce, isTTS);
+        }
+
+        @NotNull
+        @Override
+        public MessageChannel getChannel()
+        {
+            return super.getChannel();
+        }
+
+        @Override
+        protected void unsupported()
+        {
+            // do nothing
+        }
+
+        @Nullable
+        @Override
+        public MessageActivity getActivity()
+        {
+            return null;
+        }
+
+        @Override
+        public long getIdLong()
+        {
+            return 0;
+        }
     }
 }
