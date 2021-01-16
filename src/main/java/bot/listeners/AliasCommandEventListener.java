@@ -60,7 +60,7 @@ public class AliasCommandEventListener extends ListenerAdapter
                 return;
             }
 
-            String args = aliasEntity.getArgs().equals("") ? aliasEntity.getArgs() : commandExtraArgs;
+            String args = aliasEntity.getArgs().equals("") ? commandExtraArgs : aliasEntity.getArgs();
 
             Command commandToExecute = botService.getCommandFromName(aliasEntity.getCommand());
             commandToExecute.run(new CommandEvent(event, args, botService.getClient()));
