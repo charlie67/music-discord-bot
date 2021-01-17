@@ -1,17 +1,13 @@
 package bot.commands.alias;
 
 import bot.Entities.AliasEntity;
-import bot.listeners.AliasCommandEventListener;
 import bot.repositories.AliasEntityRepository;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_ALIAS_DOES_NOT_EXIST;
-import static bot.utils.TextChannelResponses.ALIAS_DELETE_ERROR_OCCURRED;
 import static bot.utils.TextChannelResponses.ALIAS_DELETE_NONE_PROVIDED;
 import static bot.utils.TextChannelResponses.ALIAS_REMOVED;
 
@@ -27,7 +23,7 @@ public class AliasDeleteCommand extends Command
         this.help = "Delete an alias with a specific name";
         this.aliases = new String[]{"ad"};
 
-        this.aliasEntityRepository= aliasEntityRepository;
+        this.aliasEntityRepository = aliasEntityRepository;
     }
 
 

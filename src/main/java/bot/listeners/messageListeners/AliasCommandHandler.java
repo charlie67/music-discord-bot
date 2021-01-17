@@ -1,4 +1,4 @@
-package bot.listeners;
+package bot.listeners.messageListeners;
 
 import bot.Entities.AliasEntity;
 import bot.repositories.AliasEntityRepository;
@@ -6,31 +6,28 @@ import bot.service.BotService;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-
 @Component
-public class AliasCommandEventListener extends ListenerAdapter
+public class AliasCommandHandler
 {
-    private final Logger LOGGER = LogManager.getLogger(AliasCommandEventListener.class);
+    private final Logger LOGGER = LogManager.getLogger(AliasCommandHandler.class);
 
     private BotService botService;
 
     private final AliasEntityRepository aliasEntityRepository;
 
     @Autowired
-    public AliasCommandEventListener(AliasEntityRepository aliasEntityRepository)
+    public AliasCommandHandler(AliasEntityRepository aliasEntityRepository)
     {
         this.aliasEntityRepository = aliasEntityRepository;
     }
 
-    @Override
-    public void onMessageReceived(@Nonnull MessageReceivedEvent event)
+    public void handle(@NotNull MessageReceivedEvent event)
     {
         // Return if it's a bot
         if (event.getAuthor().isBot())

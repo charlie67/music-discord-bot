@@ -22,8 +22,9 @@ import bot.commands.image.RedditSearchCommand;
 import bot.commands.text.EchoTextCommand;
 import bot.commands.text.WhisperTextCommand;
 import bot.commands.utilities.PingCommand;
-import bot.listeners.AliasCommandEventListener;
 import bot.listeners.VoiceChannelEventListener;
+import bot.listeners.messageListeners.AliasCommandHandler;
+import bot.listeners.messageListeners.MessageReceivedEventListener;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
@@ -70,7 +72,7 @@ public class BotService
 
     private final AliasListCommand aliasListCommand;
 
-    private final AliasCommandEventListener aliasCommandEventListener;
+    private final MessageReceivedEventListener messageReceivedEventListener;
 
     private CommandClient client;
 
@@ -78,15 +80,16 @@ public class BotService
 
     @Autowired
     public BotService(AliasCreateCommand aliasCreateCommand, AliasDeleteCommand aliasDeleteCommand,
-                      AliasListCommand aliasListCommand, AliasCommandEventListener aliasCommandEventListener)
+                      AliasListCommand aliasListCommand, AliasCommandHandler aliasCommandHandler,
+                      MessageReceivedEventListener messageReceivedEventListener)
     {
         this.aliasCreateCommand = aliasCreateCommand;
         this.aliasDeleteCommand = aliasDeleteCommand;
         this.aliasListCommand = aliasListCommand;
-        this.aliasCommandEventListener = aliasCommandEventListener;
+        this.messageReceivedEventListener = messageReceivedEventListener;
 
         // break a circular dependency
-        aliasCommandEventListener.setBotService(this);
+        aliasCommandHandler.setBotService(this);
     }
 
     public void startBot() throws LoginException
@@ -125,11 +128,10 @@ public class BotService
         aliasCreateCommand.setAllCurrentCommandNames(commandNameSet);
         aliasCreateCommand.setCommandNameToCommandMap(commandNameToCommandMap);
 
-
         this.jda = JDABuilder.create(DISCORD_BOT_KEY,
                 GUILD_MEMBERS, GUILD_VOICE_STATES, GUILD_MESSAGES,
-                GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS).addEventListeners(client,
-                new VoiceChannelEventListener(), aliasCommandEventListener).build();
+                GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS, DIRECT_MESSAGES).addEventListeners(client,
+                new VoiceChannelEventListener(), messageReceivedEventListener).build();
     }
 
     public void shutdownBot()
