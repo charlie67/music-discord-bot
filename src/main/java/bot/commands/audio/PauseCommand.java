@@ -3,8 +3,8 @@ package bot.commands.audio;
 import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.utils.TextChannelResponses;
 import bot.utils.UnicodeEmote;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,8 +23,7 @@ public class PauseCommand extends Command
     {
         try
         {
-            VoiceChannelUtils.setPauseStatusOnAudioPlayer(event.getGuild(), event.getChannel(), event.getMember(),
-                    true);
+            VoiceChannelUtils.setPauseStatusOnAudioPlayer(event, true);
         }
         catch(IllegalArgumentException e)
         {

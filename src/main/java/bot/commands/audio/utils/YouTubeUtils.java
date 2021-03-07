@@ -1,6 +1,5 @@
 package bot.commands.audio.utils;
 
-import bot.utils.GetSystemEnvironmentOrDefaultValue;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -91,7 +90,7 @@ public class YouTubeUtils
         }
     }
 
-    static AudioTrack getRelatedVideo(String videoID, List<AudioTrack> history) throws IOException,
+    static AudioTrack getRelatedVideo(String videoID, List<AudioTrack> history, String youtubeApiKey) throws IOException,
             FriendlyException
     {
         LOGGER.info("finding related video for videoID {}", videoID);
@@ -103,7 +102,7 @@ public class YouTubeUtils
         YouTube.Search.List search = youtube.search().list("id");
 
         //set the API key
-        search.setKey(GetSystemEnvironmentOrDefaultValue.get("YOUTUBE_API_KEY"));
+        search.setKey(youtubeApiKey);
         search.setRelatedToVideoId(videoID);
         search.setEventType("none");
         search.setSafeSearch("none");

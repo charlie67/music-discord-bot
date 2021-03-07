@@ -3,8 +3,8 @@ package bot.commands.audio;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.utils.UnicodeEmote;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 
 public class ClearQueueCommand extends Command
 {

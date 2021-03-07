@@ -1,4 +1,4 @@
-package bot.Entities;
+package bot.entities;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

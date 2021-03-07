@@ -1,10 +1,9 @@
 package bot.commands.image;
 
-import bot.utils.Injector;
-import bot.utils.SystemEnv;
+import bot.utils.BotConfiguration;
 import bot.utils.TextChannelResponses;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import net.dean.jraw.ApiException;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.OkHttpNetworkAdapter;
@@ -19,36 +18,35 @@ import net.dean.jraw.pagination.DefaultPaginator;
 import net.dean.jraw.references.SubredditReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+@Component
 public class RedditSearchCommand extends Command
 {
-    private final Logger LOGGER = LogManager.getLogger(RedditSearchCommand.class);
-
-    @SystemEnv("REDDIT_CLIENT_ID")
-    private String REDDIT_CLIENT_ID;
-
-    @SystemEnv("REDDIT_CLIENT_SECRET")
-    private String REDDIT_CLIENT_SECRET;
+    private static final Logger LOGGER = LogManager.getLogger(RedditSearchCommand.class);
 
     private final RedditClient reddit;
 
     //maps subreddit onto links for that subreddit
     private final HashMap<String, SubredditHashComponent> subredditHashMap = new HashMap<>();
 
-    public RedditSearchCommand()
+    @Autowired
+    public RedditSearchCommand(BotConfiguration botConfiguration)
     {
         this.name = "redditsearch";
         this.help = "Search reddit for an image from a supplied subreddit";
 
-        Injector.injectSystemEnvValue(this);
+        String redditClientId = botConfiguration.getRedditClientId();
+        String redditClientSecret = botConfiguration.getRedditClientSecret();
 
         // Assuming we have a 'script' reddit app
-        Credentials oauthCreds = Credentials.userless(REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, new UUID(1, 99999));
+        Credentials oauthCreds = Credentials.userless(redditClientId, redditClientSecret, new UUID(1, 99999));
 
         // Create a unique User-Agent for our bot
         UserAgent userAgent = new UserAgent("bot", "hireddit", "0", "me");
@@ -125,8 +123,8 @@ public class RedditSearchCommand extends Command
     class SubredditHashComponent
     {
         long timeStored;
-        private List<Submission> subredditItems;
-        private DefaultPaginator<Submission> paginator;
+        private final List<Submission> subredditItems;
+        private final DefaultPaginator<Submission> paginator;
         private int itemCounter = 0;
 
         SubredditHashComponent(long timeStored, String subreddit) throws ApiException
@@ -148,7 +146,7 @@ public class RedditSearchCommand extends Command
 
         String getNewUrlItem() throws IllegalAccessException
         {
-            if (subredditItems.size() == 0)
+            if (subredditItems.isEmpty())
             {
                 throw new IllegalAccessException("No items in the subreddit to display");
             }

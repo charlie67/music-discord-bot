@@ -1,38 +1,38 @@
 package bot.commands.text;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
-import net.dv8tion.jda.api.entities.ChannelType;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DmCommand extends Command
 {
+    private static final Logger LOGGER = LogManager.getLogger(DmCommand.class);
+
     public DmCommand()
     {
-        this.name = "d";
+        this.name = "dm";
         this.hidden = true;
-        this.guildOnly = false;
+        this.allowedInGuild = false;
+        this.allowedInDm = true;
     }
 
     @Override
     protected void execute(CommandEvent event)
     {
-        // message format of -d <ID> message only in a dm
-        if (!event.isFromType(ChannelType.PRIVATE))
-        {
-            return;
-        }
+        String rawContent = event.getMessage().getContentRaw();
+        String[] queryParts = rawContent.split("\\s+");
 
-        String[] queryParts = event.getArgs().split("\\s+");
-
-        if (queryParts.length < 2)
+        if (queryParts.length < 3)
         {
             fail(event);
             return;
         }
 
-        String userID = queryParts[0];
+        String userID = queryParts[1];
         queryParts[0] = "";
+        queryParts[1] = "";
 
         String message = String.join(" ", queryParts).trim();
 
@@ -40,15 +40,16 @@ public class DmCommand extends Command
 
         if (userToDm == null)
         {
+            LOGGER.debug("User ID {} not found", userID);
             fail(event);
             return;
         }
 
-        userToDm.openPrivateChannel().queue((channel) -> channel.sendMessage(message).queue());
+        userToDm.openPrivateChannel().queue(channel -> channel.sendMessage(message).queue());
     }
 
     private void fail(CommandEvent event)
     {
-        event.getAuthor().openPrivateChannel().queue((channel) -> channel.sendMessage("noob").queue());
+        event.getAuthor().openPrivateChannel().queue(channel -> channel.sendMessage("noob").queue());
     }
 }

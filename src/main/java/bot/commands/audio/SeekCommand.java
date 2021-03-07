@@ -3,8 +3,8 @@ package bot.commands.audio;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.managers.AudioManager;
 

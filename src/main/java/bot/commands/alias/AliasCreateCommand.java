@@ -1,9 +1,9 @@
 package bot.commands.alias;
 
-import bot.Entities.AliasEntity;
+import bot.entities.AliasEntity;
 import bot.repositories.AliasEntityRepository;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

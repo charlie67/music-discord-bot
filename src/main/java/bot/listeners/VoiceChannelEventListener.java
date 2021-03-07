@@ -1,8 +1,7 @@
 package bot.listeners;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
-import bot.utils.Injector;
-import bot.utils.SystemEnv;
+import bot.utils.BotConfiguration;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
@@ -10,6 +9,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -18,20 +18,20 @@ import java.util.TimerTask;
 
 public class VoiceChannelEventListener extends ListenerAdapter
 {
-    // 60 milliseconds
+    // 60 seconds
     public static final int VOICE_CHECK_DELAY = 60 * 1000;
 
     /**
      * The discord ID of the bot used to check if the bot is alone in the voice channel
      */
-    @SystemEnv("BOT_USER_ID")
-    private String BOT_USER_ID;
+    private final String botUserId;
 
-    public VoiceChannelEventListener()
+    @Autowired
+    public VoiceChannelEventListener(BotConfiguration botConfiguration)
     {
         super();
 
-        Injector.injectSystemEnvValue(this);
+        this.botUserId = botConfiguration.getUserId();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class VoiceChannelEventListener extends ListenerAdapter
     {
         Member movedMember = event.getMember();
 
-        if (!movedMember.getId().equals(BOT_USER_ID))
+        if (!movedMember.getId().equals(botUserId))
         {
             return;
         }
@@ -65,7 +65,7 @@ public class VoiceChannelEventListener extends ListenerAdapter
     public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event)
     {
         Member leftMember = event.getMember();
-        boolean leftMemberIsBot = leftMember.getId().equals(BOT_USER_ID);
+        boolean leftMemberIsBot = leftMember.getId().equals(botUserId);
         List<Member> membersLeft = event.getChannelLeft().getMembers();
 
         AudioManager audioManager = event.getGuild().getAudioManager();
@@ -83,7 +83,7 @@ public class VoiceChannelEventListener extends ListenerAdapter
         // The bot can be considered alone if it's by itself or if it's alone with another bot
         boolean botAlone = (membersLeft.size() == 1 && !leftMemberIsBot) || onlyBotsLeft;
 
-        if (leftMemberIsBot || membersLeft.size() == 0)
+        if (leftMemberIsBot || membersLeft.isEmpty())
         {
             leaveVoiceChannel(event);
         }

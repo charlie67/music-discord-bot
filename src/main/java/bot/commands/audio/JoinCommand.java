@@ -2,8 +2,8 @@ package bot.commands.audio;
 
 import bot.commands.audio.utils.VoiceChannelUtils;
 import bot.utils.TextChannelResponses;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
@@ -11,12 +11,15 @@ public class JoinCommand extends Command
 {
     //The audio player manager that the audio player will be created from
     private final AudioPlayerManager playerManager;
+    private final String youtubeApiKey;
 
-    public JoinCommand(AudioPlayerManager playerManager)
+    public JoinCommand(AudioPlayerManager playerManager, String youtubeApiKey)
     {
         this.playerManager = playerManager;
         this.name = "join";
         this.help = "Joins the voice channel that the user is currently connected to";
+
+        this.youtubeApiKey = youtubeApiKey;
     }
 
     @Override
@@ -24,7 +27,7 @@ public class JoinCommand extends Command
     {
         try
         {
-            VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), playerManager);
+            VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), youtubeApiKey, playerManager);
         }
         catch(IllegalArgumentException e)
         {

@@ -90,7 +90,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
 
     private void queueTrackAndStartNextSong(AudioTrack track)
     {
-        long queueDurationInMilliSeconds = trackScheduler.getDurationInMilliSeconds();
+        long queueDurationInMilliSeconds = trackScheduler.getQueueDurationInMilliSeconds();
         trackScheduler.queue(track, playTop);
 
         EmbedBuilder eb = getAudioTrackMessage(track, trackScheduler.getQueueSize(), queueDurationInMilliSeconds);

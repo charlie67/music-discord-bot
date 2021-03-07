@@ -1,9 +1,11 @@
 package bot.service;
 
+import bot.api.dto.TriggerCommandDto;
 import bot.commands.alias.AliasCreateCommand;
 import bot.commands.alias.AliasDeleteCommand;
 import bot.commands.alias.AliasListCommand;
 import bot.commands.audio.ClearQueueCommand;
+import bot.commands.audio.HistoryCommand;
 import bot.commands.audio.JoinCommand;
 import bot.commands.audio.LeaveCommand;
 import bot.commands.audio.LoopCommand;
@@ -19,30 +21,36 @@ import bot.commands.audio.ShuffleCommand;
 import bot.commands.audio.SkipSongCommand;
 import bot.commands.audio.SkipToCommand;
 import bot.commands.image.RedditSearchCommand;
+import bot.commands.text.DmCommand;
 import bot.commands.text.EchoTextCommand;
 import bot.commands.text.WhisperTextCommand;
 import bot.commands.utilities.PingCommand;
 import bot.listeners.VoiceChannelEventListener;
-import bot.listeners.messageListeners.AliasCommandHandler;
-import bot.listeners.messageListeners.MessageReceivedEventListener;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandClient;
-import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import bot.repositories.AliasEntityRepository;
+import bot.utils.BotConfiguration;
+import bot.utils.command.Command;
+import bot.utils.command.CommandClient;
+import bot.utils.command.CommandClientBuilder;
+import bot.utils.command.CommandEvent;
+import bot.utils.command.impl.ApiCommandEvent;
+import bot.utils.command.impl.ApiMessage;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.LoginException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
@@ -55,41 +63,34 @@ import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
 @Service
 public class BotService
 {
-    @Value("${DISCORD_BOT_KEY}")
-    private String DISCORD_BOT_KEY;
-
-    @Value("${OWNER_ID}")
-    private String OWNER_ID;
-
+    public static final String COMMAND_PREFIX = "-";
+    private final String discordBotKey;
+    private final String ownerId;
+    private final BotConfiguration botConfiguration;
+    private final RedditSearchCommand redditSearchCommand;
+    private final AliasEntityRepository aliasEntityRepository;
+    private final AliasCreateCommand aliasCreateCommand;
+    private final AliasDeleteCommand aliasDeleteCommand;
+    private final AliasListCommand aliasListCommand;
     private JDA jda;
     private AudioPlayerManager playerManager;
-
-    public static final String COMMAND_PREFIX = "-";
-
-    private final AliasCreateCommand aliasCreateCommand;
-
-    private final AliasDeleteCommand aliasDeleteCommand;
-
-    private final AliasListCommand aliasListCommand;
-
-    private final MessageReceivedEventListener messageReceivedEventListener;
-
     private CommandClient client;
-
-    private Map<String, Command> commandNameToCommandMap;
 
     @Autowired
     public BotService(AliasCreateCommand aliasCreateCommand, AliasDeleteCommand aliasDeleteCommand,
-                      AliasListCommand aliasListCommand, AliasCommandHandler aliasCommandHandler,
-                      MessageReceivedEventListener messageReceivedEventListener)
+                      AliasListCommand aliasListCommand, AliasEntityRepository aliasEntityRepository,
+                      RedditSearchCommand redditSearchCommand, BotConfiguration botConfiguration)
     {
         this.aliasCreateCommand = aliasCreateCommand;
         this.aliasDeleteCommand = aliasDeleteCommand;
         this.aliasListCommand = aliasListCommand;
-        this.messageReceivedEventListener = messageReceivedEventListener;
+        this.aliasEntityRepository = aliasEntityRepository;
 
-        // break a circular dependency
-        aliasCommandHandler.setBotService(this);
+        this.redditSearchCommand = redditSearchCommand;
+
+        this.discordBotKey = botConfiguration.getDiscordKey();
+        this.ownerId = botConfiguration.getOwnerId();
+        this.botConfiguration = botConfiguration;
     }
 
     public void startBot() throws LoginException
@@ -98,40 +99,26 @@ public class BotService
         AudioSourceManagers.registerRemoteSources(playerManager);
 
         CommandClientBuilder builder = new CommandClientBuilder();
-        builder.setPrefix(COMMAND_PREFIX);
-        builder.setActivity(null);
-        builder.setOwnerId(OWNER_ID);
-        builder.addCommands(new JoinCommand(playerManager), new PlayCommand(playerManager),
-                new PlayTopCommand(playerManager), new QueueCommand(), new LeaveCommand(), new NowPlayingCommand(),
-                new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
-                new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
-                new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
-                aliasDeleteCommand, new EchoTextCommand(), new WhisperTextCommand());
+        builder.setPrefix(COMMAND_PREFIX)
+                .setActivity(null)
+                .setOwnerId(ownerId)
+                .setAliasEntityRepository(aliasEntityRepository)
+                .setAliasCreateCommand(aliasCreateCommand)
+                .addCommands(new JoinCommand(playerManager, botConfiguration.getYoutubeApiKey()),
+                        new PlayCommand(playerManager, botConfiguration.getYoutubeApiKey()),
+                        new PlayTopCommand(playerManager, botConfiguration.getYoutubeApiKey()), new QueueCommand(),
+                        new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(), new ClearQueueCommand(),
+                        new RemoveCommand(), new SeekCommand(), new PingCommand(), new ShuffleCommand(), new SkipToCommand(),
+                        redditSearchCommand, new PauseCommand(), new ResumeCommand(), new LoopCommand(),
+                        aliasListCommand, aliasDeleteCommand, new EchoTextCommand(), new WhisperTextCommand(),
+                        new HistoryCommand(), new DmCommand());
 
         this.client = builder.build();
 
-        this.commandNameToCommandMap = new HashMap<>();
-
-        Set<String> commandNameSet = new HashSet<>();
-        client.getCommands().forEach(command ->
-        {
-            commandNameToCommandMap.put(command.getName(), command);
-            for (String commandAlias : command.getAliases())
-            {
-                commandNameToCommandMap.put(commandAlias, command);
-            }
-
-            commandNameSet.add(command.getName());
-            Collections.addAll(commandNameSet, command.getAliases());
-        });
-
-        aliasCreateCommand.setAllCurrentCommandNames(commandNameSet);
-        aliasCreateCommand.setCommandNameToCommandMap(commandNameToCommandMap);
-
-        this.jda = JDABuilder.create(DISCORD_BOT_KEY,
+        this.jda = JDABuilder.create(discordBotKey,
                 GUILD_MEMBERS, GUILD_VOICE_STATES, GUILD_MESSAGES,
                 GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS, DIRECT_MESSAGES).addEventListeners(client,
-                new VoiceChannelEventListener(), messageReceivedEventListener).build();
+                new VoiceChannelEventListener(botConfiguration)).build();
     }
 
     public void shutdownBot()
@@ -154,8 +141,38 @@ public class BotService
         return client;
     }
 
-    public Command getCommandFromName(String commandName)
+    public Command getCommandWithName(String name)
     {
-        return commandNameToCommandMap.get(commandName);
+        return client.getCommandWithName(name);
+    }
+
+    public CommandEvent createCommandEvent(TriggerCommandDto triggerCommandDto) throws IllegalArgumentException
+    {
+        User user = jda.getUserById(triggerCommandDto.getAuthorId());
+        if (user == null)
+        {
+            throw new IllegalArgumentException("user is null");
+        }
+
+        TextChannel textChannel = jda.getTextChannelById(triggerCommandDto.getTextChannelId());
+        MessageChannel messageChannel = null; // unsupported
+        PrivateChannel privateChannel = null; // unsupported
+        Message apiMessage = new ApiMessage("-" + triggerCommandDto.getCommandName() + " " + triggerCommandDto.getCommandArgs());
+
+        Guild guild = jda.getGuildById(triggerCommandDto.getGuildId());
+        if (guild == null)
+        {
+            throw new IllegalArgumentException("guild is null");
+        }
+
+        Member member = guild.getMember(user);
+        if (member == null)
+        {
+            throw new IllegalArgumentException("member is null");
+        }
+
+        return new ApiCommandEvent(user, textChannel, messageChannel, privateChannel,
+                apiMessage, member, jda, guild, ChannelType.TEXT,
+                triggerCommandDto.getCommandArgs(), client);
     }
 }

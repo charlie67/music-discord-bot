@@ -16,19 +16,28 @@ import java.util.List;
 
 public class TrackScheduler extends AudioEventAdapter
 {
-    private List<AudioTrack> queue = new ArrayList<>();
-    private final Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
-
-    private AudioTrack loopTrack = null;
-
-    private long durationInMilliSeconds = 0;
-
+    private static final Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
     private final EvictingQueue<AudioTrack> historyQueue = EvictingQueue.create(20);
+    /**
+     * The API key needed to call the YouTube API
+     */
+    private final String youtubeApiKey;
+    private List<AudioTrack> queue = new ArrayList<>();
+    private AudioTrack loopTrack = null;
+    /**
+     * The duration of the queue
+     */
+    private long queueDurationInMilliSeconds = 0;
+
+    public TrackScheduler(String youtubeApiKey)
+    {
+        this.youtubeApiKey = youtubeApiKey;
+    }
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
-        LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason.toString());
+        LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason);
         historyQueue.add(track);
 
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
@@ -42,7 +51,7 @@ public class TrackScheduler extends AudioEventAdapter
             return;
         }
 
-        if (queue.size() > 0)
+        if (!queue.isEmpty())
         {
             player.playTrack(nextTrack());
             return;
@@ -53,15 +62,16 @@ public class TrackScheduler extends AudioEventAdapter
             try
             {
                 String oldTrackId = track.getInfo().identifier;
-                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId, new ArrayList<>(historyQueue));
-                durationInMilliSeconds += nextTrack.getDuration();
+                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId, new ArrayList<>(historyQueue),
+                        youtubeApiKey);
+                queueDurationInMilliSeconds += nextTrack.getDuration();
                 queue.add(nextTrack);
                 player.playTrack(nextTrack());
 
             }
             catch(IOException | IllegalArgumentException | FriendlyException e)
             {
-                LOGGER.error("Encountered error when trying to find a related video", e);
+                LOGGER.error("Encountered error when trying to find a related video {}", e.getMessage());
             }
         }
     }
@@ -69,6 +79,7 @@ public class TrackScheduler extends AudioEventAdapter
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception)
     {
+        LOGGER.error("Error when playing track", exception);
     }
 
     @Override
@@ -79,7 +90,7 @@ public class TrackScheduler extends AudioEventAdapter
 
     public void queue(AudioTrack track, boolean queueFirst)
     {
-        durationInMilliSeconds += track.getDuration();
+        queueDurationInMilliSeconds += track.getDuration();
         if (queueFirst)
         {
             queue.add(0, track);
@@ -90,7 +101,7 @@ public class TrackScheduler extends AudioEventAdapter
 
     public void clearQueue()
     {
-        durationInMilliSeconds = 0;
+        queueDurationInMilliSeconds = 0;
         queue.clear();
     }
 
@@ -101,10 +112,10 @@ public class TrackScheduler extends AudioEventAdapter
 
     AudioTrack nextTrack()
     {
-        if (queue.size() > 0)
+        if (!queue.isEmpty())
         {
             AudioTrack audioTrack = queue.get(0);
-            durationInMilliSeconds -= audioTrack.getDuration();
+            queueDurationInMilliSeconds -= audioTrack.getDuration();
             queue.remove(0);
             return audioTrack;
         }
@@ -112,19 +123,19 @@ public class TrackScheduler extends AudioEventAdapter
         return null;
     }
 
-    public void setQueue(List<AudioTrack> queue)
-    {
-        this.queue = queue;
-    }
-
     public List<AudioTrack> getQueue()
     {
         return queue;
     }
 
-    public long getDurationInMilliSeconds()
+    public void setQueue(List<AudioTrack> queue)
     {
-        return durationInMilliSeconds;
+        this.queue = queue;
+    }
+
+    public long getQueueDurationInMilliSeconds()
+    {
+        return queueDurationInMilliSeconds;
     }
 
     public AudioTrack getLoopTrack()

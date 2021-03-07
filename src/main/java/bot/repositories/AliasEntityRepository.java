@@ -1,7 +1,7 @@
 package bot.repositories;
 
 
-import bot.Entities.AliasEntity;
+import bot.entities.AliasEntity;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Set;

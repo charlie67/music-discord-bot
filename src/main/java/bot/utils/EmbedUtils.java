@@ -1,7 +1,7 @@
 package bot.utils;
 
 import bot.commands.audio.utils.TrackScheduler;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -47,7 +47,7 @@ public class EmbedUtils
         if (totalTime)
         {
             sb.append(String.format("%d songs in queue | %s total duration", queue.size(),
-                    TimeUtils.timeString(trackScheduler.getDurationInMilliSeconds() / 1000)));
+                    TimeUtils.timeString(trackScheduler.getQueueDurationInMilliSeconds() / 1000)));
         }
         else
         {

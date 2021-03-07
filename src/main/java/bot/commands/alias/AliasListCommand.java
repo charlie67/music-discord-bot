@@ -1,15 +1,13 @@
 package bot.commands.alias;
 
-import bot.Entities.AliasEntity;
+import bot.entities.AliasEntity;
 import bot.repositories.AliasEntityRepository;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 import static bot.utils.TextChannelResponses.NO_ALIASES_SET;

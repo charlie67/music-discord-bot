@@ -1,6 +1,7 @@
 package bot.commands.audio.utils;
 
 import bot.utils.TextChannelResponses;
+import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.JDA;
@@ -28,7 +29,9 @@ public class VoiceChannelUtils
      * @throws IllegalArgumentException        If the voice channel can't be joined
      * @throws InsufficientPermissionException If the bot lacks the permission to join the voice channel
      */
-    public static void joinVoiceChannel(Member member, Guild guild, AudioPlayerManager playerManager) throws IllegalArgumentException, InsufficientPermissionException
+    public static void joinVoiceChannel(Member member, Guild guild, String youtubeApiKey,
+                                        AudioPlayerManager playerManager) throws IllegalArgumentException,
+            InsufficientPermissionException
     {
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
@@ -40,50 +43,29 @@ public class VoiceChannelUtils
         AudioManager audioManager = guild.getAudioManager();
 
         AudioPlayer player = playerManager.createPlayer();
-        TrackScheduler trackScheduler = new TrackScheduler();
+        TrackScheduler trackScheduler = new TrackScheduler(youtubeApiKey);
         player.addListener(trackScheduler);
 
         audioManager.setSendingHandler(new AudioPlayerSendHandler(player, trackScheduler));
         audioManager.openAudioConnection(memberVoiceState.getChannel());
     }
 
-    public static void SearchAndPlaySong(JDA jda, String argument, String guildId, String textChannelId,
-                                         String memberId, boolean playTop, AudioPlayerManager playerManager) throws IllegalArgumentException
+    /**
+     * Search and play a song, joining the required voice channel if necessary
+     *
+     * @param event         The event that cased this to happen
+     * @param playTop       If this should be placed at the top of the queue
+     * @param playerManager Used for creating audio players and loading tracks and playlists.
+     * @param youtubeApiKey The API key for youtube
+     * @throws IllegalArgumentException If an error occurred during play
+     */
+    public static void searchAndPlaySong(CommandEvent event, boolean playTop, AudioPlayerManager playerManager,
+                                         String youtubeApiKey) throws IllegalArgumentException
     {
-        if (guildId == null || guildId.equals(""))
-        {
-            throw new IllegalArgumentException("Guild ID is NULL");
-        }
-
-        if (textChannelId == null || textChannelId.equals(""))
-        {
-            throw new IllegalArgumentException("message channel ID is NULL");
-        }
-
-        if (memberId == null || memberId.equals(""))
-        {
-            throw new IllegalArgumentException("member ID is NULL");
-        }
-
-
-        Guild guild = jda.getGuildById(guildId);
-        if (guild == null)
-        {
-            throw new IllegalArgumentException("Guild is NULL is the ID correct?");
-        }
-
-        MessageChannel channel = guild.getTextChannelById(textChannelId);
-        if (channel == null)
-        {
-            throw new IllegalArgumentException("Channel is NULL is the ID correct?");
-        }
-
-        // The user who triggered the command
-        Member member = guild.getMemberById(memberId);
-        if (member == null)
-        {
-            throw new IllegalArgumentException("Member is NULL is the ID correct?");
-        }
+        String argument = event.getArgs();
+        MessageChannel channel = event.getChannel();
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
 
         if (argument.isEmpty())
         {
@@ -98,7 +80,7 @@ public class VoiceChannelUtils
         {
             try
             {
-                VoiceChannelUtils.joinVoiceChannel(member, guild, playerManager);
+                VoiceChannelUtils.joinVoiceChannel(member, guild, youtubeApiKey, playerManager);
             }
             catch(InsufficientPermissionException e)
             {
@@ -126,7 +108,7 @@ public class VoiceChannelUtils
 
         if (!isValidURL(argument))
         {
-            LOGGER.info("argument is not a url so prepending ytsearch");
+            LOGGER.info("{} is not a url so prepending ytsearch", argument);
             argument = "ytsearch: ".concat(argument);
         }
         playerManager.loadItem(argument, new AudioSearchResultHandler(trackScheduler, audioPlayerSendHandler, channel
@@ -170,10 +152,13 @@ public class VoiceChannelUtils
         return (AudioPlayerSendHandler) audioManager.getSendingHandler();
     }
 
-    public static void setPauseStatusOnAudioPlayer(Guild guild, MessageChannel channel, Member member,
-                                                   boolean pauseStatus) throws IllegalArgumentException,
+    public static void setPauseStatusOnAudioPlayer(CommandEvent event, boolean pauseStatus) throws IllegalArgumentException,
             IllegalAccessException
     {
+        Guild guild = event.getGuild();
+        MessageChannel channel = event.getChannel();
+        Member member = event.getMember();
+
         AudioManager audioManager = guild.getAudioManager();
 
         if (!audioManager.isConnected())
