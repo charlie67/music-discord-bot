@@ -1,10 +1,38 @@
 version: '2'
 services:
-  mongo-discord:
-    image: mongo:latest
-    hostname: mongo-discord
-    container_name: mongo-discord
+  db-discord:
+    container_name: db-discord
+    hostname: db-discord
+    image: postgres:9.6-alpine
     ports:
-    - 27017:27017
+      - "5432:5432"
+    networks:
+      - discord
+    environment:
+      POSTGRES_USER: discord
+      POSTGRES_PASSWORD: discord
+      POSTGRES_DB: discord
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - /opt/discord-bot/mongodata:/data/db
+      - /opt/discord-bot/postgresData/data:/var/lib/postgresql/data
+    restart: always
+
+  discord-music-bot:
+    image: charlie67/discord-music-bot:master
+    hostname: discord-music-bot
+    container_name: discord-music-bot
+    networks:
+      - discord
+    environment:
+      - YOUTUBE_API_KEY=****KEY****
+      - DISCORD_BOT_KEY=****KEY****
+      - BOT_USER_ID=1234
+      - REDDIT_CLIENT_ID==****KEY****
+      - REDDIT_CLIENT_SECRET==****KEY****
+      - OWNER_ID=12345
+      - POSTGRES_LOCATION=jdbc:postgresql://db-discord:5432/postgres
+    restart: always
+    
+networks:
+  discord:
+    driver: bridge
