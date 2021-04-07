@@ -30,7 +30,7 @@ public class CommandTriggerController
     {
         Command command = botService.getCommandWithName(triggerCommandDto.getCommandName());
 
-        if (command == null)
+        if (!allRequiredVariablesPresent(triggerCommandDto) || command == null)
         {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -38,7 +38,14 @@ public class CommandTriggerController
         CommandEvent apiCommandEvent;
         try
         {
-            apiCommandEvent = botService.createCommandEvent(triggerCommandDto);
+            if (triggerCommandDto.isSilent())
+            {
+                apiCommandEvent = botService.createSilentCommandEvent(triggerCommandDto);
+            }
+            else
+            {
+                apiCommandEvent = botService.createCommandEvent(triggerCommandDto);
+            }
         } catch (IllegalArgumentException e)
         {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -46,5 +53,26 @@ public class CommandTriggerController
         command.run(apiCommandEvent);
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    private boolean allRequiredVariablesPresent(TriggerCommandDto triggerCommandDto)
+    {
+        if (triggerCommandDto.getCommandArgs() == null)
+        {
+            return false;
+        }
+        else if (triggerCommandDto.getCommandName() == null)
+        {
+            return false;
+        }
+        else if (triggerCommandDto.getAuthorId() == null)
+        {
+            return false;
+        }
+        else if (triggerCommandDto.getGuildId() == null)
+        {
+            return false;
+        }
+        else return triggerCommandDto.getTextChannelId() != null;
     }
 }

@@ -34,6 +34,7 @@ import bot.utils.command.CommandClientBuilder;
 import bot.utils.command.CommandEvent;
 import bot.utils.command.impl.ApiCommandEvent;
 import bot.utils.command.impl.ApiMessage;
+import bot.utils.command.impl.ApiTextChannel;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -154,7 +155,15 @@ public class BotService
             throw new IllegalArgumentException("user is null");
         }
 
-        TextChannel textChannel = jda.getTextChannelById(triggerCommandDto.getTextChannelId());
+        TextChannel textChannel;
+        if (triggerCommandDto.isSilent())
+        {
+            textChannel = new ApiTextChannel();
+        }
+        else
+        {
+            textChannel = jda.getTextChannelById(triggerCommandDto.getTextChannelId());
+        }
         MessageChannel messageChannel = null; // unsupported
         PrivateChannel privateChannel = null; // unsupported
         Message apiMessage = new ApiMessage("-" + triggerCommandDto.getCommandName() + " " + triggerCommandDto.getCommandArgs());

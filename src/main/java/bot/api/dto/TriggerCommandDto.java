@@ -14,6 +14,8 @@ public class TriggerCommandDto implements Serializable
 
     String textChannelId;
 
+    boolean silent;
+
 
     public String getCommandName()
     {
@@ -63,5 +65,15 @@ public class TriggerCommandDto implements Serializable
     public void setTextChannelId(String textChannelId)
     {
         this.textChannelId = textChannelId;
+    }
+
+    public boolean isSilent()
+    {
+        return silent;
+    }
+
+    public void setSilent(boolean silent)
+    {
+        this.silent = silent;
     }
 }
