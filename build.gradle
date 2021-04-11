@@ -13,6 +13,9 @@ mainClassName = "bot.ApplicationBootstrap"
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url 'https://m2.dv8tion.net/releases'
+    }
 }
 
 dependencies {
@@ -23,7 +26,7 @@ dependencies {
     compile 'org.awaitility:awaitility:4.0.1'
 
     compile 'net.dv8tion:JDA:+'
-    compile 'com.sedmelluq:lavaplayer:1.3.66'
+    implementation 'com.sedmelluq:lavaplayer:1.3.76'
     compile 'com.jagrosh:jda-utilities:+'
 
     //youtube
@@ -60,11 +63,11 @@ test {
     }
 }
 
-jar {
-    manifest {
-        attributes(
-                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': mainClassName
-        )
-    }
-}
+//jar {
+//    manifest {
+//        attributes(
+//                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+//                'Main-Class': mainClassName
+//        )
+//    }
+//}
