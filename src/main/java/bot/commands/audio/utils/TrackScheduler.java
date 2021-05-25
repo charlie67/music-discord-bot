@@ -28,7 +28,7 @@ public class TrackScheduler extends AudioEventAdapter
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
-        LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason.toString());
+        LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason);
         historyQueue.add(track);
 
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
@@ -42,7 +42,7 @@ public class TrackScheduler extends AudioEventAdapter
             return;
         }
 
-        if (queue.size() > 0)
+        if (!queue.isEmpty())
         {
             player.playTrack(nextTrack());
             return;
@@ -50,31 +50,39 @@ public class TrackScheduler extends AudioEventAdapter
 
         if (track instanceof YoutubeAudioTrack)
         {
-            try
+            String oldTrackId = track.getInfo().identifier;
+            AudioTrack nextTrack = getRelatedVideoRetry(oldTrackId, 0);
+            if (nextTrack != null)
             {
-                String oldTrackId = track.getInfo().identifier;
-                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId, new ArrayList<>(historyQueue));
-                durationInMilliSeconds += nextTrack.getDuration();
-                queue.add(nextTrack);
-                player.playTrack(nextTrack());
-
-            }
-            catch(IOException | IllegalArgumentException | FriendlyException e)
-            {
-                LOGGER.error("Encountered error when trying to find a related video", e);
+                player.playTrack(nextTrack);
             }
         }
+    }
+
+    public AudioTrack getRelatedVideoRetry(String trackId, int retryAmount)
+    {
+        if (retryAmount >= 10)
+        {
+            return null;
+        }
+
+        try
+        {
+            return YouTubeUtils.getRelatedVideo(trackId, new ArrayList<>(historyQueue));
+
+        }
+        catch(IOException | IllegalArgumentException | FriendlyException e)
+        {
+            LOGGER.error("Encountered error when trying to find a related video", e);
+        }
+
+        return getRelatedVideoRetry(trackId, retryAmount + 1);
     }
 
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception)
     {
-    }
-
-    @Override
-    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs)
-    {
-        super.onTrackStuck(player, track, thresholdMs);
+        LOGGER.error("error when playing track", exception);
     }
 
     public void queue(AudioTrack track, boolean queueFirst)
@@ -101,7 +109,7 @@ public class TrackScheduler extends AudioEventAdapter
 
     AudioTrack nextTrack()
     {
-        if (queue.size() > 0)
+        if (!queue.isEmpty())
         {
             AudioTrack audioTrack = queue.get(0);
             durationInMilliSeconds -= audioTrack.getDuration();
