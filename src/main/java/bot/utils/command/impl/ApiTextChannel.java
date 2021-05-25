@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -30,6 +31,7 @@ import java.util.List;
 
 public class ApiTextChannel implements TextChannel
 {
+
     @Nullable
     @Override
     public String getTopic()
@@ -227,6 +229,13 @@ public class ApiTextChannel implements TextChannel
 
     @NotNull
     @Override
+    public RestAction<Webhook.WebhookReference> follow(@NotNull String targetChannelId)
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
     public RestAction<Void> deleteMessages(@NotNull Collection<Message> messages)
     {
         return null;
@@ -309,6 +318,34 @@ public class ApiTextChannel implements TextChannel
     @Override
     public MessageAction sendMessage(@NotNull CharSequence text)
     {
-        return null;
+        return new BlankMessageAction();
+    }
+
+    @NotNull
+    @Override
+    public MessageAction sendMessageFormat(@NotNull String format, @NotNull Object... args)
+    {
+        return new BlankMessageAction();
+    }
+
+    @NotNull
+    @Override
+    public MessageAction sendMessage(@NotNull MessageEmbed embed)
+    {
+        return new BlankMessageAction();
+    }
+
+    @NotNull
+    @Override
+    public MessageAction sendMessage(@NotNull Message msg)
+    {
+        return new BlankMessageAction();
+    }
+
+    @NotNull
+    @Override
+    public RestAction<Void> sendTyping()
+    {
+        return new BlankRestAction<>();
     }
 }

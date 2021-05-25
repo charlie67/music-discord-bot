@@ -38,14 +38,7 @@ public class CommandTriggerController
         CommandEvent apiCommandEvent;
         try
         {
-            if (triggerCommandDto.isSilent())
-            {
-                apiCommandEvent = botService.createSilentCommandEvent(triggerCommandDto);
-            }
-            else
-            {
                 apiCommandEvent = botService.createCommandEvent(triggerCommandDto);
-            }
         } catch (IllegalArgumentException e)
         {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

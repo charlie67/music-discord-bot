@@ -22,8 +22,11 @@ public class TrackScheduler extends AudioEventAdapter
      * The API key needed to call the YouTube API
      */
     private final String youtubeApiKey;
+
     private List<AudioTrack> queue = new ArrayList<>();
+
     private AudioTrack loopTrack = null;
+
     /**
      * The duration of the queue
      */
@@ -57,35 +60,44 @@ public class TrackScheduler extends AudioEventAdapter
             return;
         }
 
+
         if (track instanceof YoutubeAudioTrack)
         {
-            try
+            String oldTrackId = track.getInfo().identifier;
+            AudioTrack nextTrack = getRelatedVideoRetry(oldTrackId, 0);
+            if (nextTrack != null)
             {
-                String oldTrackId = track.getInfo().identifier;
-                AudioTrack nextTrack = YouTubeUtils.getRelatedVideo(oldTrackId, new ArrayList<>(historyQueue),
-                        youtubeApiKey);
                 queueDurationInMilliSeconds += nextTrack.getDuration();
                 queue.add(nextTrack);
                 player.playTrack(nextTrack());
-
-            }
-            catch(IOException | IllegalArgumentException | FriendlyException e)
-            {
-                LOGGER.error("Encountered error when trying to find a related video {}", e.getMessage());
             }
         }
+    }
+
+    public AudioTrack getRelatedVideoRetry(String trackId, int retryAmount)
+    {
+        if (retryAmount >= 10)
+        {
+            return null;
+        }
+
+        try
+        {
+            return YouTubeUtils.getRelatedVideo(trackId, new ArrayList<>(historyQueue), youtubeApiKey);
+
+        }
+        catch(IOException | IllegalArgumentException | FriendlyException e)
+        {
+            LOGGER.error("Encountered error when trying to find a related video", e);
+        }
+
+        return getRelatedVideoRetry(trackId, retryAmount + 1);
     }
 
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception)
     {
         LOGGER.error("Error when playing track", exception);
-    }
-
-    @Override
-    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs)
-    {
-        super.onTrackStuck(player, track, thresholdMs);
     }
 
     public void queue(AudioTrack track, boolean queueFirst)

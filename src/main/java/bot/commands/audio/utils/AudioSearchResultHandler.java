@@ -68,24 +68,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     @Override
     public void noMatches()
     {
-        try
-        {
-            AudioTrack track = YouTubeUtils.searchForVideo(argument);
-
-            if (track != null)
-            {
-                queueTrackAndStartNextSong(track);
-            }
-            else
-            {
-                channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
-            }
-        }
-        catch(IllegalAccessException e)
-        {
-            channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
-            LOGGER.error("Couldn't find a match for {}", argument, e);
-        }
+        channel.sendMessage(String.format("%s didn't match a video", argument)).queue();
+        LOGGER.error("Couldn't find a match for {}", argument);
     }
 
     private void queueTrackAndStartNextSong(AudioTrack track)
