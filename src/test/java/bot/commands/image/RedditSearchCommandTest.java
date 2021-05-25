@@ -6,11 +6,8 @@ import bot.utils.command.CommandEvent;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.HashSet;
 import java.util.List;
@@ -23,12 +20,17 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class RedditSearchCommandTest
 {
-    @Autowired
+    @MockBean
     private BotConfiguration botConfiguration;
+
+    public RedditSearchCommandTest()
+    {
+        when(botConfiguration.getRedditClientId()).thenReturn("");
+        when(botConfiguration.getRedditClientSecret()).thenReturn("");
+
+    }
 
     CommandEvent getMockRedditSearchMessageAction(ArgumentCaptor<String> stringArgumentCaptor, AtomicBoolean messageQueued
             , String subreddit)
@@ -107,7 +109,7 @@ public class RedditSearchCommandTest
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         CommandEvent mockCommandEvent = getMockRedditSearchMessageAction(stringArgumentCaptor, messageQueued, "pics");
 
-        int NUM_EXECUTIONS = 100;
+        int NUM_EXECUTIONS = 10;
 
         for (int i = 0; i < NUM_EXECUTIONS; i++)
         {
