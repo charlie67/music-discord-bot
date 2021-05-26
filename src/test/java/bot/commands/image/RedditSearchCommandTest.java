@@ -5,6 +5,7 @@ import bot.utils.TextChannelResponses;
 import bot.utils.command.CommandEvent;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class RedditSearchCommandTest
 {
     @MockBean
