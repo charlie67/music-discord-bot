@@ -13,6 +13,6 @@ public interface AliasEntityRepository extends CrudRepository<AliasEntity, Strin
 
     AliasEntity findByServerIdAndName(String serverId, String name);
 
-    @Query("SELECT a FROM AliasEntity a WHERE a.serverId = :serverID AND a.name LIKE %:name%")
+    @Query("SELECT * FROM AliasEntity a WHERE a.serverId = :serverID AND a.name LIKE %:name%")
     Set<AliasEntity> findAliasEntityByNameContainingAndServerId(String serverId, String name);
 }
