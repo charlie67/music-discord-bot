@@ -11,4 +11,6 @@ public interface AliasEntityRepository extends CrudRepository<AliasEntity, Strin
     Set<AliasEntity> findAllByServerId(String serverId);
 
     AliasEntity findByServerIdAndName(String serverId, String name);
+
+    Set<AliasEntity> findAliasEntityByNameContainingAndServerId(String serverId, String name);
 }

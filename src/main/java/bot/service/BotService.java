@@ -3,6 +3,7 @@ package bot.service;
 import bot.commands.alias.AliasCreateCommand;
 import bot.commands.alias.AliasDeleteCommand;
 import bot.commands.alias.AliasListCommand;
+import bot.commands.alias.AliasSearchCommand;
 import bot.commands.audio.ClearQueueCommand;
 import bot.commands.audio.JoinCommand;
 import bot.commands.audio.LeaveCommand;
@@ -72,6 +73,8 @@ public class BotService
 
     private final AliasListCommand aliasListCommand;
 
+    private final AliasSearchCommand aliasSearchCommand;
+
     private final MessageReceivedEventListener messageReceivedEventListener;
 
     private CommandClient client;
@@ -81,11 +84,12 @@ public class BotService
     @Autowired
     public BotService(AliasCreateCommand aliasCreateCommand, AliasDeleteCommand aliasDeleteCommand,
                       AliasListCommand aliasListCommand, AliasCommandHandler aliasCommandHandler,
-                      MessageReceivedEventListener messageReceivedEventListener)
+                      AliasSearchCommand aliasSearchCommand, MessageReceivedEventListener messageReceivedEventListener)
     {
         this.aliasCreateCommand = aliasCreateCommand;
         this.aliasDeleteCommand = aliasDeleteCommand;
         this.aliasListCommand = aliasListCommand;
+        this.aliasSearchCommand = aliasSearchCommand;
         this.messageReceivedEventListener = messageReceivedEventListener;
 
         // break a circular dependency
@@ -106,7 +110,7 @@ public class BotService
                 new SkipSongCommand(), new ClearQueueCommand(), new RemoveCommand(), new SeekCommand(),
                 new PingCommand(), new ShuffleCommand(), new SkipToCommand(), new RedditSearchCommand(),
                 new PauseCommand(), new ResumeCommand(), new LoopCommand(), aliasCreateCommand, aliasListCommand,
-                aliasDeleteCommand, new EchoTextCommand(), new WhisperTextCommand());
+                aliasDeleteCommand, aliasSearchCommand, new EchoTextCommand(), new WhisperTextCommand());
 
         this.client = builder.build();
 

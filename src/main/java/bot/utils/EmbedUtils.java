@@ -4,8 +4,10 @@ import bot.commands.audio.utils.TrackScheduler;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,5 +74,38 @@ public class EmbedUtils
             }
         }
         return page;
+    }
+
+    public static void splitTextListsToSend(List<String> eachAliasDescription, MessageChannel channel)
+    {
+        ArrayList<String> fullMessagesToSend = new ArrayList<>();
+
+        int index = -1;
+        for (String aliasDescription : eachAliasDescription)
+        {
+            if (fullMessagesToSend.isEmpty())
+            {
+                fullMessagesToSend.add(aliasDescription);
+                index++;
+            }
+            else
+            {
+                String previousMessage = fullMessagesToSend.get(index);
+
+                if (aliasDescription.length() + previousMessage.length() < 2000)
+                {
+                    fullMessagesToSend.remove(index);
+                    aliasDescription = previousMessage + aliasDescription;
+                    fullMessagesToSend.add(aliasDescription);
+                }
+                else
+                {
+                    fullMessagesToSend.add(aliasDescription);
+                    index++;
+                }
+            }
+        }
+
+        fullMessagesToSend.forEach(message -> channel.sendMessage(message).queue());
     }
 }

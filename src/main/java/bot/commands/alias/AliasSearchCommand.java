@@ -3,6 +3,7 @@ package bot.commands.alias;
 import bot.Entities.AliasEntity;
 import bot.repositories.AliasEntityRepository;
 import bot.utils.EmbedUtils;
+import bot.utils.TextChannelResponses;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +15,16 @@ import java.util.Set;
 import static bot.utils.TextChannelResponses.NO_ALIASES_SET;
 
 @Component
-public class AliasListCommand extends Command
+public class AliasSearchCommand extends Command
 {
     private final AliasEntityRepository aliasEntityRepository;
 
     @Autowired
-    public AliasListCommand(AliasEntityRepository aliasEntityRepository)
+    public AliasSearchCommand(AliasEntityRepository aliasEntityRepository)
     {
-        this.name = "aliaslist";
-        this.aliases = new String[]{"al"};
-        this.help = "List all the aliases for this server";
+        this.name = "aliassearch";
+        this.aliases = new String[]{"as"};
+        this.help = "Search all the aliases in this server";
 
         this.aliasEntityRepository = aliasEntityRepository;
     }
@@ -32,7 +33,16 @@ public class AliasListCommand extends Command
     protected void execute(CommandEvent event)
     {
         String guildId = event.getGuild().getId();
-        Set<AliasEntity> aliasEntitySet = aliasEntityRepository.findAllByServerId(guildId);
+        String nameContains = event.getArgs();
+
+        if (nameContains == null || nameContains.isEmpty())
+        {
+            event.getChannel().sendMessage(TextChannelResponses.ALIAS_SEARCH_NOT_PROVIDED).queue();
+            return;
+        }
+
+        Set<AliasEntity> aliasEntitySet = aliasEntityRepository.findAliasEntityByNameContainingAndServerId(guildId,
+                nameContains);
 
         if (aliasEntitySet.size() == 0)
         {
