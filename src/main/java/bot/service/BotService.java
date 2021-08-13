@@ -59,8 +59,8 @@ public class BotService
     @Value("${DISCORD_BOT_KEY}")
     private String DISCORD_BOT_KEY;
 
-    @Value("${OWNER_ID}")
-    private String OWNER_ID;
+    //    @Value("${OWNER_ID}")
+    private String OWNER_ID = "666";
 
     private JDA jda;
     private AudioPlayerManager playerManager;

@@ -44,7 +44,7 @@ public class AliasSearchCommand extends Command
         Set<AliasEntity> aliasEntitySet = aliasEntityRepository.findAliasEntityByNameContainingAndServerId(guildId,
                 nameContains);
 
-        if (aliasEntitySet.size() == 0)
+        if (aliasEntitySet.isEmpty())
         {
             event.getChannel().sendMessage(NO_ALIASES_SET).queue();
             return;
