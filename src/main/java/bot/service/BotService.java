@@ -65,9 +65,6 @@ import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
 @Service
 public class BotService
 {
-    private JDA jda;
-    private AudioPlayerManager playerManager;
-
     public static final String COMMAND_PREFIX = "-";
     private final String discordBotKey;
     private final String ownerId;
@@ -77,28 +74,22 @@ public class BotService
     private final AliasCreateCommand aliasCreateCommand;
     private final AliasDeleteCommand aliasDeleteCommand;
     private final AliasListCommand aliasListCommand;
+    private final AliasSearchCommand aliasSearchCommand;
     private JDA jda;
     private AudioPlayerManager playerManager;
-
-    private final AliasSearchCommand aliasSearchCommand;
-
-    private final MessageReceivedEventListener messageReceivedEventListener;
-
     private CommandClient client;
 
     @Autowired
     public BotService(AliasCreateCommand aliasCreateCommand, AliasDeleteCommand aliasDeleteCommand,
-                      AliasListCommand aliasListCommand, AliasCommandHandler aliasCommandHandler,
-                      AliasSearchCommand aliasSearchCommand, MessageReceivedEventListener messageReceivedEventListener)
-                      AliasListCommand aliasListCommand, AliasEntityRepository aliasEntityRepository,
-                      RedditSearchCommand redditSearchCommand, BotConfiguration botConfiguration)
+                      AliasSearchCommand aliasSearchCommand, AliasListCommand aliasListCommand,
+                      AliasEntityRepository aliasEntityRepository, RedditSearchCommand redditSearchCommand,
+                      BotConfiguration botConfiguration)
     {
         this.aliasCreateCommand = aliasCreateCommand;
         this.aliasDeleteCommand = aliasDeleteCommand;
         this.aliasListCommand = aliasListCommand;
         this.aliasEntityRepository = aliasEntityRepository;
         this.aliasSearchCommand = aliasSearchCommand;
-        this.messageReceivedEventListener = messageReceivedEventListener;
 
         this.redditSearchCommand = redditSearchCommand;
 

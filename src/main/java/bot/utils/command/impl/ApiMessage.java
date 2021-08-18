@@ -12,11 +12,13 @@ import net.dv8tion.jda.api.entities.MessageActivity;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.MessageSticker;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -261,6 +263,13 @@ public class ApiMessage implements Message
 
     @NotNull
     @Override
+    public List<ActionRow> getActionRows()
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
     public List<Emote> getEmotes()
     {
         return null;
@@ -276,6 +285,13 @@ public class ApiMessage implements Message
     @NotNull
     @Override
     public List<MessageReaction> getReactions()
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public List<MessageSticker> getStickers()
     {
         return null;
     }

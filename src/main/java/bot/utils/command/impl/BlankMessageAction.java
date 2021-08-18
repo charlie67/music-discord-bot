@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AttachmentOption;
 import org.jetbrains.annotations.NotNull;
@@ -196,6 +197,20 @@ public class BlankMessageAction implements MessageAction
     @NotNull
     @Override
     public MessageAction clearFiles(@NotNull Consumer<InputStream> finalizer)
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public MessageAction retainFilesById(@NotNull Collection<String> ids)
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public MessageAction setActionRows(@NotNull ActionRow... rows)
     {
         return null;
     }
