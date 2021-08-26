@@ -76,6 +76,7 @@ public class TrackScheduler extends AudioEventAdapter
 
     public AudioTrack getRelatedVideoRetry(String trackId, int retryAmount)
     {
+        LOGGER.warn("Retrying finding a related video, tried " + retryAmount + " times");
         if (retryAmount >= 10)
         {
             return null;
