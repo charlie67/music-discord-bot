@@ -57,6 +57,8 @@ public class CommandTriggerController
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         command.run(apiCommandEvent);
+        LOGGER.info(String.format("Ran command %s with arguments %s in server %s", triggerCommandDto.getCommandName(),
+                triggerCommandDto.getCommandArgs(), triggerCommandDto.getGuildId()));
 
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
@@ -79,6 +81,6 @@ public class CommandTriggerController
         {
             return false;
         }
-        else return StringUtils.isEmpty(triggerCommandDto.getTextChannelId());
+        else return !StringUtils.isEmpty(triggerCommandDto.getTextChannelId());
     }
 }
