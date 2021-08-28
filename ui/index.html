@@ -5,24 +5,24 @@
     <title>Login Page</title>
 </head>
 <body>
-    <form id="form" action="#" onsubmit="sendCommand();return false;">
+    <form action="#" id="form" onsubmit="sendCommand();return false;">
         <label for="commandArgs">Command Argument</label>
-        <input type="text" id="commandArgs" name="commandArgs"><br><br>
+        <input id="commandArgs" name="commandArgs" type="text"><br><br>
 
         <label for="commandName">Command Name</label>
-        <input type="text" id="commandName" name="commandName"><br><br>
+        <input id="commandName" name="commandName" type="text"><br><br>
 
         <label for="guildId">Guild ID</label>
-        <input type="text" id="guildId" name="guildId"><br><br>
+        <input id="guildId" name="guildId" type="text"><br><br>
 
         <label for="authorId">Author ID</label>
-        <input type="text" id="authorId" name="authorId"><br><br>
+        <input id="authorId" name="authorId" type="text"><br><br>
 
         <label for="textChannelId">Text Channel ID</label>
-        <input type="text" id="textChannelId" name="textChannelId"><br><br>
+        <input id="textChannelId" name="textChannelId" type="text"><br><br>
 
         <label for="silent">Silent</label>
-        <input type="checkbox" id="silent" name="silent"><br><br>
+        <input id="silent" name="silent" type="checkbox"><br><br>
 
         <button>Send</button>
     </form>
@@ -57,6 +57,6 @@
         var url = "/api/command"
         xhr.open("POST", url);
         xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.send(json)
+        xhr.send(JSON.stringify(data))
     }
 </script>
