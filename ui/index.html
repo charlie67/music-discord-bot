@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Page</title>
+</head>
+<body>
+    <form action="#" id="form" onsubmit="sendCommand();return false;">
+        <label for="commandArgs">Command Argument</label>
+        <input id="commandArgs" name="commandArgs" type="text"><br><br>
+
+        <label for="commandName">Command Name</label>
+        <input id="commandName" name="commandName" type="text"><br><br>
+
+        <label for="guildId">Guild ID</label>
+        <input id="guildId" name="guildId" type="text"><br><br>
+
+        <label for="authorId">Author ID</label>
+        <input id="authorId" name="authorId" type="text"><br><br>
+
+        <label for="textChannelId">Text Channel ID</label>
+        <input id="textChannelId" name="textChannelId" type="text"><br><br>
+
+        <label for="silent">Silent</label>
+        <input id="silent" name="silent" type="checkbox"><br><br>
+
+        <button>Send</button>
+    </form>
+</body>
+</html>
+
+<script>
+    function sendCommand() {
+
+        let commandArgs = document.getElementById('commandArgs').value;
+        let commandName = document.getElementById('commandName').value;
+        let guildId = document.getElementById('guildId').value;
+        let authorId = document.getElementById('authorId').value;
+        let textChannelId = document.getElementById('textChannelId').value;
+        let silent = document.getElementById('silent').checked;
+
+        console.log(commandArgs)
+        console.log(commandName)
+        console.log(guildId)
+        console.log(authorId)
+        console.log(textChannelId)
+        console.log(silent)
+
+        let data = '{"commandArgs": "' + commandArgs + '", "commandName": "' + commandName + '", "guildId": "' + guildId +
+            '", "authorId": "' + authorId + '","textChannelId": "' + textChannelId + '","silent": ' + silent + '}'
+        console.log(data)
+
+        let json = JSON.parse(data)
+        console.log(json)
+
+        var xhr = new XMLHttpRequest();
+        var url = "/api/command"
+        xhr.open("POST", url);
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.send(data)
+    }
+</script>
