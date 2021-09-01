@@ -18,18 +18,20 @@ services:
     restart: always
 
   discord-music-bot:
-    image: charlie67/discord-music-bot:master
+    image: charlie67/discord-music-bot:xxxtest
     hostname: discord-music-bot
     container_name: discord-music-bot
+    ports:
+      - "8012:80"
     networks:
       - discord
     environment:
-      - YOUTUBE_API_KEY=****KEY****
-      - DISCORD_BOT_KEY=****KEY****
-      - BOT_USER_ID=1234
-      - REDDIT_CLIENT_ID==****KEY****
-      - REDDIT_CLIENT_SECRET==****KEY****
-      - OWNER_ID=12345
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - DISCORD_BOT_KEY=${DISCORD_BOT_KEY}
+      - BOT_USER_ID=${BOT_USER_ID}
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - OWNER_ID=${OWNER_ID}
       - POSTGRES_LOCATION=jdbc:postgresql://db-discord:5432/postgres
     restart: always
     

@@ -45,6 +45,8 @@ public class RedditSearchCommand extends Command
         String redditClientId = botConfiguration.getRedditClientId();
         String redditClientSecret = botConfiguration.getRedditClientSecret();
 
+        LOGGER.error("Starting with client Id and secret " + redditClientId + " " + redditClientSecret);
+
         // Assuming we have a 'script' reddit app
         Credentials oauthCreds = Credentials.userless(redditClientId, redditClientSecret, new UUID(1, 99999));
 
@@ -122,9 +124,9 @@ public class RedditSearchCommand extends Command
 
     class SubredditHashComponent
     {
-        long timeStored;
         private final List<Submission> subredditItems;
         private final DefaultPaginator<Submission> paginator;
+        long timeStored;
         private int itemCounter = 0;
 
         SubredditHashComponent(long timeStored, String subreddit) throws ApiException
