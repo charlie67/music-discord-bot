@@ -3,23 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Login Page</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 </head>
 <body>
     <form action="#" id="form" onsubmit="sendCommand();return false;">
-        <label for="commandArgs">Command Argument</label>
-        <input id="commandArgs" name="commandArgs" type="text"><br><br>
+
+        <label for="guildIdSelect">Guild ID</label>
+        <select id="guildIdSelect" name="guildId" onchange="guildSelectedChange()">
+            <option value="placeholder"></option>
+        </select>
+        <br><br>
+
+        <label for="textChannelId">Text Channel ID</label>
+        <select id="textChannelId" name="textChannelId">
+            <option value="placeholder"></option>
+        </select>
+        <br><br>
+
+        <label for="authorId">Author ID</label>
+        <select id="authorId" name="authorId">
+            <option value="placeholder"></option>
+        </select>
+        <br><br>
 
         <label for="commandName">Command Name</label>
         <input id="commandName" name="commandName" type="text"><br><br>
 
-        <label for="guildId">Guild ID</label>
-        <input id="guildId" name="guildId" type="text"><br><br>
-
-        <label for="authorId">Author ID</label>
-        <input id="authorId" name="authorId" type="text"><br><br>
-
-        <label for="textChannelId">Text Channel ID</label>
-        <input id="textChannelId" name="textChannelId" type="text"><br><br>
+        <label for="commandArgs">Command Argument</label>
+        <input id="commandArgs" name="commandArgs" type="text"><br><br>
 
         <label for="silent">Silent</label>
         <input id="silent" name="silent" type="checkbox"><br><br>
@@ -30,11 +43,15 @@
 </html>
 
 <script>
+    window.onload = function() {
+        getGuilds();
+    };
+
     function sendCommand() {
 
         let commandArgs = document.getElementById('commandArgs').value;
         let commandName = document.getElementById('commandName').value;
-        let guildId = document.getElementById('guildId').value;
+        let guildId = document.getElementById('guildIdSelect').value;
         let authorId = document.getElementById('authorId').value;
         let textChannelId = document.getElementById('textChannelId').value;
         let silent = document.getElementById('silent').checked;
@@ -58,5 +75,65 @@
         xhr.open("POST", url);
         xhr.setRequestHeader("Content-Type", "application/json")
         xhr.send(data)
+    }
+
+    function getGuilds() {
+        fetch("/api/guilds")
+            .then(response => {
+
+                response.json().then(function(data) {
+                    $.each(data, function (i, item) {
+                        $('#guildIdSelect').append($('<option>', {
+                            value: item.id,
+                            text : item.name
+                        }));
+                    });
+                });
+            })
+    }
+
+    function guildSelectedChange() {
+        $('#textChannelId').empty()
+        $('#authorId').empty()
+
+        const e = document.getElementById("guildIdSelect");
+        const guildId = e.value
+        getTextChannelForGuild(guildId)
+        getMembersForGuild(guildId)
+    }
+
+    function getMembersForGuild(guildId) {
+        fetch("/api/guilds"+guildId+"/members")
+            .then(response => {
+
+                response.json().then(function(data) {
+                    console.log(data)
+
+                    $.each(data, function (i, item) {
+                        console.log("adding item " + item)
+                        $('#authorId').append($('<option>', {
+                            value: item.id,
+                            text : item.name + "-" + item.inVoice
+                        }));
+                    });
+                });
+            })
+    }
+
+    function getTextChannelForGuild(guildId) {
+        fetch("/api/guilds"+guildId+"/textChannels")
+            .then(response => {
+
+                response.json().then(function(data) {
+                    console.log(data)
+
+                    $.each(data, function (i, item) {
+                        $('#textChannelId').append($('<option>', {
+                            value: item.id,
+                            text : item.name
+                        }));
+                    });
+                });
+            })
     }
 </script>

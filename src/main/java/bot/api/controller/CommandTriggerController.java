@@ -33,7 +33,6 @@ public class CommandTriggerController
         this.aliasEntityRepository = aliasEntityRepository;
     }
 
-
     @PostMapping()
     public ResponseEntity<String> triggerCommand(@RequestBody TriggerCommandDto triggerCommandDto)
     {
