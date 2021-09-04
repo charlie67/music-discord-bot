@@ -45,8 +45,6 @@ public class RedditSearchCommand extends Command
         String redditClientId = botConfiguration.getRedditClientId();
         String redditClientSecret = botConfiguration.getRedditClientSecret();
 
-        LOGGER.error("Starting with client Id and secret " + redditClientId + " " + redditClientSecret);
-
         // Assuming we have a 'script' reddit app
         Credentials oauthCreds = Credentials.userless(redditClientId, redditClientSecret, new UUID(1, 99999));
 
