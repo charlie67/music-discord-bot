@@ -86,11 +86,7 @@ public class CommandTriggerController
 
     private boolean allRequiredVariablesPresent(TriggerCommandDto triggerCommandDto)
     {
-        if (StringUtils.isEmpty(triggerCommandDto.getCommandArgs()))
-        {
-            return false;
-        }
-        else if (StringUtils.isEmpty(triggerCommandDto.getCommandName()))
+        if (StringUtils.isEmpty(triggerCommandDto.getCommandName()))
         {
             return false;
         }
