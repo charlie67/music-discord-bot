@@ -103,7 +103,7 @@
     }
 
     function getMembersForGuild(guildId) {
-        fetch("/api/guilds"+guildId+"/members")
+        fetch("/api/guilds/"+guildId+"/members")
             .then(response => {
 
                 response.json().then(function(data) {
@@ -121,7 +121,7 @@
     }
 
     function getTextChannelForGuild(guildId) {
-        fetch("/api/guilds"+guildId+"/textChannels")
+        fetch("/api/guilds/"+guildId+"/textChannels")
             .then(response => {
 
                 response.json().then(function(data) {
