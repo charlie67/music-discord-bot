@@ -59,6 +59,7 @@ public class YouTubeUtils
         search.setEventType("none");
         search.setSafeSearch("none");
         search.setMaxResults(5L);
+        search.setRegionCode("GB");
 
         // Restrict the search results to only include videos. See:
         // https://developers.google.com/youtube/v3/docs/search/list#type
