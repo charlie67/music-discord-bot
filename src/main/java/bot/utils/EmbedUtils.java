@@ -24,13 +24,7 @@ public class EmbedUtils
         eb.setFooter(String.format("Page %d/%.0f", page, totalPages), event.getAuthor().getAvatarUrl());
 
         //get a random colour for the embed
-        Random rand = new Random();
-        // Java 'Color' class takes 3 floats, from 0 to 1.
-        float r = rand.nextFloat();
-        float g = rand.nextFloat();
-        float b = rand.nextFloat();
-        Color randomColor = new Color(r, g, b);
-        eb.setColor(randomColor);
+        setRandomColour(eb);
 
         AtomicInteger ordinal = new AtomicInteger(1);
         StringBuilder sb = new StringBuilder();
@@ -107,5 +101,16 @@ public class EmbedUtils
         }
 
         fullMessagesToSend.forEach(message -> channel.sendMessage(message).queue());
+    }
+
+    public static void setRandomColour(EmbedBuilder eb)
+    {
+        Random rand = new Random();
+        // Java 'Color' class takes 3 floats, from 0 to 1.
+        float r = rand.nextFloat();
+        float g = rand.nextFloat();
+        float b = rand.nextFloat();
+        Color randomColor = new Color(r, g, b);
+        eb.setColor(randomColor);
     }
 }

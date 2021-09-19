@@ -1,5 +1,7 @@
 package bot.commands.audio.utils;
 
+import bot.entities.OptionEntity;
+import bot.repositories.OptionEntityRepository;
 import com.google.common.collect.EvictingQueue;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -14,14 +16,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static bot.repositories.OptionEntityRepository.AUTOPLAY_NAME;
+
 public class TrackScheduler extends AudioEventAdapter
 {
     private static final Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
     private final EvictingQueue<AudioTrack> historyQueue = EvictingQueue.create(20);
+
     /**
      * The API key needed to call the YouTube API
      */
     private final String youtubeApiKey;
+    private final OptionEntityRepository optionEntityRepository;
+    private final String guildId;
 
     private List<AudioTrack> queue = new ArrayList<>();
 
@@ -32,9 +39,11 @@ public class TrackScheduler extends AudioEventAdapter
      */
     private long queueDurationInMilliSeconds = 0;
 
-    public TrackScheduler(String youtubeApiKey)
+    public TrackScheduler(String youtubeApiKey, OptionEntityRepository optionEntityRepository, String guildId)
     {
         this.youtubeApiKey = youtubeApiKey;
+        this.optionEntityRepository = optionEntityRepository;
+        this.guildId = guildId;
     }
 
     @Override
@@ -60,9 +69,15 @@ public class TrackScheduler extends AudioEventAdapter
             return;
         }
 
-
+        // should a related video be found
         if (track instanceof YoutubeAudioTrack)
         {
+            // get the optionEntityForAutoplay
+            OptionEntity optionEntity = optionEntityRepository.findByServerIdAndName(guildId, AUTOPLAY_NAME);
+            if (optionEntity != null && !optionEntity.getOption())
+            {
+                return;
+            }
             String oldTrackId = track.getInfo().identifier;
             AudioTrack nextTrack = getRelatedVideoRetry(oldTrackId, 0);
             if (nextTrack != null)

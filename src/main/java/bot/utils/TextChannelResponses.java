@@ -51,4 +51,10 @@ public class TextChannelResponses
 
     public static final String NO_HISTORY_TO_SHOW = "**There is no history to show.**";
     public static final String CANT_DISPLAY_QUEUE_PAGE = "**Cannot display that page**";
+
+    public static final String NEED_MORE_ARGUMENTS_TO_SET_OPTION = "**Need more arguments to set an option.**";
+    public static final String NOT_VALID_OPTION = "**%s is not an option.**";
+    public static final String NOT_VALID_BOOLEAN = "**%s is not an option setting.**";
+
+
 }

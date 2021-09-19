@@ -25,9 +25,12 @@ import bot.commands.image.RedditSearchCommand;
 import bot.commands.text.DmCommand;
 import bot.commands.text.EchoTextCommand;
 import bot.commands.text.WhisperTextCommand;
+import bot.commands.utilities.OptionListCommand;
+import bot.commands.utilities.OptionsCommand;
 import bot.commands.utilities.PingCommand;
 import bot.listeners.VoiceChannelEventListener;
 import bot.repositories.AliasEntityRepository;
+import bot.repositories.OptionEntityRepository;
 import bot.utils.BotConfiguration;
 import bot.utils.command.Command;
 import bot.utils.command.CommandClient;
@@ -75,6 +78,11 @@ public class BotService
     private final AliasDeleteCommand aliasDeleteCommand;
     private final AliasListCommand aliasListCommand;
     private final AliasSearchCommand aliasSearchCommand;
+    private final OptionsCommand optionsCommand;
+    private final OptionListCommand optionListCommand;
+
+    private final OptionEntityRepository optionEntityRepository;
+
     private JDA jda;
     private AudioPlayerManager playerManager;
     private CommandClient client;
@@ -83,7 +91,8 @@ public class BotService
     public BotService(AliasCreateCommand aliasCreateCommand, AliasDeleteCommand aliasDeleteCommand,
                       AliasSearchCommand aliasSearchCommand, AliasListCommand aliasListCommand,
                       AliasEntityRepository aliasEntityRepository, RedditSearchCommand redditSearchCommand,
-                      BotConfiguration botConfiguration)
+                      BotConfiguration botConfiguration, OptionsCommand optionsCommand,
+                      OptionEntityRepository optionEntityRepository, OptionListCommand optionListCommand)
     {
         this.aliasCreateCommand = aliasCreateCommand;
         this.aliasDeleteCommand = aliasDeleteCommand;
@@ -91,7 +100,11 @@ public class BotService
         this.aliasEntityRepository = aliasEntityRepository;
         this.aliasSearchCommand = aliasSearchCommand;
 
+        this.optionsCommand = optionsCommand;
+        this.optionListCommand = optionListCommand;
         this.redditSearchCommand = redditSearchCommand;
+
+        this.optionEntityRepository = optionEntityRepository;
 
         this.discordBotKey = botConfiguration.getDiscordKey();
         this.ownerId = botConfiguration.getOwnerId();
@@ -109,14 +122,16 @@ public class BotService
                 .setOwnerId(ownerId)
                 .setAliasEntityRepository(aliasEntityRepository)
                 .setAliasCreateCommand(aliasCreateCommand)
-                .addCommands(new JoinCommand(playerManager, botConfiguration.getYoutubeApiKey()),
-                        new PlayCommand(playerManager, botConfiguration.getYoutubeApiKey()),
-                        new PlayTopCommand(playerManager, botConfiguration.getYoutubeApiKey()), new QueueCommand(),
+                .addCommands(new JoinCommand(playerManager, botConfiguration.getYoutubeApiKey(), optionEntityRepository),
+                        new PlayCommand(playerManager, botConfiguration.getYoutubeApiKey(), optionEntityRepository),
+                        new PlayTopCommand(playerManager, botConfiguration.getYoutubeApiKey(), optionEntityRepository),
+                        new QueueCommand(),
                         new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(), new ClearQueueCommand(),
                         new RemoveCommand(), new SeekCommand(), new PingCommand(), new ShuffleCommand(), new SkipToCommand(),
                         redditSearchCommand, new PauseCommand(), new ResumeCommand(), new LoopCommand(),
-                        aliasListCommand, aliasDeleteCommand, aliasSearchCommand, new EchoTextCommand(), new WhisperTextCommand(),
-                        new HistoryCommand(), new DmCommand());
+                        aliasListCommand, aliasDeleteCommand, aliasSearchCommand, new EchoTextCommand(),
+                        new WhisperTextCommand(), new HistoryCommand(), new DmCommand(), optionsCommand,
+                        optionListCommand);
 
         this.client = builder.build();
 

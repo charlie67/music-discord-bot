@@ -1,6 +1,7 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.VoiceChannelUtils;
+import bot.repositories.OptionEntityRepository;
 import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
@@ -12,14 +13,16 @@ public class JoinCommand extends Command
     //The audio player manager that the audio player will be created from
     private final AudioPlayerManager playerManager;
     private final String youtubeApiKey;
+    private final OptionEntityRepository optionEntityRepository;
 
-    public JoinCommand(AudioPlayerManager playerManager, String youtubeApiKey)
+    public JoinCommand(AudioPlayerManager playerManager, String youtubeApiKey, OptionEntityRepository optionEntityRepository)
     {
         this.playerManager = playerManager;
         this.name = "join";
         this.help = "Joins the voice channel that the user is currently connected to";
 
         this.youtubeApiKey = youtubeApiKey;
+        this.optionEntityRepository = optionEntityRepository;
     }
 
     @Override
@@ -27,7 +30,8 @@ public class JoinCommand extends Command
     {
         try
         {
-            VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), youtubeApiKey, playerManager);
+            VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), youtubeApiKey, playerManager,
+                    optionEntityRepository);
         }
         catch(IllegalArgumentException e)
         {
