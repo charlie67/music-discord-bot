@@ -1,5 +1,6 @@
 package bot.commands.audio.utils;
 
+import bot.commands.audio.UserInfo;
 import bot.utils.TimeUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -24,15 +25,17 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
     private final String argument;
     private final boolean playTop;
     private final MessageChannel channel;
+    private final UserInfo userInfo;
 
     AudioSearchResultHandler(TrackScheduler trackScheduler, AudioPlayerSendHandler audioPlayerSendHandler,
-                             MessageChannel channel, String argument, boolean playTop)
+                             MessageChannel channel, String argument, boolean playTop, UserInfo userInfo)
     {
         this.trackScheduler = trackScheduler;
         this.audioPlayerSendHandler = audioPlayerSendHandler;
         this.argument = argument;
         this.playTop = playTop;
         this.channel = channel;
+        this.userInfo = userInfo;
     }
 
     @Override
@@ -53,6 +56,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
 
         for (AudioTrack track : playlist.getTracks())
         {
+            track.setUserData(userInfo);
             trackScheduler.queue(track, playTop);
         }
 
@@ -74,6 +78,7 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler
 
     private void queueTrackAndStartNextSong(AudioTrack track)
     {
+        track.setUserData(userInfo);
         long queueDurationInMilliSeconds = trackScheduler.getQueueDurationInMilliSeconds();
         trackScheduler.queue(track, playTop);
 

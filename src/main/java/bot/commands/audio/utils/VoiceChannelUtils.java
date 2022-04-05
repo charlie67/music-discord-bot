@@ -1,5 +1,6 @@
 package bot.commands.audio.utils;
 
+import bot.commands.audio.UserInfo;
 import bot.repositories.OptionEntityRepository;
 import bot.utils.TextChannelResponses;
 import bot.utils.command.CommandEvent;
@@ -74,7 +75,6 @@ public class VoiceChannelUtils
             return;
         }
 
-
         AudioManager audioManager = guild.getAudioManager();
 
         if (!audioManager.isConnected())
@@ -107,13 +107,16 @@ public class VoiceChannelUtils
         AudioPlayerSendHandler audioPlayerSendHandler = (AudioPlayerSendHandler) audioManager.getSendingHandler();
         TrackScheduler trackScheduler = audioPlayerSendHandler.getTrackScheduler();
 
+        // create the userInfo object to attach to the track
+        UserInfo userInfo = new UserInfo(event.getChannel().getIdLong(), argument, event.getJDA());
+
         if (!isValidURL(argument))
         {
             LOGGER.info("{} is not a url so prepending ytsearch", argument);
             argument = "ytsearch: ".concat(argument);
         }
         playerManager.loadItem(argument, new AudioSearchResultHandler(trackScheduler, audioPlayerSendHandler, channel
-                , argument, playTop));
+                , argument, playTop, userInfo));
     }
 
     private static boolean isValidURL(String urlString)

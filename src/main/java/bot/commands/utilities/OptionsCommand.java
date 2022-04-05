@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 
-import static bot.repositories.OptionEntityRepository.AUTOPLAY_HELP;
-import static bot.repositories.OptionEntityRepository.AUTOPLAY_NAME;
+import static bot.utils.OptionsCommands.AUTOPLAY_HELP;
+import static bot.utils.OptionsCommands.AUTOPLAY_NAME;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_SET_OPTION;
 import static bot.utils.TextChannelResponses.NOT_VALID_BOOLEAN;
 import static bot.utils.TextChannelResponses.NOT_VALID_OPTION;

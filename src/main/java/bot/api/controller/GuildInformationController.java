@@ -35,7 +35,6 @@ public class GuildInformationController
         this.botService = botService;
     }
 
-    @CrossOrigin(origins = "http://localhost:63342")
     @GetMapping()
     public List<GuildDto> getGuildsForBot()
     {
@@ -50,7 +49,6 @@ public class GuildInformationController
         return guildDtoList;
     }
 
-    @CrossOrigin(origins = "http://localhost:63342")
     @GetMapping("/{id}/members")
     public ResponseEntity<List<MemberDto>> getAuthorsForGuild(@PathVariable Long id)
     {
@@ -83,7 +81,6 @@ public class GuildInformationController
         return ResponseEntity.ok(memberDtoList);
     }
 
-    @CrossOrigin(origins = "http://localhost:63342")
     @GetMapping("/{id}/textChannels")
     public ResponseEntity<List<TextChannelDto>> getTextChannelsForGuild(@PathVariable Long id)
     {

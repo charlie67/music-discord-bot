@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageActivity;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.MessageSticker;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.PrivateChannel;
@@ -19,6 +20,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ComponentLayout;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -28,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Formatter;
@@ -40,6 +43,13 @@ public class ApiMessage implements Message
     public ApiMessage(String rawContent)
     {
         this.rawContent = rawContent;
+    }
+
+    @Nullable
+    @Override
+    public MessageReference getMessageReference()
+    {
+        return null;
     }
 
     @Nullable
@@ -325,6 +335,20 @@ public class ApiMessage implements Message
 
     @NotNull
     @Override
+    public MessageAction editMessageEmbeds(@NotNull Collection<? extends MessageEmbed> embeds)
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public MessageAction editMessageComponents(@NotNull Collection<? extends ComponentLayout> components)
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
     public MessageAction editMessageFormat(@NotNull String format, @NotNull Object... args)
     {
         return null;
@@ -496,9 +520,28 @@ public class ApiMessage implements Message
         return null;
     }
 
+    @Override
+    public long getFlagsRaw()
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean isEphemeral()
+    {
+        return false;
+    }
+
     @NotNull
     @Override
     public MessageType getType()
+    {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public Interaction getInteraction()
     {
         return null;
     }

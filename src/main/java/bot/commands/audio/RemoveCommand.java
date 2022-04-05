@@ -6,6 +6,7 @@ import bot.utils.UnicodeEmote;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

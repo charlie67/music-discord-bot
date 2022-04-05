@@ -1,5 +1,6 @@
 package bot.commands.audio.utils;
 
+import bot.commands.audio.UserInfo;
 import bot.entities.OptionEntity;
 import bot.repositories.OptionEntityRepository;
 import com.google.common.collect.EvictingQueue;
@@ -9,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static bot.repositories.OptionEntityRepository.AUTOPLAY_NAME;
+import static bot.utils.OptionsCommands.AUTOPLAY_NAME;
 
 public class TrackScheduler extends AudioEventAdapter
 {
@@ -27,7 +29,15 @@ public class TrackScheduler extends AudioEventAdapter
      * The API key needed to call the YouTube API
      */
     private final String youtubeApiKey;
+
+    /**
+     * The repository for all option data
+     */
     private final OptionEntityRepository optionEntityRepository;
+
+    /**
+     * 
+     */
     private final String guildId;
 
     private List<AudioTrack> queue = new ArrayList<>();
@@ -50,8 +60,22 @@ public class TrackScheduler extends AudioEventAdapter
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
     {
         LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason);
-        historyQueue.add(track);
 
+        if (endReason == AudioTrackEndReason.LOAD_FAILED) {
+            // send message to the text channel saying that the loading failed 
+            UserInfo userInfo = (UserInfo) track.getUserData();
+            TextChannel textChannel = userInfo.getJda().getTextChannelById(userInfo.getChannelId());
+            if (textChannel != null)
+            {
+                textChannel.sendMessage(String.format("Loading failed for %s", userInfo.getSearchQuery())).queue();
+                return;
+            }
+
+            LOGGER.error("The text channel inside track userInfo is null.");
+        }
+        
+        historyQueue.add(track);
+        
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
         {
             return;

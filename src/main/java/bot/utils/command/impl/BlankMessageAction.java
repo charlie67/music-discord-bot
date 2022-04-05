@@ -154,6 +154,13 @@ public class BlankMessageAction implements MessageAction
 
     @NotNull
     @Override
+    public MessageAction setEmbeds(@NotNull Collection<? extends MessageEmbed> embeds)
+    {
+        return null;
+    }
+
+    @NotNull
+    @Override
     public MessageAction append(@Nullable CharSequence csq, int start, int end)
     {
         return this;

@@ -5,8 +5,11 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface OptionEntityRepository extends CrudRepository<OptionEntity, String>
 {
-    String AUTOPLAY_NAME = "autoplay";
-    String AUTOPLAY_HELP = "stops autoplaying music when the current track has finished.";
-
+    /**
+     * Find all options values
+     * @param serverId
+     * @param name
+     * @return
+     */
     OptionEntity findByServerIdAndName(String serverId, String name);
 }

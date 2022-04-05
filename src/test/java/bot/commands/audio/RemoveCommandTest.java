@@ -5,6 +5,7 @@ import bot.commands.audio.utils.TrackScheduler;
 import bot.utils.UnicodeEmote;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -15,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -22,10 +24,13 @@ import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NOT_A_NUMBER;
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_ARGUMENT;
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_TRACK_TO_REMOVE;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RemoveCommandTest
@@ -39,15 +44,11 @@ public class RemoveCommandTest
     @Test
     public void testRemovesTracksSuccessfully()
     {
-        ArgumentCaptor<String> emoteArgumentCaptor = ArgumentCaptor.forClass(String.class);
-
-        ArgumentCaptor<Integer> intArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-
         RestAction mockRestAction = mock(RestAction.class);
         doAnswer(invocation -> null).when(mockRestAction).queue();
 
         TrackScheduler mockTrackScheduler = mock(TrackScheduler.class);
-        doAnswer(invocation -> null).when(mockTrackScheduler).remove(intArgumentCaptor.capture());
+//        when(mockTrackScheduler.remove(2)).thenReturn(mockRestAction);
 
         AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
         AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer, mockTrackScheduler);
@@ -58,14 +59,15 @@ public class RemoveCommandTest
         when(mockCommandEvent.getGuild().getAudioManager()).thenReturn(mock(AudioManager.class));
         when(mockCommandEvent.getGuild().getAudioManager().getSendingHandler()).thenReturn(audioPlayerSendHandler);
 
-        when(mockCommandEvent.getMessage()).thenReturn(mock(Message.class));
-        when(mockCommandEvent.getMessage().addReaction(emoteArgumentCaptor.capture())).thenReturn(mockRestAction);
+        Message mockMessage = mock(Message.class);
+        when(mockCommandEvent.getMessage()).thenReturn(mockMessage);
+        when(mockCommandEvent.getMessage().addReaction(any(String.class))).thenReturn(mockRestAction);
 
         RemoveCommand removeCommand = new RemoveCommand();
         removeCommand.execute(mockCommandEvent);
 
-        assertEquals(Integer.valueOf(2), intArgumentCaptor.getValue());
-        assertEquals(UnicodeEmote.THUMBS_UP, emoteArgumentCaptor.getValue());
+        verify(mockTrackScheduler, times(1)).remove(2);
+        verify(mockMessage, times(1)).addReaction(UnicodeEmote.THUMBS_UP);
     }
 
     @Test
