@@ -33,7 +33,7 @@ dependencies {
     compile 'org.awaitility:awaitility:4.1.0'
 
     compile 'net.dv8tion:JDA:4.4.0_350'
-    implementation 'com.sedmelluq:lavaplayer-fork:1.3.97'
+    implementation 'com.github.walkyst:lavaplayer-fork:1.3.97'
     compile 'com.jagrosh:jda-utilities:+'
 
     //youtube
