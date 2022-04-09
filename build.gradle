@@ -44,6 +44,9 @@ dependencies {
     //reddit
     implementation 'net.dean.jraw:JRAW:1.1.0'
 
+    //jaxb
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+
     //springboot
 
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.6.6'
