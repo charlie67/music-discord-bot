@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-buster
+FROM openjdk:17-jre-alpine
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx
