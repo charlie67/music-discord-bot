@@ -1,4 +1,4 @@
-FROM openjdk:17-jre-alpine
+FROM openjdk:17-alpine
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx
