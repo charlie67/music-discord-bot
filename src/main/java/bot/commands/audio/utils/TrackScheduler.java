@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static bot.utils.OptionsCommands.AUTOPLAY_NAME;
@@ -36,13 +37,19 @@ public class TrackScheduler extends AudioEventAdapter
     private final OptionEntityRepository optionEntityRepository;
 
     /**
-     * 
+     * The ID of the guild that this is the track scheduler for
      */
     private final String guildId;
 
     private List<AudioTrack> queue = new ArrayList<>();
 
     private AudioTrack loopTrack = null;
+
+    /**
+     * boolean to indicate if the bot has been told to leave the voice channel. If the leave message has been called then
+     * this is true and related videos shouldn't be found.
+     */
+    private boolean gotLeaveMessage = false;
 
     /**
      * The duration of the queue
@@ -94,7 +101,7 @@ public class TrackScheduler extends AudioEventAdapter
         }
 
         // should a related video be found
-        if (track instanceof YoutubeAudioTrack)
+        if (track instanceof YoutubeAudioTrack && !gotLeaveMessage)
         {
             // get the optionEntityForAutoplay
             OptionEntity optionEntity = optionEntityRepository.findByServerIdAndName(guildId, AUTOPLAY_NAME);
@@ -115,9 +122,10 @@ public class TrackScheduler extends AudioEventAdapter
 
     public AudioTrack getRelatedVideoRetry(String trackId, int retryAmount)
     {
-        LOGGER.warn("Retrying finding a related video, tried " + retryAmount + " times");
+        LOGGER.info("finding a related video, tried " + retryAmount + " times");
         if (retryAmount >= 10)
         {
+            LOGGER.error("Tried to find a related video ");
             return null;
         }
 
@@ -208,5 +216,10 @@ public class TrackScheduler extends AudioEventAdapter
     public EvictingQueue<AudioTrack> getHistory()
     {
         return historyQueue;
+    }
+
+    public void setGotLeaveMessage(boolean gotLeaveMessage)
+    {
+        this.gotLeaveMessage = gotLeaveMessage;
     }
 }

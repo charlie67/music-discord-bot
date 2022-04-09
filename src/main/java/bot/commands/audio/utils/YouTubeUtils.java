@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class YouTubeUtils
@@ -69,28 +70,37 @@ public class YouTubeUtils
         List<SearchResult> searchResultList = searchResponse.getItems();
         LOGGER.info("Found {} related videos", searchResultList.size());
 
-        int searchResultListPosition = 0;
-        SearchResult video;
-        String id;
+        List<String> videosNotInHistory = new ArrayList<>();
+
+        for (SearchResult searchResult : searchResultList)
+        {
+            String id = (String) ((ResourceId) searchResult.get("id")).get("videoId");
+
+            if (!isAudioTrackOnHistory(id, history)) {
+                videosNotInHistory.add(id);
+            }
+        }
+
+        if (videosNotInHistory.isEmpty())
+        {
+            throw new IllegalArgumentException("Unable to find a related video - list was exhausted");
+        }
 
         // check if this video is in the history
-        do
+        for (String id : videosNotInHistory)
         {
-            if (searchResultListPosition >= searchResultList.size())
+            LOGGER.info("Found videoID {} as the related video", id);
+
+            YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
+            try
             {
-                throw new IllegalArgumentException("Unable to find a related video - list was exhausted");
+                return (AudioTrack) youtubeAudioSourceManager.loadTrackWithVideoId(id, true);
+            } catch (FriendlyException exception) {
+                LOGGER.error("Problem encountered whilst loading that video", exception);
             }
+        }
 
-            searchResultListPosition++;
-            video = searchResultList.get(searchResultListPosition);
-            id = (String) ((ResourceId) video.get("id")).get("videoId");
-        } while (isAudioTrackOnHistory(id, history));
-
-
-        LOGGER.info("Found videoID {} as the related video", id);
-
-        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
-        return (AudioTrack) youtubeAudioSourceManager.loadTrackWithVideoId(id, true);
+        throw new IllegalArgumentException("Loading failed on all possible videos");
     }
 
     private static boolean isAudioTrackOnHistory(String id, List<AudioTrack> history)

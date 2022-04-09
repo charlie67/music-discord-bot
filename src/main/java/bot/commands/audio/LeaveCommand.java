@@ -31,6 +31,8 @@ public class LeaveCommand extends Command
             return;
         }
 
+        // tell the track scheduler that the bot is leaving the vc and not to find related videos.
+        audioPlayerSendHandler.getTrackScheduler().setGotLeaveMessage(true);
         audioPlayerSendHandler.getAudioPlayer().stopTrack();
         audioManager.closeAudioConnection();
         audioPlayerSendHandler.getTrackScheduler().clearQueue();
