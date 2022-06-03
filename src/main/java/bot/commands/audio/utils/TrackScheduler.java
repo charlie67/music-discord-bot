@@ -69,20 +69,22 @@ public class TrackScheduler extends AudioEventAdapter
         LOGGER.info("Track {} ended {}", track.getIdentifier(), endReason);
 
         if (endReason == AudioTrackEndReason.LOAD_FAILED) {
+            loopTrack = null;
             // send message to the text channel saying that the loading failed 
             UserInfo userInfo = (UserInfo) track.getUserData();
             TextChannel textChannel = userInfo.getJda().getTextChannelById(userInfo.getChannelId());
             if (textChannel != null)
             {
-                textChannel.sendMessage(String.format("Loading failed for %s", userInfo.getSearchQuery())).queue();
-                return;
+                textChannel.sendMessage(String.format("Loading failed for %s", track.getInfo().uri)).queue();
             }
 
             LOGGER.error("The text channel inside track userInfo is null.");
         }
-        
-        historyQueue.add(track);
-        
+        else {
+            historyQueue.add(track);
+        }
+
+
         if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
         {
             return;
