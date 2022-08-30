@@ -39,7 +39,7 @@ dependencies {
     //youtube
     implementation 'com.google.api-client:google-api-client:1.23.0'
     implementation 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
-    implementation 'com.google.apis:google-api-services-youtube:v3-rev212-1.25.0'
+    implementation 'com.google.apis:google-api-services-youtube:v3-rev20220719-2.0.0'
 
     //reddit
     implementation 'net.dean.jraw:JRAW:1.1.0'
