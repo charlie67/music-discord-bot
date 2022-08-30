@@ -91,7 +91,7 @@ public class YouTubeUtils
         {
             LOGGER.info("Found videoID {} as the related video", id);
 
-            YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
+            YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager();
             try
             {
                 return (AudioTrack) youtubeAudioSourceManager.loadTrackWithVideoId(id, true);
