@@ -2,26 +2,26 @@ package bot.commands.text;
 
 import bot.utils.command.CommandEvent;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static bot.utils.TextChannelResponses.ECHO_COMMAND_NO_ARGS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static testUtils.MockTextChannelCreator.createMockTextChannelWhereTextIsSentNoTyping;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestEchoTextCommand
 {
-    @Before
+    @BeforeEach
     public void init()
     {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test

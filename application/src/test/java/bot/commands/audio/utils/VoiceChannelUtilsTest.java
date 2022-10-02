@@ -3,22 +3,21 @@ package bot.commands.audio.utils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class VoiceChannelUtilsTest
 {
-    @Before
+    @BeforeEach
     public void init()
     {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
 //    @Test
@@ -104,56 +103,5 @@ public class VoiceChannelUtilsTest
         assertEquals(mockAudioPlayerSendHandler, returnedAudioPlayerSendHandler);
 
         assertEquals(GUILD_ID, stringArgumentCaptor.getValue());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void gettingAudioPlayerSendHandlerFailsSuccessfullyIfBotIsNotConnectedToVoiceChannel()
-    {
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        final String GUILD_ID = "mockGuildId";
-
-        AudioManager mockAudioManager = mock(AudioManager.class);
-        when(mockAudioManager.isConnected()).thenReturn(false);
-
-        Guild mockGuild = mock(Guild.class);
-        when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
-
-        JDA mockJda = mock(JDA.class);
-        when(mockJda.getGuildById(stringArgumentCaptor.capture())).thenReturn(mockGuild);
-
-        AudioPlayerSendHandler returnedAudioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(mockJda,
-                GUILD_ID);
-
-        assertEquals(GUILD_ID, stringArgumentCaptor.getValue());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void gettingAudioPlayerSendHandlerFailsSuccessfullyWhenEmptyGuildIdIsPassed()
-    {
-        JDA mockJda = mock(JDA.class);
-
-        AudioPlayerSendHandler returnedAudioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(mockJda, "");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void gettingAudioPlayerSendHandlerFailsSuccessfullyWhenNullGuildIdIsPassed()
-    {
-        JDA mockJda = mock(JDA.class);
-
-        AudioPlayerSendHandler returnedAudioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(mockJda, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void gettingAudioPlayerSendHandlerFailsSuccessfullyWhenGuildWithIdIsNotFound()
-    {
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        final String GUILD_ID = "mockGuildId";
-
-        JDA mockJda = mock(JDA.class);
-        when(mockJda.getGuildById(anyString())).thenReturn(null);
-
-        AudioPlayerSendHandler returnedAudioPlayerSendHandler = VoiceChannelUtils.getAudioPlayerSendHandler(mockJda,
-                GUILD_ID);
-
     }
 }

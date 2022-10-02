@@ -5,25 +5,23 @@ import bot.commands.audio.utils.TrackScheduler;
 import bot.utils.UnicodeEmote;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NOT_A_NUMBER;
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_ARGUMENT;
 import static bot.utils.TextChannelResponses.REMOVE_COMMAND_NO_TRACK_TO_REMOVE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -32,13 +30,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RemoveCommandTest
 {
-    @Before
+    TrackScheduler mockTrackScheduler = mock(TrackScheduler.class);
+
+    AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
+
+    CommandEvent mockCommandEvent = mock(CommandEvent.class);
+
+    @BeforeEach
     public void init()
     {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -47,13 +51,12 @@ public class RemoveCommandTest
         RestAction mockRestAction = mock(RestAction.class);
         doAnswer(invocation -> null).when(mockRestAction).queue();
 
-        TrackScheduler mockTrackScheduler = mock(TrackScheduler.class);
+
 //        when(mockTrackScheduler.remove(2)).thenReturn(mockRestAction);
 
-        AudioPlayer mockAudioPlayer = mock(AudioPlayer.class);
         AudioPlayerSendHandler audioPlayerSendHandler = new AudioPlayerSendHandler(mockAudioPlayer, mockTrackScheduler);
 
-        CommandEvent mockCommandEvent = mock(CommandEvent.class);
+
         when(mockCommandEvent.getArgs()).thenReturn("3");
         when(mockCommandEvent.getGuild()).thenReturn(mock(Guild.class));
         when(mockCommandEvent.getGuild().getAudioManager()).thenReturn(mock(AudioManager.class));
