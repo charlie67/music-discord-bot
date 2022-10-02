@@ -1,6 +1,5 @@
 package bot;
 
-import bot.repositories.AliasEntityRepository;
 import bot.service.BotService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
