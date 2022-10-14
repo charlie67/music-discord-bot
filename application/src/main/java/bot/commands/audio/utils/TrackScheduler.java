@@ -1,8 +1,7 @@
 package bot.commands.audio.utils;
 
 import bot.commands.audio.UserInfo;
-import bot.entities.OptionEntity;
-import bot.repositories.OptionEntityRepository;
+import bot.dao.OptionEntityDao;
 import com.google.common.collect.EvictingQueue;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -10,16 +9,12 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static bot.utils.OptionsCommands.AUTOPLAY_NAME;
 
 public class TrackScheduler extends AudioEventAdapter
 {
@@ -34,7 +29,7 @@ public class TrackScheduler extends AudioEventAdapter
     /**
      * The repository for all option data
      */
-    private final OptionEntityRepository optionEntityRepository;
+    private final OptionEntityDao optionEntityDao;
 
     /**
      * The ID of the guild that this is the track scheduler for
@@ -56,10 +51,9 @@ public class TrackScheduler extends AudioEventAdapter
      */
     private long queueDurationInMilliSeconds = 0;
 
-    public TrackScheduler(String youtubeApiKey, OptionEntityRepository optionEntityRepository, String guildId)
-    {
+    public TrackScheduler(String youtubeApiKey, OptionEntityDao optionEntityDao, String guildId) {
         this.youtubeApiKey = youtubeApiKey;
-        this.optionEntityRepository = optionEntityRepository;
+        this.optionEntityDao = optionEntityDao;
         this.guildId = guildId;
     }
 
@@ -73,48 +67,42 @@ public class TrackScheduler extends AudioEventAdapter
             // send message to the text channel saying that the loading failed 
             UserInfo userInfo = (UserInfo) track.getUserData();
             TextChannel textChannel = userInfo.getJda().getTextChannelById(userInfo.getChannelId());
-            if (textChannel != null)
-            {
-                textChannel.sendMessage(String.format("Loading failed for %s", track.getInfo().uri)).queue();
+            if (textChannel != null) {
+                textChannel.sendMessage(String.format("Loading failed for %s", track.getInfo().uri))
+                    .queue();
             }
 
             LOGGER.error("The text channel inside track userInfo is null.");
-        }
-        else {
+        } else {
             historyQueue.add(track);
         }
 
-
-        if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED))
-        {
+        if (!endReason.mayStartNext && !endReason.equals(AudioTrackEndReason.STOPPED)) {
             return;
         }
 
-        if (loopTrack != null)
-        {
-            player.playTrack(loopTrack.makeClone());
-            return;
+        if (loopTrack != null) {
+            LOGGER.info("Current track {}", track.getInfo().length);
+
+            AudioTrack cloneTrack = loopTrack.makeClone();
+            LOGGER.info("cloneTrack track {}", cloneTrack.getInfo().length);
+
+            this.queue(track.makeClone(), true);
         }
 
-        if (!queue.isEmpty())
-        {
+        if (!queue.isEmpty()) {
             player.playTrack(nextTrack());
             return;
         }
 
         // should a related video be found
-        if (track instanceof YoutubeAudioTrack && !gotLeaveMessage)
-        {
-            // get the optionEntityForAutoplay
-            OptionEntity optionEntity = optionEntityRepository.findByServerIdAndName(guildId, AUTOPLAY_NAME);
-            if (optionEntity != null && !optionEntity.getOption())
-            {
+        if (track instanceof YoutubeAudioTrack && !gotLeaveMessage) {
+            if (!optionEntityDao.autoplayEnabledForGuild(guildId)) {
                 return;
             }
             String oldTrackId = track.getInfo().identifier;
             AudioTrack nextTrack = getRelatedVideoRetry(oldTrackId, 0);
-            if (nextTrack != null)
-            {
+            if (nextTrack != null) {
                 queueDurationInMilliSeconds += nextTrack.getDuration();
                 queue.add(nextTrack);
                 player.playTrack(nextTrack());

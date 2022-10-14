@@ -1,5 +1,13 @@
 package bot.service;
 
+import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
+
 import bot.api.dto.TriggerCommandDto;
 import bot.commands.alias.AliasCreateCommand;
 import bot.commands.alias.AliasDeleteCommand;
@@ -28,9 +36,9 @@ import bot.commands.text.WhisperTextCommand;
 import bot.commands.utilities.OptionListCommand;
 import bot.commands.utilities.OptionsCommand;
 import bot.commands.utilities.PingCommand;
+import bot.dao.OptionEntityDao;
 import bot.listeners.VoiceChannelEventListener;
 import bot.repositories.AliasEntityRepository;
-import bot.repositories.OptionEntityRepository;
 import bot.utils.BotConfiguration;
 import bot.utils.command.Command;
 import bot.utils.command.CommandClient;
@@ -42,6 +50,7 @@ import bot.utils.command.impl.ApiTextChannel;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -54,16 +63,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.security.auth.login.LoginException;
-
-import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
 
 @Service
 public class BotService
@@ -81,7 +80,7 @@ public class BotService
     private final OptionsCommand optionsCommand;
     private final OptionListCommand optionListCommand;
 
-    private final OptionEntityRepository optionEntityRepository;
+    private final OptionEntityDao optionEntityDao;
 
     private JDA jda;
     private AudioPlayerManager playerManager;
@@ -89,10 +88,10 @@ public class BotService
 
     @Autowired
     public BotService(AliasCreateCommand aliasCreateCommand, AliasDeleteCommand aliasDeleteCommand,
-                      AliasSearchCommand aliasSearchCommand, AliasListCommand aliasListCommand,
-                      AliasEntityRepository aliasEntityRepository, RedditSearchCommand redditSearchCommand,
-                      BotConfiguration botConfiguration, OptionsCommand optionsCommand,
-                      OptionEntityRepository optionEntityRepository, OptionListCommand optionListCommand)
+        AliasSearchCommand aliasSearchCommand, AliasListCommand aliasListCommand,
+        AliasEntityRepository aliasEntityRepository, RedditSearchCommand redditSearchCommand,
+        BotConfiguration botConfiguration, OptionsCommand optionsCommand,
+        OptionEntityDao optionEntityDao, OptionListCommand optionListCommand)
     {
         this.aliasCreateCommand = aliasCreateCommand;
         this.aliasDeleteCommand = aliasDeleteCommand;
@@ -104,7 +103,7 @@ public class BotService
         this.optionListCommand = optionListCommand;
         this.redditSearchCommand = redditSearchCommand;
 
-        this.optionEntityRepository = optionEntityRepository;
+        this.optionEntityDao = optionEntityDao;
 
         this.discordBotKey = botConfiguration.getDiscordKey();
         this.ownerId = botConfiguration.getOwnerId();
@@ -118,20 +117,25 @@ public class BotService
 
         CommandClientBuilder builder = new CommandClientBuilder();
         builder.setPrefix(COMMAND_PREFIX)
-                .setActivity(null)
-                .setOwnerId(ownerId)
-                .setAliasEntityRepository(aliasEntityRepository)
-                .setAliasCreateCommand(aliasCreateCommand)
-                .addCommands(new JoinCommand(playerManager, botConfiguration.getYoutubeApiKey(), optionEntityRepository),
-                        new PlayCommand(playerManager, botConfiguration.getYoutubeApiKey(), optionEntityRepository),
-                        new PlayTopCommand(playerManager, botConfiguration.getYoutubeApiKey(), optionEntityRepository),
-                        new QueueCommand(),
-                        new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(), new ClearQueueCommand(),
-                        new RemoveCommand(), new SeekCommand(), new PingCommand(), new ShuffleCommand(), new SkipToCommand(),
-                        redditSearchCommand, new PauseCommand(), new ResumeCommand(), new LoopCommand(),
-                        aliasListCommand, aliasDeleteCommand, aliasSearchCommand, new EchoTextCommand(),
-                        new WhisperTextCommand(), new HistoryCommand(), new DmCommand(), optionsCommand,
-                        optionListCommand);
+            .setActivity(null)
+            .setOwnerId(ownerId)
+            .setAliasEntityRepository(aliasEntityRepository)
+            .setAliasCreateCommand(aliasCreateCommand)
+            .addCommands(new JoinCommand(playerManager, botConfiguration.getYoutubeApiKey(),
+                    optionEntityDao),
+                new PlayCommand(playerManager, botConfiguration.getYoutubeApiKey(),
+                    optionEntityDao),
+                new PlayTopCommand(playerManager, botConfiguration.getYoutubeApiKey(),
+                    optionEntityDao),
+                new QueueCommand(),
+                new LeaveCommand(), new NowPlayingCommand(), new SkipSongCommand(),
+                new ClearQueueCommand(),
+                new RemoveCommand(), new SeekCommand(), new PingCommand(), new ShuffleCommand(),
+                new SkipToCommand(),
+                redditSearchCommand, new PauseCommand(), new ResumeCommand(), new LoopCommand(),
+                aliasListCommand, aliasDeleteCommand, aliasSearchCommand, new EchoTextCommand(),
+                new WhisperTextCommand(), new HistoryCommand(), new DmCommand(), optionsCommand,
+                optionListCommand);
 
         this.client = builder.build();
 

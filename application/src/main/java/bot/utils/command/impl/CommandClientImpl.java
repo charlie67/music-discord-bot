@@ -29,37 +29,6 @@ import bot.utils.command.GuildSettingsManager;
 import bot.utils.command.GuildSettingsProvider;
 import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ShutdownEvent;
-import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.internal.utils.Checks;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.time.OffsetDateTime;
@@ -78,6 +47,38 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.ShutdownEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.utils.Checks;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link CommandClient CommandClient} to be used by a bot.
@@ -242,27 +243,27 @@ public class CommandClientImpl implements CommandClient, EventListener
         }
     }
 
-    @Override
-    public void setListener(CommandListener listener)
-    {
-        this.listener = listener;
+    private static String[] splitOnPrefixLength(String rawContent, int length) {
+        return Arrays.copyOf(rawContent.substring(length).trim().split("\\s+", 2), 2);
     }
 
     @Override
-    public CommandListener getListener()
-    {
+    public CommandListener getListener() {
         return listener;
     }
 
     @Override
-    public List<Command> getCommands()
-    {
+    public void setListener(CommandListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public List<Command> getCommands() {
         return commands;
     }
 
     @Override
-    public OffsetDateTime getStartTime()
-    {
+    public OffsetDateTime getStartTime() {
         return start;
     }
 
@@ -507,46 +508,60 @@ public class CommandClientImpl implements CommandClient, EventListener
     @Override
     public void onEvent(GenericEvent event)
     {
-        if (event instanceof MessageReceivedEvent)
+        if (event instanceof MessageReceivedEvent) {
             onMessageReceived((MessageReceivedEvent) event);
-
-        else if (event instanceof GuildMessageDeleteEvent && usesLinkedDeletion())
+        } else if (event instanceof GuildMessageDeleteEvent && usesLinkedDeletion()) {
             onMessageDelete((GuildMessageDeleteEvent) event);
-
-        else if (event instanceof GuildJoinEvent)
-        {
+        } else if (event instanceof GuildJoinEvent) {
             if (((GuildJoinEvent) event).getGuild().getSelfMember().getTimeJoined()
-                    .plusMinutes(10).isAfter(OffsetDateTime.now()))
+                .plusMinutes(10).isAfter(OffsetDateTime.now())) {
                 sendStats(event.getJDA());
-        }
-        else if (event instanceof GuildLeaveEvent)
+            }
+        } else if (event instanceof GuildLeaveEvent) {
             sendStats(event.getJDA());
-        else if (event instanceof ReadyEvent)
+        } else if (event instanceof ReadyEvent) {
             onReady((ReadyEvent) event);
-        else if (event instanceof ShutdownEvent)
-        {
-            if (shutdownAutomatically)
+        } else if (event instanceof ShutdownEvent) {
+            if (shutdownAutomatically) {
                 shutdown();
+            }
+        } else if (event instanceof SlashCommandEvent) {
+            onSlashCommandEvent((SlashCommandEvent) event);
         }
     }
 
-    private void onReady(ReadyEvent event)
-    {
-        if (!event.getJDA().getSelfUser().isBot())
-        {
+    private void onSlashCommandEvent(SlashCommandEvent event) {
+        Command commandToExecute = getCommandWithName(event.getName());
+
+        if (commandToExecute != null) {
+            commandToExecute.executeSlashCommand(event);
+        }
+    }
+
+    private void onReady(ReadyEvent event) {
+        if (!event.getJDA().getSelfUser().isBot()) {
             LOG.error("JDA-Utilities does not support CLIENT accounts.");
             event.getJDA().shutdown();
             return;
         }
-        textPrefix = prefix.equals(DEFAULT_PREFIX) ? "@" + event.getJDA().getSelfUser().getName() + " " : prefix;
+        textPrefix =
+            prefix.equals(DEFAULT_PREFIX) ? "@" + event.getJDA().getSelfUser().getName() + " "
+                : prefix;
         event.getJDA().getPresence().setPresence(status == null ? OnlineStatus.ONLINE : status,
-                activity == null ? null : "default".equals(activity.getName()) ?
-                        Activity.playing("Type " + textPrefix + helpWord) : activity);
+            activity == null ? null : "default".equals(activity.getName()) ?
+                Activity.playing("Type " + textPrefix + helpWord) : activity);
 
         // Start SettingsManager if necessary
         GuildSettingsManager<?> manager = getSettingsManager();
-        if (manager != null)
+        if (manager != null) {
             manager.init();
+        }
+
+        Set<CommandData> commandDataToAdd = this.getCommands().stream()
+            .filter(command -> command.isAllowedInSlash() && command.getCommandData() != null)
+            .map(Command::getCommandData).collect(Collectors.toSet());
+
+        event.getJDA().updateCommands().addCommands(commandDataToAdd).queue();
 
         sendStats(event.getJDA());
     }
@@ -789,11 +804,6 @@ public class CommandClientImpl implements CommandClient, EventListener
             return (GuildSettingsProvider) settings;
         else
             return null;
-    }
-
-    private static String[] splitOnPrefixLength(String rawContent, int length)
-    {
-        return Arrays.copyOf(rawContent.substring(length).trim().split("\\s+", 2), 2);
     }
 
     /**

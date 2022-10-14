@@ -12,6 +12,7 @@
 
 	<modules>
 		<module>application</module>
+		<module>tests</module>
 	</modules>
 
 	<properties>

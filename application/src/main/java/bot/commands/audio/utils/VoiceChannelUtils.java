@@ -1,11 +1,12 @@
 package bot.commands.audio.utils;
 
 import bot.commands.audio.UserInfo;
-import bot.repositories.OptionEntityRepository;
+import bot.dao.OptionEntityDao;
 import bot.utils.TextChannelResponses;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import java.net.URL;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -15,8 +16,6 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.net.URL;
 
 public class VoiceChannelUtils
 {
@@ -29,23 +28,24 @@ public class VoiceChannelUtils
      * @param guild         The server that the member is in
      * @param playerManager The player manager for this guild
      * @throws IllegalArgumentException        If the voice channel can't be joined
-     * @throws InsufficientPermissionException If the bot lacks the permission to join the voice channel
+     * @throws InsufficientPermissionException If the bot lacks the permission to join the voice
+     *                                         channel
      */
     public static void joinVoiceChannel(Member member, Guild guild, String youtubeApiKey,
-                                        AudioPlayerManager playerManager, OptionEntityRepository optionEntityRepository) throws IllegalArgumentException,
-            InsufficientPermissionException
-    {
+        AudioPlayerManager playerManager, OptionEntityDao optionEntityDao)
+        throws IllegalArgumentException,
+        InsufficientPermissionException {
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
-        if (memberVoiceState == null || !memberVoiceState.inVoiceChannel())
-        {
+        if (memberVoiceState == null || !memberVoiceState.inVoiceChannel()) {
             throw new IllegalArgumentException("Unable to join the voice channel");
         }
 
         AudioManager audioManager = guild.getAudioManager();
 
         AudioPlayer player = playerManager.createPlayer();
-        TrackScheduler trackScheduler = new TrackScheduler(youtubeApiKey, optionEntityRepository, guild.getId());
+        TrackScheduler trackScheduler = new TrackScheduler(youtubeApiKey, optionEntityDao,
+            guild.getId());
         player.addListener(trackScheduler);
 
         audioManager.setSendingHandler(new AudioPlayerSendHandler(player, trackScheduler));
@@ -61,16 +61,15 @@ public class VoiceChannelUtils
      * @param youtubeApiKey The API key for youtube
      * @throws IllegalArgumentException If an error occurred during play
      */
-    public static void searchAndPlaySong(CommandEvent event, boolean playTop, AudioPlayerManager playerManager,
-                                         String youtubeApiKey, OptionEntityRepository optionEntityRepository) throws IllegalArgumentException
-    {
+    public static void searchAndPlaySong(CommandEvent event, boolean playTop,
+        AudioPlayerManager playerManager,
+        String youtubeApiKey, OptionEntityDao optionEntityDao) throws IllegalArgumentException {
         String argument = event.getArgs();
         MessageChannel channel = event.getChannel();
         Guild guild = event.getGuild();
         Member member = event.getMember();
 
-        if (argument.isEmpty())
-        {
+        if (argument.isEmpty()) {
             channel.sendMessage(TextChannelResponses.NO_ARGUMENT_PROVIDED_TO_PLAY_COMMAND).queue();
             return;
         }
@@ -79,17 +78,14 @@ public class VoiceChannelUtils
 
         if (!audioManager.isConnected())
         {
-            try
-            {
-                VoiceChannelUtils.joinVoiceChannel(member, guild, youtubeApiKey, playerManager, optionEntityRepository);
-            }
-            catch(InsufficientPermissionException e)
-            {
-                channel.sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
+            try {
+                VoiceChannelUtils.joinVoiceChannel(member, guild, youtubeApiKey, playerManager,
+                    optionEntityDao);
+            } catch (InsufficientPermissionException e) {
+                channel.sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL)
+                    .queue();
                 return;
-            }
-            catch(IllegalArgumentException e)
-            {
+            } catch (IllegalArgumentException e) {
                 channel.sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
                 return;
             }

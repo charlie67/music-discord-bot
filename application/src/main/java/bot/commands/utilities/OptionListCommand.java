@@ -1,17 +1,16 @@
 package bot.commands.utilities;
 
+import static bot.commands.utilities.OptionsCommand.OPTION_NAMES;
+import static bot.utils.EmbedUtils.setRandomColour;
+
 import bot.entities.OptionEntity;
 import bot.repositories.OptionEntityRepository;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
-import net.dv8tion.jda.api.EmbedBuilder;
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static bot.commands.utilities.OptionsCommand.OPTION_NAMES;
-import static bot.utils.EmbedUtils.setRandomColour;
+import net.dv8tion.jda.api.EmbedBuilder;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OptionListCommand extends Command
