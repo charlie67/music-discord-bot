@@ -15,6 +15,7 @@
     <option name="exclusions">
       <set>
         <option value=".*\.properties" />
+        <option value=".*\.xml" />
       </set>
     </option>
   </component>

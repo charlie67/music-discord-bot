@@ -3,6 +3,23 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>application</artifactId>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.7.4</version>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <dependency>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -77,6 +94,7 @@
     <groupId>to.charlie.discordbot</groupId>
     <modelVersion>4.0.0</modelVersion>
     <name>Discord Bot</name>
+
     <parent>
         <artifactId>discord-bot</artifactId>
         <groupId>to.charlie</groupId>
