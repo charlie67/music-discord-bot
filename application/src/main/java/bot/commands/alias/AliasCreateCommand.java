@@ -45,7 +45,7 @@ public class AliasCreateCommand extends Command {
         "The arguments that will be passed to" +
             " the alias command when this is executed", false));
     this.commandData = commandData;
-    this.allowedInSlash = true;
+    this.allowedInSlash = false;
 
     this.aliasEntityRepository = aliasEntityRepository;
   }

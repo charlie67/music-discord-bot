@@ -30,7 +30,7 @@ public class PlayCommand extends Command {
             new OptionData(OptionType.STRING, "song", "song or url to play", true));
         this.commandData = commandData;
 
-        this.allowedInSlash = true;
+        this.allowedInSlash = false;
 
         this.youtubeApiKey = youtubeApiKey;
         this.optionEntityDao = optionEntityDao;
