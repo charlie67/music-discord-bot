@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="application" />
+        <module name="tests" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">

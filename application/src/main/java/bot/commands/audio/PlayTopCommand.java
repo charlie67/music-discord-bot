@@ -1,7 +1,7 @@
 package bot.commands.audio;
 
 import bot.commands.audio.utils.VoiceChannelUtils;
-import bot.repositories.OptionEntityRepository;
+import bot.dao.OptionEntityDao;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -10,10 +10,10 @@ public class PlayTopCommand extends Command
 {
     private final AudioPlayerManager playerManager;
     private final String youtubeApiKey;
-    private final OptionEntityRepository optionEntityRepository;
+    private final OptionEntityDao optionEntityDao;
 
     public PlayTopCommand(AudioPlayerManager playerManager, String youtubeApiKey,
-                          OptionEntityRepository optionEntityRepository)
+        OptionEntityDao optionEntityDao)
     {
         this.playerManager = playerManager;
         this.name = "playtop";
@@ -21,12 +21,12 @@ public class PlayTopCommand extends Command
         this.help = "Plays a song with the given name or url by placing it at the top of the queue.";
 
         this.youtubeApiKey = youtubeApiKey;
-        this.optionEntityRepository = optionEntityRepository;
+        this.optionEntityDao = optionEntityDao;
     }
 
     @Override
-    protected void execute(CommandEvent event)
-    {
-        VoiceChannelUtils.searchAndPlaySong(event, true, playerManager, youtubeApiKey, optionEntityRepository);
+    protected void execute(CommandEvent event) {
+        VoiceChannelUtils.searchAndPlaySong(event, true, playerManager, youtubeApiKey,
+            optionEntityDao);
     }
 }

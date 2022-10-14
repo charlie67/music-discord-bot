@@ -1,30 +1,29 @@
 package bot.commands.utilities;
 
-import bot.entities.OptionEntity;
-import bot.repositories.OptionEntityRepository;
-import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
-import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-
 import static bot.utils.OptionsCommands.AUTOPLAY_HELP;
 import static bot.utils.OptionsCommands.AUTOPLAY_NAME;
 import static bot.utils.TextChannelResponses.NEED_MORE_ARGUMENTS_TO_SET_OPTION;
 import static bot.utils.TextChannelResponses.NOT_VALID_BOOLEAN;
 import static bot.utils.TextChannelResponses.NOT_VALID_OPTION;
 
+import bot.entities.OptionEntity;
+import bot.repositories.OptionEntityRepository;
+import bot.utils.command.Command;
+import bot.utils.command.CommandEvent;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+import org.springframework.stereotype.Component;
+
 @Component
 public class OptionsCommand extends Command
 {
+
     static final String[] OPTION_NAMES = new String[]{AUTOPLAY_NAME};
     private final OptionEntityRepository optionEntityRepository;
     private final HashMap<Boolean, String> enabledDisabledMap = new HashMap<>();
 
-    public OptionsCommand(OptionEntityRepository optionEntityRepository)
-    {
+    public OptionsCommand(OptionEntityRepository optionEntityRepository) {
         this.optionEntityRepository = optionEntityRepository;
 
         this.enabledDisabledMap.put(Boolean.FALSE, "disabled");
@@ -33,7 +32,7 @@ public class OptionsCommand extends Command
         this.name = "option";
         this.aliases = new String[]{"setting", "settings"};
         this.help = "Set options for the bot. Current Options:\n" +
-                String.format("> %s - %s", AUTOPLAY_NAME, AUTOPLAY_HELP);
+            String.format("> %s - %s", AUTOPLAY_NAME, AUTOPLAY_HELP);
     }
 
     @Override

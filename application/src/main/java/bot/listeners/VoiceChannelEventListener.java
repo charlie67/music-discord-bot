@@ -2,6 +2,10 @@ package bot.listeners;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.utils.BotConfiguration;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
@@ -10,12 +14,9 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
+@Component
 public class VoiceChannelEventListener extends ListenerAdapter
 {
     // 60 seconds

@@ -1,18 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>to.charlie</groupId>
 	<artifactId>discord-bot</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>discord-bot</name>
-	<description>Music Discord Bot</description>
-	<packaging>pom</packaging>
 
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<groupId>org.springframework.boot</groupId>
+				<version>2.7.4</version>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>2.22.2</version>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<artifactId>lombok</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<version>1.18.24</version>
+		</dependency>
+		<dependency>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<scope>test</scope>
+			<version>2.7.4</version>
+		</dependency>
+		<dependency>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<scope>test</scope>
+			<version>5.9.0</version>
+		</dependency>
+	</dependencies>
+	<description>Music Discord Bot</description>
+	<groupId>to.charlie</groupId>
+	<modelVersion>4.0.0</modelVersion>
 	<modules>
 		<module>application</module>
+		<module>tests</module>
 	</modules>
+
+	<name>discord-bot</name>
+
+	<packaging>pom</packaging>
 
 	<properties>
 		<java.version>17</java.version>
@@ -45,40 +80,6 @@
 		</repository>
 	</repositories>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.24</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<version>2.7.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.9.0</version>
-			<scope>test</scope>
-		</dependency>
-    </dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.7.4</version>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
-			</plugin>
-		</plugins>
-	</build>
+	<version>0.0.1-SNAPSHOT</version>
 
 </project>

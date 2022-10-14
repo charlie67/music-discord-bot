@@ -5,8 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@NoArgsConstructor
+@Getter
+@Setter
 public class OptionEntity
 {
     @Id
@@ -19,49 +25,4 @@ public class OptionEntity
 
     @Column(name = "option")
     private Boolean option = true;
-
-    public OptionEntity()
-    {
-        // no-args constructor
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public String getServerId()
-    {
-        return serverId;
-    }
-
-    public void setServerId(String serverId)
-    {
-        this.serverId = serverId;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public Boolean getOption()
-    {
-        return option;
-    }
-
-    public void setOption(Boolean option)
-    {
-        this.option = option;
-    }
 }
