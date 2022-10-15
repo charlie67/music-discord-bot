@@ -1,16 +1,6 @@
 package bot.commands.audio.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import bot.service.VoiceChannelService;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.managers.AudioManager;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
 
 public class VoiceChannelServiceTest {
@@ -80,28 +70,28 @@ public class VoiceChannelServiceTest {
 //        VoiceChannelUtils.joinVoiceChannel(mockMember, null, null);
 //    }
 
-  @Test
-  public void canGetAudioPlayerSendHandlerSuccessfully() {
-    ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-    final String GUILD_ID = "mockGuildId";
-
-    AudioPlayerSendHandler mockAudioPlayerSendHandler = mock(AudioPlayerSendHandler.class);
-
-    AudioManager mockAudioManager = mock(AudioManager.class);
-    when(mockAudioManager.isConnected()).thenReturn(true);
-    when(mockAudioManager.getSendingHandler()).thenReturn(mockAudioPlayerSendHandler);
-
-    Guild mockGuild = mock(Guild.class);
-    when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
-
-    JDA mockJda = mock(JDA.class);
-    when(mockJda.getGuildById(stringArgumentCaptor.capture())).thenReturn(mockGuild);
-
-    AudioPlayerSendHandler returnedAudioPlayerSendHandler = VoiceChannelService.getAudioPlayerSendHandler(
-        mockJda,
-        GUILD_ID);
-    assertEquals(mockAudioPlayerSendHandler, returnedAudioPlayerSendHandler);
-
-    assertEquals(GUILD_ID, stringArgumentCaptor.getValue());
-  }
+//  @Test
+//  public void canGetAudioPlayerSendHandlerSuccessfully() {
+//    ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+//    final String GUILD_ID = "mockGuildId";
+//
+//    AudioPlayerSendHandler mockAudioPlayerSendHandler = mock(AudioPlayerSendHandler.class);
+//
+//    AudioManager mockAudioManager = mock(AudioManager.class);
+//    when(mockAudioManager.isConnected()).thenReturn(true);
+//    when(mockAudioManager.getSendingHandler()).thenReturn(mockAudioPlayerSendHandler);
+//
+//    Guild mockGuild = mock(Guild.class);
+//    when(mockGuild.getAudioManager()).thenReturn(mockAudioManager);
+//
+//    JDA mockJda = mock(JDA.class);
+//    when(mockJda.getGuildById(stringArgumentCaptor.capture())).thenReturn(mockGuild);
+//
+//    AudioPlayerSendHandler returnedAudioPlayerSendHandler = VoiceChannelService.getAudioPlayerSendHandler(
+//        mockJda,
+//        GUILD_ID);
+//    assertEquals(mockAudioPlayerSendHandler, returnedAudioPlayerSendHandler);
+//
+//    assertEquals(GUILD_ID, stringArgumentCaptor.getValue());
+//  }
 }
