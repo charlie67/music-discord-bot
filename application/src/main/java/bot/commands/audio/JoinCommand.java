@@ -1,46 +1,51 @@
 package bot.commands.audio;
 
-import bot.commands.audio.utils.VoiceChannelUtils;
+import bot.configuration.BotConfiguration;
 import bot.dao.OptionEntityDao;
+import bot.service.VoiceChannelService;
 import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JoinCommand extends Command {
 
-    //The audio player manager that the audio player will be created from
-    private final AudioPlayerManager playerManager;
-    private final String youtubeApiKey;
-    private final OptionEntityDao optionEntityDao;
+  //The audio player manager that the audio player will be created from
+  private final AudioPlayerManager playerManager;
+  private final String youtubeApiKey;
+  private final OptionEntityDao optionEntityDao;
 
-    public JoinCommand(AudioPlayerManager playerManager, String youtubeApiKey,
-        OptionEntityDao optionEntityDao) {
-        this.playerManager = playerManager;
-        this.name = "join";
-        this.help = "Joins the voice channel that the user is currently connected to";
+  private final VoiceChannelService voiceChannelService;
 
-        this.youtubeApiKey = youtubeApiKey;
-        this.optionEntityDao = optionEntityDao;
+  @Autowired
+  public JoinCommand(AudioPlayerManager playerManager, BotConfiguration botConfiguration,
+      OptionEntityDao optionEntityDao, VoiceChannelService voiceChannelService) {
+    this.playerManager = playerManager;
+    this.name = "join";
+    this.help = "Joins the voice channel that the user is currently connected to";
+
+    this.youtubeApiKey = botConfiguration.getYoutubeApiKey();
+    this.optionEntityDao = optionEntityDao;
+
+    this.voiceChannelService = voiceChannelService;
+  }
+
+  @Override
+  protected void execute(CommandEvent event) {
+    try {
+      voiceChannelService.joinVoiceChannel(event.getMember(), event.getGuild(), youtubeApiKey,
+          playerManager,
+          optionEntityDao);
+    } catch (IllegalArgumentException e) {
+      event.getChannel().sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
+    } catch (InsufficientPermissionException e) {
+      event.getChannel()
+          .sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
     }
-
-    @Override
-    protected void execute(CommandEvent event)
-    {
-        try {
-            VoiceChannelUtils.joinVoiceChannel(event.getMember(), event.getGuild(), youtubeApiKey,
-                playerManager,
-                optionEntityDao);
-        }
-        catch(IllegalArgumentException e)
-        {
-            event.getChannel().sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
-        }
-        catch(InsufficientPermissionException e)
-        {
-            event.getChannel().sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
-        }
-    }
+  }
 
 }
