@@ -1,4 +1,4 @@
-package bot.utils;
+package bot.configuration;
 
 import lombok.Data;
 import lombok.Getter;
@@ -11,12 +11,13 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Data
-public class BotConfiguration
-{
-    String youtubeApiKey;
-    String discordKey;
-    String userId;
-    String redditClientId;
-    String redditClientSecret;
-    String ownerId;
+public class BotConfiguration {
+
+  private String youtubeApiKey;
+  private String discordKey;
+  private String userId;
+  private String redditClientId;
+  private String redditClientSecret;
+  private String ownerId;
+  private String commandPrefix;
 }
