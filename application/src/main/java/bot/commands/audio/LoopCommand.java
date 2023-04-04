@@ -31,8 +31,8 @@ public class LoopCommand extends Command {
   protected void execute(CommandEvent event) {
     AudioPlayerSendHandler audioPlayerSendHandler;
     try {
-      audioPlayerSendHandler = voiceChannelService.getAudioPlayerSendHandler(event.getJDA(),
-          event.getGuild().getId());
+      audioPlayerSendHandler =
+          voiceChannelService.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
     } catch (IllegalArgumentException e) {
       event.getChannel().sendMessage(TextChannelResponses.BOT_NOT_CONNECTED_TO_VOICE).queue();
       return;

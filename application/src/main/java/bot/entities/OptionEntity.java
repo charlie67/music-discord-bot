@@ -13,16 +13,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class OptionEntity
-{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class OptionEntity {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    private String serverId;
+  private String serverId;
 
-    private String name;
+  private String name;
 
-    @Column(name = "option")
-    private Boolean option = true;
+  @Column(name = "option")
+  private Boolean option = true;
 }

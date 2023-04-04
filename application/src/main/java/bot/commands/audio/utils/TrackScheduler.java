@@ -13,28 +13,24 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.dv8tion.jda.api.entities.TextChannel;
+import lombok.Getter;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Getter
 public class TrackScheduler extends AudioEventAdapter {
 
   private static final Logger LOGGER = LogManager.getLogger(TrackScheduler.class);
   private final EvictingQueue<AudioTrack> historyQueue = EvictingQueue.create(20);
 
-  /**
-   * The API key needed to call the YouTube API
-   */
+  /** The API key needed to call the YouTube API */
   private final String youtubeApiKey;
 
-  /**
-   * The repository for all option data
-   */
+  /** The repository for all option data */
   private final OptionEntityDao optionEntityDao;
 
-  /**
-   * The ID of the guild that this is the track scheduler for
-   */
+  /** The ID of the guild that this is the track scheduler for */
   private final String guildId;
 
   private final YoutubeAudioSourceManager youtubeAudioSourceManager;
@@ -47,14 +43,15 @@ public class TrackScheduler extends AudioEventAdapter {
    * boolean to indicate if the bot has been told to leave the voice channel. If the leave message
    * has been called then this is true and related videos shouldn't be found.
    */
-  private boolean gotLeaveMessage = false;
+  private boolean leaveFlag = false;
 
-  /**
-   * The duration of the queue
-   */
+  /** The duration of the queue */
   private long queueDurationInMilliSeconds = 0;
 
-  public TrackScheduler(String youtubeApiKey, OptionEntityDao optionEntityDao, String guildId,
+  public TrackScheduler(
+      String youtubeApiKey,
+      OptionEntityDao optionEntityDao,
+      String guildId,
       YoutubeAudioSourceManager youtubeAudioSourceManager) {
     this.youtubeApiKey = youtubeApiKey;
     this.optionEntityDao = optionEntityDao;
@@ -72,7 +69,8 @@ public class TrackScheduler extends AudioEventAdapter {
       UserInfo userInfo = (UserInfo) track.getUserData();
       TextChannel textChannel = userInfo.getJda().getTextChannelById(userInfo.getChannelId());
       if (textChannel != null) {
-        textChannel.sendMessage(String.format("Loading failed for %s", track.getInfo().uri))
+        textChannel
+            .sendMessage(String.format("Loading failed for %s", track.getInfo().uri))
             .queue();
       }
 
@@ -100,7 +98,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     // should a related video be found
-    if (track instanceof YoutubeAudioTrack && !gotLeaveMessage) {
+    if (track instanceof YoutubeAudioTrack && !leaveFlag) {
       if (!optionEntityDao.autoplayEnabledForGuild(guildId)) {
         return;
       }
@@ -122,8 +120,8 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     try {
-      return YouTubeUtils.getRelatedVideo(trackId, new ArrayList<>(historyQueue), youtubeApiKey,
-          youtubeAudioSourceManager);
+      return YouTubeUtils.getRelatedVideo(
+          trackId, new ArrayList<>(historyQueue), youtubeApiKey, youtubeAudioSourceManager);
 
     } catch (IOException | IllegalArgumentException | FriendlyException e) {
       LOGGER.error("Encountered error when trying to find a related video", e);
@@ -166,20 +164,8 @@ public class TrackScheduler extends AudioEventAdapter {
     return null;
   }
 
-  public List<AudioTrack> getQueue() {
-    return queue;
-  }
-
   public void setQueue(List<AudioTrack> queue) {
     this.queue = queue;
-  }
-
-  public long getQueueDurationInMilliSeconds() {
-    return queueDurationInMilliSeconds;
-  }
-
-  public AudioTrack getLoopTrack() {
-    return loopTrack;
   }
 
   public void setLoopTrack(AudioTrack loopTrack) {
@@ -190,11 +176,7 @@ public class TrackScheduler extends AudioEventAdapter {
     queue.remove(trackToRemove);
   }
 
-  public EvictingQueue<AudioTrack> getHistory() {
-    return historyQueue;
-  }
-
-  public void setGotLeaveMessage(boolean gotLeaveMessage) {
-    this.gotLeaveMessage = gotLeaveMessage;
+  public void setLeaveFlag(boolean leaveFlag) {
+    this.leaveFlag = leaveFlag;
   }
 }

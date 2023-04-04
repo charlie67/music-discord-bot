@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JoinCommand extends Command {
 
-  //The audio player manager that the audio player will be created from
+  // The audio player manager that the audio player will be created from
   private final AudioPlayerManager playerManager;
   private final String youtubeApiKey;
   private final OptionEntityDao optionEntityDao;
@@ -22,8 +22,11 @@ public class JoinCommand extends Command {
   private final VoiceChannelService voiceChannelService;
 
   @Autowired
-  public JoinCommand(AudioPlayerManager playerManager, BotConfiguration botConfiguration,
-      OptionEntityDao optionEntityDao, VoiceChannelService voiceChannelService) {
+  public JoinCommand(
+      AudioPlayerManager playerManager,
+      BotConfiguration botConfiguration,
+      OptionEntityDao optionEntityDao,
+      VoiceChannelService voiceChannelService) {
     this.playerManager = playerManager;
     this.name = "join";
     this.help = "Joins the voice channel that the user is currently connected to";
@@ -37,15 +40,16 @@ public class JoinCommand extends Command {
   @Override
   protected void execute(CommandEvent event) {
     try {
-      voiceChannelService.joinVoiceChannel(event.getMember(), event.getGuild(), youtubeApiKey,
-          playerManager,
-          optionEntityDao);
+      voiceChannelService.joinVoiceChannel(
+          event.getMember(), event.getGuild(), youtubeApiKey, playerManager, optionEntityDao);
+      event.reactSuccess();
     } catch (IllegalArgumentException e) {
       event.getChannel().sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
     } catch (InsufficientPermissionException e) {
-      event.getChannel()
-          .sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
+      event
+          .getChannel()
+          .sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL)
+          .queue();
     }
   }
-
 }

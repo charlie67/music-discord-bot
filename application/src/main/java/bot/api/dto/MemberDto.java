@@ -1,47 +1,39 @@
 package bot.api.dto;
 
-public class MemberDto
-{
-    private String name;
+public class MemberDto {
+  private String name;
 
-    private String id;
+  private String id;
 
-    private String inVoice;
+  private String inVoice;
 
-    public MemberDto(String name, String id, String inVoice)
-    {
-        this.name = name;
-        this.id = id;
-        this.inVoice = inVoice;
-    }
+  public MemberDto(String name, String id, String inVoice) {
+    this.name = name;
+    this.id = id;
+    this.inVoice = inVoice;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getId()
-    {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getInVoice()
-    {
-        return inVoice;
-    }
+  public String getInVoice() {
+    return inVoice;
+  }
 
-    public void setInVoice(String inVoice)
-    {
-        this.inVoice = inVoice;
-    }
+  public void setInVoice(String inVoice) {
+    this.inVoice = inVoice;
+  }
 }

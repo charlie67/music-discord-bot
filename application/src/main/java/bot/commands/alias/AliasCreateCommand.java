@@ -14,10 +14,10 @@ import bot.utils.command.CommandEvent;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +34,22 @@ public class AliasCreateCommand extends Command {
   @Autowired
   public AliasCreateCommand(AliasEntityRepository aliasEntityRepository) {
     this.name = "aliascreate";
-    this.aliases = new String[]{"alias", "ac"};
+    this.aliases = new String[] {"alias", "ac"};
     this.help = "Create a new alias for a command. Created using " + HOW_TO_MAKE_ALIAS;
 
-    CommandData commandData = new CommandData(this.name, "Create a new alias for a command.");
-    commandData.addOptions(new OptionData(OptionType.STRING, "command",
-        "The command that this alias will " +
-            "execute when" +
-            " called", true), new OptionData(OptionType.STRING, "options",
-        "The arguments that will be passed to" +
-            " the alias command when this is executed", false));
+    CommandDataImpl commandData =
+        new CommandDataImpl(this.name, "Create a new alias for a command.");
+    commandData.addOptions(
+        new OptionData(
+            OptionType.STRING,
+            "command",
+            "The command that this alias will " + "execute when" + " called",
+            true),
+        new OptionData(
+            OptionType.STRING,
+            "options",
+            "The arguments that will be passed to" + " the alias command when this is executed",
+            false));
     this.commandData = commandData;
     this.allowedInSlash = false;
 
@@ -51,7 +57,7 @@ public class AliasCreateCommand extends Command {
   }
 
   @Override
-  public void executeSlashCommand(SlashCommandEvent event) {
+  public void executeSlashCommand(SlashCommandInteractionEvent event) {
     event.deferReply().queue();
     event.getHook().sendMessage("ummm this is awkward").queue();
   }
@@ -60,12 +66,12 @@ public class AliasCreateCommand extends Command {
   protected void execute(CommandEvent event) {
     event.getChannel().sendTyping().queue();
 
-    //command is given as -alias NAME_OF_ALIAS <Command to run when alias is called>
-    //e.g. -aliascreate song play http://youtube.com/somesong
-    //get the arguments and extract them into the different parts
+    // command is given as -alias NAME_OF_ALIAS <Command to run when alias is called>
+    // e.g. -aliascreate song play http://youtube.com/somesong
+    // get the arguments and extract them into the different parts
     String[] arguments = event.getArgs().split("\\s+");
 
-    //check that at least 3 arguments are specified
+    // check that at least 3 arguments are specified
     if (arguments.length < 2) {
       event.getChannel().sendMessage(NEED_MORE_ARGUMENTS_TO_CREATE_AN_ALIAS).queue();
       return;
@@ -77,7 +83,8 @@ public class AliasCreateCommand extends Command {
         arguments.length < 3 ? " " : sliceArgumentsToString(arguments, 2, arguments.length);
 
     if (allCurrentCommandNames.contains(aliasName)) {
-      event.getChannel()
+      event
+          .getChannel()
           .sendMessage(String.format(ALIAS_NAME_ALREADY_IN_USE_AS_COMMAND, aliasName))
           .queue();
       return;
@@ -87,7 +94,8 @@ public class AliasCreateCommand extends Command {
     Command command = commandNameToCommandMap.get(aliasCommand);
 
     if (command == null) {
-      event.getChannel()
+      event
+          .getChannel()
           .sendMessage(String.format(ALIAS_CANT_BE_CREATED_COMMAND_NOT_FOUND, aliasCommand))
           .queue();
       return;
@@ -104,7 +112,8 @@ public class AliasCreateCommand extends Command {
     }
 
     // can't store anything longer than 255 characters in the database
-    if (aliasName.length() > 255 || aliasCommand.length() > 255
+    if (aliasName.length() > 255
+        || aliasCommand.length() > 255
         || aliasCommandArguments.length() > 255) {
       event.getChannel().sendMessage(ALIAS_TOO_LONG).queue();
       return;
@@ -116,23 +125,26 @@ public class AliasCreateCommand extends Command {
       aliasEntityRepository.delete(existingAlias);
     }
 
-    AliasEntity aliasEntity = new AliasEntity()
-        .setArgs(aliasCommandArguments)
-        .setName(aliasName)
-        .setCommand(aliasCommand)
-        .setServerId(guildId);
+    AliasEntity aliasEntity =
+        new AliasEntity()
+            .setArgs(aliasCommandArguments)
+            .setName(aliasName)
+            .setCommand(aliasCommand)
+            .setServerId(guildId);
 
     aliasEntityRepository.save(aliasEntity);
 
-    event.getChannel()
-        .sendMessage(
-            String.format(ALIAS_CREATED, aliasName, aliasCommand, aliasCommandArguments))
+    event
+        .getChannel()
+        .sendMessage(String.format(ALIAS_CREATED, aliasName, aliasCommand, aliasCommandArguments))
         .queue();
 
     LOGGER.info(
         "Created alias for server {} with name {} that executes command {} with arguments {}",
         guildId,
-        aliasName, aliasCommand, aliasCommandArguments);
+        aliasName,
+        aliasCommand,
+        aliasCommandArguments);
   }
 
   String sliceArgumentsToString(String[] arr, int start, int end) {

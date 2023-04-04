@@ -18,11 +18,14 @@ public class PlayTopCommand extends Command {
   private final VoiceChannelService voiceChannelService;
 
   @Autowired
-  public PlayTopCommand(AudioPlayerManager playerManager, BotConfiguration configuration,
-      OptionEntityDao optionEntityDao, VoiceChannelService voiceChannelService) {
+  public PlayTopCommand(
+      AudioPlayerManager playerManager,
+      BotConfiguration configuration,
+      OptionEntityDao optionEntityDao,
+      VoiceChannelService voiceChannelService) {
     this.playerManager = playerManager;
     this.name = "playtop";
-    this.aliases = new String[]{"pt"};
+    this.aliases = new String[] {"pt"};
     this.help = "Plays a song with the given name or url by placing it at the top of the queue.";
 
     this.youtubeApiKey = configuration.getYoutubeApiKey();
@@ -33,7 +36,7 @@ public class PlayTopCommand extends Command {
 
   @Override
   protected void execute(CommandEvent event) {
-    voiceChannelService.searchAndPlaySong(event, true, playerManager, youtubeApiKey,
-        optionEntityDao);
+    voiceChannelService.searchAndPlaySong(
+        event, true, playerManager, youtubeApiKey, optionEntityDao);
   }
 }

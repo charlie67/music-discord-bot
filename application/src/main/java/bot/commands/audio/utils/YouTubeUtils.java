@@ -29,8 +29,8 @@ public class YouTubeUtils {
     try {
       String youtubeUrl = np.getInfo().uri;
 
-      List<NameValuePair> params = URLEncodedUtils.parse(new URI(youtubeUrl),
-          StandardCharsets.UTF_8);
+      List<NameValuePair> params =
+          URLEncodedUtils.parse(new URI(youtubeUrl), StandardCharsets.UTF_8);
       String videoID = params.get(0).getValue();
       return "http://img.youtube.com/vi/" + videoID + "/0.jpg";
     } catch (URISyntaxException e) {
@@ -39,18 +39,22 @@ public class YouTubeUtils {
     }
   }
 
-  static AudioTrack getRelatedVideo(String videoID, List<AudioTrack> history, String youtubeApiKey,
-      YoutubeAudioSourceManager youtubeAudioSourceManager) throws IOException,
-      FriendlyException {
+  static AudioTrack getRelatedVideo(
+      String videoID,
+      List<AudioTrack> history,
+      String youtubeApiKey,
+      YoutubeAudioSourceManager youtubeAudioSourceManager)
+      throws IOException, FriendlyException {
     LOGGER.info("finding related video for videoID {}", videoID);
-    YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request ->
-    {
-    }).setApplicationName("bot").build();
+    YouTube youtube =
+        new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
+            .setApplicationName("bot")
+            .build();
 
     // Define the API request for retrieving search results.
     YouTube.Search.List search = youtube.search().list("id");
 
-    //set the API key
+    // set the API key
     search.setKey(youtubeApiKey);
     search.setRelatedToVideoId(videoID);
     search.setEventType("none");
@@ -96,8 +100,8 @@ public class YouTubeUtils {
 
   private static boolean isAudioTrackOnHistory(String id, List<AudioTrack> history) {
     for (AudioTrack historyAudioTrack : history) {
-      if (historyAudioTrack instanceof YoutubeAudioTrack && historyAudioTrack.getIdentifier()
-          .equals(id)) {
+      if (historyAudioTrack instanceof YoutubeAudioTrack
+          && historyAudioTrack.getIdentifier().equals(id)) {
         return true;
       }
     }

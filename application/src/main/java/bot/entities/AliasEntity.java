@@ -6,76 +6,64 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class AliasEntity
-{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class AliasEntity {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    private String serverId;
+  private String serverId;
 
-    private String name;
+  private String name;
 
-    private String command;
+  private String command;
 
-    private String args;
+  private String args;
 
-    public AliasEntity()
-    {
-        // no args constructor
-    }
+  public AliasEntity() {
+    // no args constructor
+  }
 
-    public Long getId()
-    {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public String getServerId()
-    {
-        return serverId;
-    }
+  public String getServerId() {
+    return serverId;
+  }
 
-    public AliasEntity setServerId(String serverId)
-    {
-        this.serverId = serverId;
-        return this;
-    }
+  public AliasEntity setServerId(String serverId) {
+    this.serverId = serverId;
+    return this;
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public AliasEntity setName(String name)
-    {
-        this.name = name;
-        return this;
-    }
+  public AliasEntity setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    public String getCommand()
-    {
-        return command;
-    }
+  public String getCommand() {
+    return command;
+  }
 
-    public AliasEntity setCommand(String command)
-    {
-        this.command = command;
-        return this;
-    }
+  public AliasEntity setCommand(String command) {
+    this.command = command;
+    return this;
+  }
 
-    public String getArgs()
-    {
-        return args;
-    }
+  public String getArgs() {
+    return args;
+  }
 
-    public AliasEntity setArgs(String args)
-    {
-        this.args = args;
-        return this;
-    }
+  public AliasEntity setArgs(String args) {
+    this.args = args;
+    return this;
+  }
 }

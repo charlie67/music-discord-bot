@@ -2,7 +2,6 @@ package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.service.VoiceChannelService;
-import bot.utils.UnicodeEmote;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +24,14 @@ public class ClearQueueCommand extends Command {
   protected void execute(CommandEvent event) {
     AudioPlayerSendHandler audioPlayerSendHandler;
     try {
-      audioPlayerSendHandler = voiceChannelService.getAudioPlayerSendHandler(event.getJDA(),
-          event.getGuild().getId());
+      audioPlayerSendHandler =
+          voiceChannelService.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
     } catch (IllegalArgumentException e) {
       event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
       return;
     }
 
     audioPlayerSendHandler.getTrackScheduler().clearQueue();
-    event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+    event.reactSuccess();
   }
 }

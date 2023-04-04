@@ -29,8 +29,8 @@ public class OptionEntityDao {
   }
 
   public boolean autoplayEnabledForGuild(String guildId) {
-    OptionEntity optionEntity = optionEntityRepository.findByServerIdAndName(guildId,
-        AUTOPLAY_NAME);
+    OptionEntity optionEntity =
+        optionEntityRepository.findByServerIdAndName(guildId, AUTOPLAY_NAME);
 
     if (optionEntity == null) {
       log.error("Option entity is null for guild {}. Creating default AUTOPLAY option", guildId);

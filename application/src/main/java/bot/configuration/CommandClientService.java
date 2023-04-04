@@ -43,7 +43,6 @@ import org.springframework.stereotype.Service;
 public class CommandClientService {
 
   private final BotConfiguration botConfiguration;
-  private final RedditSearchCommand redditSearchCommand;
   private final AliasEntityRepository aliasEntityRepository;
   private final AliasCreateCommand aliasCreateCommand;
   private final AliasDeleteCommand aliasDeleteCommand;
@@ -81,15 +80,40 @@ public class CommandClientService {
   public void createCommandClient() {
     CommandClientBuilder builder = new CommandClientBuilder();
 
-    builder.setPrefix(botConfiguration.getCommandPrefix()).setActivity(null)
-        .setOwnerId(botConfiguration.getOwnerId()).setAliasEntityRepository(aliasEntityRepository)
+    builder
+        .setPrefix(botConfiguration.getCommandPrefix())
+        .setActivity(null)
+        .setOwnerId(botConfiguration.getOwnerId())
+        .setAliasEntityRepository(aliasEntityRepository)
         .setAliasCreateCommand(aliasCreateCommand)
-        .addCommands(joinCommand, playCommand, playTopCommand, leaveCommand, new QueueCommand(),
-            nowPlayingCommand, skipSongCommand, clearQueueCommand, new RemoveCommand(),
-            new SeekCommand(), new PingCommand(), new ShuffleCommand(), skipToCommand,
-            redditSearchCommand, pauseCommand, resumeCommand, loopCommand, aliasListCommand,
-            aliasDeleteCommand, aliasSearchCommand, new EchoTextCommand(), new WhisperTextCommand(),
-            new HistoryCommand(), new DmCommand(), optionsCommand, optionListCommand);
+        .addCommands(
+            joinCommand,
+            playCommand,
+            playTopCommand,
+            leaveCommand,
+            new QueueCommand(),
+            nowPlayingCommand,
+            skipSongCommand,
+            clearQueueCommand,
+            new RemoveCommand(),
+            new SeekCommand(),
+            new PingCommand(),
+            new ShuffleCommand(),
+            skipToCommand,
+            pauseCommand,
+            resumeCommand,
+            loopCommand,
+            aliasListCommand,
+            aliasDeleteCommand,
+            aliasSearchCommand,
+            new EchoTextCommand(),
+            new WhisperTextCommand(),
+            new HistoryCommand(),
+            new DmCommand(),
+            optionsCommand,
+            optionListCommand,
+            new RedditSearchCommand())
+        .setEmojis("U+1F44D", "U+26A0", "U+274C");
 
     this.commandClient = builder.build();
   }
@@ -97,5 +121,4 @@ public class CommandClientService {
   public Command getCommandWithName(String name) {
     return commandClient.getCommandWithName(name);
   }
-
 }

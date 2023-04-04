@@ -1,12 +1,13 @@
 package bot.service;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS_AND_STICKERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
+import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
 
 import bot.api.dto.TriggerCommandDto;
 import bot.configuration.BotConfiguration;
@@ -21,14 +22,14 @@ import javax.security.auth.login.LoginException;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -50,10 +51,21 @@ public class BotService {
 
   public void startBot() throws LoginException {
 
-    this.jda = JDABuilder.create(discordBotKey, GUILD_MEMBERS, GUILD_VOICE_STATES, GUILD_MESSAGES,
-            GUILD_MESSAGE_REACTIONS, GUILD_PRESENCES, GUILD_EMOJIS, DIRECT_MESSAGES)
-        .addEventListeners(commandClientService.getCommandClient(),
-            new VoiceChannelEventListener(botConfiguration)).build();
+    this.jda =
+        JDABuilder.create(
+                discordBotKey,
+                GUILD_MEMBERS,
+                GUILD_VOICE_STATES,
+                GUILD_MESSAGES,
+                GUILD_MESSAGE_REACTIONS,
+                GUILD_PRESENCES,
+                GUILD_EMOJIS_AND_STICKERS,
+                DIRECT_MESSAGES,
+                MESSAGE_CONTENT)
+            .addEventListeners(
+                commandClientService.getCommandClient(),
+                new VoiceChannelEventListener(botConfiguration))
+            .build();
   }
 
   public void shutdownBot() {
@@ -79,8 +91,9 @@ public class BotService {
     }
     MessageChannel messageChannel = null; // unsupported
     PrivateChannel privateChannel = null; // unsupported
-    Message apiMessage = new ApiMessage(
-        "-" + triggerCommandDto.getCommandName() + " " + triggerCommandDto.getCommandArgs());
+    Message apiMessage =
+        new ApiMessage(
+            "-" + triggerCommandDto.getCommandName() + " " + triggerCommandDto.getCommandArgs());
 
     Guild guild = jda.getGuildById(triggerCommandDto.getGuildId());
     if (guild == null) {
@@ -92,8 +105,17 @@ public class BotService {
       throw new IllegalArgumentException("member is null");
     }
 
-    return new ApiCommandEvent(user, textChannel, messageChannel, privateChannel, apiMessage,
-        member, jda, guild, ChannelType.TEXT, triggerCommandDto.getCommandArgs(),
+    return new ApiCommandEvent(
+        user,
+        textChannel,
+        messageChannel,
+        privateChannel,
+        apiMessage,
+        member,
+        jda,
+        guild,
+        ChannelType.TEXT,
+        triggerCommandDto.getCommandArgs(),
         commandClientService.getCommandClient());
   }
 }

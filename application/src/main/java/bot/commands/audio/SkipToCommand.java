@@ -3,7 +3,6 @@ package bot.commands.audio;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.TrackScheduler;
 import bot.service.VoiceChannelService;
-import bot.utils.UnicodeEmote;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -28,8 +27,8 @@ public class SkipToCommand extends Command {
   protected void execute(CommandEvent event) {
     AudioPlayerSendHandler audioPlayerSendHandler;
     try {
-      audioPlayerSendHandler = voiceChannelService.getAudioPlayerSendHandler(event.getJDA(),
-          event.getGuild().getId());
+      audioPlayerSendHandler =
+          voiceChannelService.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
     } catch (IllegalArgumentException e) {
       event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
       return;
@@ -51,6 +50,6 @@ public class SkipToCommand extends Command {
 
     trackScheduler.setQueue(sublistQueue);
     audioPlayerSendHandler.getAudioPlayer().stopTrack();
-    event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+    event.reactSuccess();
   }
 }

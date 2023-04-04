@@ -2,33 +2,28 @@ package bot.commands.audio;
 
 import net.dv8tion.jda.api.JDA;
 
-public class UserInfo
-{
-    long channelId;
+public class UserInfo {
+  long channelId;
 
-    String searchQuery;
+  String searchQuery;
 
-    JDA jda;
+  JDA jda;
 
-    public UserInfo(long channelId, String searchQuery, JDA jda)
-    {
-        this.channelId = channelId;
-        this.searchQuery = searchQuery;
-        this.jda = jda;
-    }
+  public UserInfo(long channelId, String searchQuery, JDA jda) {
+    this.channelId = channelId;
+    this.searchQuery = searchQuery;
+    this.jda = jda;
+  }
 
-    public long getChannelId()
-    {
-        return channelId;
-    }
+  public long getChannelId() {
+    return channelId;
+  }
 
-    public String getSearchQuery()
-    {
-        return searchQuery;
-    }
+  public String getSearchQuery() {
+    return searchQuery;
+  }
 
-    public JDA getJda()
-    {
-        return jda;
-    }
+  public JDA getJda() {
+    return jda;
+  }
 }

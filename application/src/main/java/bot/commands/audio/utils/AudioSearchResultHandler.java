@@ -9,9 +9,9 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import java.awt.Color;
+import java.awt.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,9 +26,13 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler {
   private final MessageChannel channel;
   private final UserInfo userInfo;
 
-  public AudioSearchResultHandler(TrackScheduler trackScheduler,
+  public AudioSearchResultHandler(
+      TrackScheduler trackScheduler,
       AudioPlayerSendHandler audioPlayerSendHandler,
-      MessageChannel channel, String argument, boolean playTop, UserInfo userInfo) {
+      MessageChannel channel,
+      String argument,
+      boolean playTop,
+      UserInfo userInfo) {
     this.trackScheduler = trackScheduler;
     this.audioPlayerSendHandler = audioPlayerSendHandler;
     this.argument = argument;
@@ -55,7 +59,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler {
       trackScheduler.queue(track, playTop);
     }
 
-    channel.sendMessage(String.format("**Queued `%d` tracks**", playlist.getTracks().size()))
+    channel
+        .sendMessage(String.format("**Queued `%d` tracks**", playlist.getTracks().size()))
         .queue();
 
     if (audioPlayerSendHandler.getAudioPlayer().getPlayingTrack() == null) {
@@ -75,9 +80,9 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler {
     long queueDurationInMilliSeconds = trackScheduler.getQueueDurationInMilliSeconds();
     trackScheduler.queue(track, playTop);
 
-    EmbedBuilder eb = getAudioTrackMessage(track, trackScheduler.getQueueSize(),
-        queueDurationInMilliSeconds);
-    channel.sendMessage(eb.build()).queue();
+    EmbedBuilder eb =
+        getAudioTrackMessage(track, trackScheduler.getQueueSize(), queueDurationInMilliSeconds);
+    channel.sendMessageEmbeds(eb.build()).queue();
 
     if (audioPlayerSendHandler.getAudioPlayer().getPlayingTrack() == null) {
       audioPlayerSendHandler.getAudioPlayer().playTrack(trackScheduler.nextTrack());
@@ -93,8 +98,8 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler {
     channel.sendMessage(ERROR_LOADING_VIDEO).queue();
   }
 
-  private EmbedBuilder getAudioTrackMessage(AudioTrack track, int queueSize,
-      long queueDurationInMilliSeconds) {
+  private EmbedBuilder getAudioTrackMessage(
+      AudioTrack track, int queueSize, long queueDurationInMilliSeconds) {
     EmbedBuilder eb = new EmbedBuilder();
     eb.setAuthor("Added to queue");
     eb.setTitle(track.getInfo().title, track.getInfo().uri);
@@ -107,14 +112,17 @@ public class AudioSearchResultHandler implements AudioLoadResultHandler {
     eb.addField("Channel", track.getInfo().author, true);
     eb.addField("Queue position", playTop ? "1" : String.valueOf(queueSize), true);
 
-    //the song will be played when the queue has finished and the currently playing song has stopped
+    // the song will be played when the queue has finished and the currently playing song has
+    // stopped
     long timeUntilPlaying;
     AudioTrack nowPlayingTrack = audioPlayerSendHandler.getAudioPlayer().getPlayingTrack();
-    timeUntilPlaying = nowPlayingTrack == null ? 0 :
-        (queueDurationInMilliSeconds + (nowPlayingTrack.getDuration()
-            - nowPlayingTrack.getPosition()));
-    eb.addField("Estimated time until playing", TimeUtils.timeString(timeUntilPlaying / 1000),
-        true);
+    timeUntilPlaying =
+        nowPlayingTrack == null
+            ? 0
+            : (queueDurationInMilliSeconds
+                + (nowPlayingTrack.getDuration() - nowPlayingTrack.getPosition()));
+    eb.addField(
+        "Estimated time until playing", TimeUtils.timeString(timeUntilPlaying / 1000), true);
     return eb;
   }
 }

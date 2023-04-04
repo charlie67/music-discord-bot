@@ -2,7 +2,6 @@ package bot.commands.audio;
 
 import bot.service.VoiceChannelService;
 import bot.utils.TextChannelResponses;
-import bot.utils.UnicodeEmote;
 import bot.utils.command.Command;
 import bot.utils.command.CommandEvent;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +35,7 @@ public class PauseCommand extends Command {
       LOGGER.debug("Error while running pause command", e);
       return;
     }
-    event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+
+    event.reactSuccess();
   }
 }
