@@ -1,64 +1,64 @@
 package bot.commands.utilities;
 
-import static bot.commands.utilities.OptionsCommand.OPTION_NAMES;
-import static bot.utils.EmbedUtils.setRandomColour;
-
 import bot.entities.OptionEntity;
 import bot.repositories.OptionEntityRepository;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import bot.utils.command.events.CommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static bot.commands.utilities.OptionsCommand.OPTION_NAMES;
+
 @Component
 public class OptionListCommand extends Command {
-  private final OptionEntityRepository optionEntityRepository;
+	private final OptionEntityRepository optionEntityRepository;
 
-  public OptionListCommand(OptionEntityRepository optionEntityRepository) {
-    this.optionEntityRepository = optionEntityRepository;
+	public OptionListCommand(OptionEntityRepository optionEntityRepository) {
+		this.optionEntityRepository = optionEntityRepository;
 
-    this.name = "optionlist";
-    this.aliases = new String[] {"settingslist", "settinglist", "optionslist"};
-    this.help = "Show a list of the current settings.";
-  }
+		this.name = "optionlist";
+		this.aliases = new String[]{"settingslist", "settinglist", "optionslist"};
+		this.help = "Show a list of the current settings.";
+	}
 
-  @Override
-  protected void execute(CommandEvent event) {
-    event.getChannel().sendTyping().queue();
+	@Override
+	protected void execute(CommandEvent event) {
+		event.deferReply();
 
-    HashMap<String, Boolean> nameToState = new HashMap<>();
+		HashMap<String, Boolean> nameToState = new HashMap<>();
 
-    // get the settings and then
-    for (String option : OPTION_NAMES) {
-      OptionEntity optionEntity =
-          optionEntityRepository.findByServerIdAndName(event.getGuild().getId(), option);
+		// get the settings and then
+		for (String option : OPTION_NAMES) {
+			OptionEntity optionEntity =
+							optionEntityRepository.findByServerIdAndName(event.getGuild().getId(), option);
 
-      if (optionEntity == null || optionEntity.getOption()) {
-        nameToState.put(option, true);
+			if (optionEntity == null || optionEntity.getOption()) {
+				nameToState.put(option, true);
 
-      } else {
-        nameToState.put(option, false);
-      }
-    }
+			} else {
+				nameToState.put(option, false);
+			}
+		}
 
-    EmbedBuilder eb = new EmbedBuilder();
+		EmbedBuilder eb = new EmbedBuilder();
 
-    // get a random colour for the embed
-    setRandomColour(eb);
+		// get a random colour for the embed
+		//    setRandomColour(eb);
 
-    AtomicInteger ordinal = new AtomicInteger(1);
-    StringBuilder sb = new StringBuilder();
+		AtomicInteger ordinal = new AtomicInteger(1);
+		StringBuilder sb = new StringBuilder();
 
-    nameToState.forEach(
-        (setting_name, value) -> {
-          int itemPosition = ordinal.getAndIncrement();
+		nameToState.forEach(
+						(setting_name, value) -> {
+							int itemPosition = ordinal.getAndIncrement();
 
-          sb.append(String.format("`%d.` %s - %s\n\n", itemPosition, setting_name, value));
-        });
+							sb.append(String.format("`%d.` %s - %s\n\n", itemPosition, setting_name, value));
+						});
 
-    eb.setDescription(sb);
-    event.reply(eb.build());
-  }
+		eb.setDescription(sb);
+		event.reply(eb.build());
+	}
 }

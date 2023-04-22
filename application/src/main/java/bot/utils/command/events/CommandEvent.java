@@ -83,6 +83,8 @@ public interface CommandEvent {
 
 	User getUser();
 
+	User getAuthor();
+
 	JDA getJDA();
 
 	CommandClient getClient();

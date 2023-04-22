@@ -18,8 +18,11 @@ package bot.utils.command.impl;
 import bot.utils.command.AnnotatedModuleCompiler;
 import bot.utils.command.Command;
 import bot.utils.command.CommandBuilder;
-import bot.utils.command.CommandEvent;
 import bot.utils.command.annotation.JDACommand;
+import bot.utils.command.events.CommandEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.MalformedParametersException;
@@ -28,188 +31,184 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation for {@link AnnotatedModuleCompiler AnnotatedModuleCompiler}.
+ * Default implementation for {@link bot.utils.command.AnnotatedModuleCompiler
+ * AnnotatedModuleCompiler}.
  *
  * @author Kaidan Gustave
  * @since 1.8
  */
 public class AnnotatedModuleCompilerImpl implements AnnotatedModuleCompiler {
-  private static final Logger LOG = LoggerFactory.getLogger(AnnotatedModuleCompiler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AnnotatedModuleCompiler.class);
 
-  @Override
-  public List<Command> compile(Object o) {
-    JDACommand.Module module = o.getClass().getAnnotation(JDACommand.Module.class);
-    if (module == null)
-      throw new IllegalArgumentException(
-          "Object provided is not annotated with JDACommand.Module!");
-    if (module.value().length < 1)
-      throw new IllegalArgumentException(
-          "Object provided is annotated with an empty command module!");
+	@SafeVarargs
+	private static <T> List<T> collect(Predicate<T> filter, T... entities) {
+		List<T> list = new ArrayList<>();
+		for (T entity : entities) {
+			if (filter.test(entity)) list.add(entity);
+		}
+		return list;
+	}
 
-    List<Method> commands =
-        collect(
-            (Method method) -> {
-              for (String name : module.value()) {
-                if (name.equalsIgnoreCase(method.getName())) return true;
-              }
-              return false;
-            },
-            o.getClass().getMethods());
+	@Override
+	public List<Command> compile(Object o) {
+		JDACommand.Module module = o.getClass().getAnnotation(JDACommand.Module.class);
+		if (module == null)
+			throw new IllegalArgumentException(
+							"Object provided is not annotated with JDACommand.Module!");
+		if (module.value().length < 1)
+			throw new IllegalArgumentException(
+							"Object provided is annotated with an empty command module!");
 
-    List<Command> list = new ArrayList<>();
-    commands.forEach(
-        method -> {
-          try {
-            list.add(compileMethod(o, method));
-          } catch (MalformedParametersException e) {
-            LOG.error(e.getMessage());
-          }
-        });
-    return list;
-  }
+		List<Method> commands =
+						collect(
+										(Method method) -> {
+											for (String name : module.value()) {
+												if (name.equalsIgnoreCase(method.getName())) return true;
+											}
+											return false;
+										},
+										o.getClass().getMethods());
 
-  private Command compileMethod(Object o, Method method) throws MalformedParametersException {
-    JDACommand properties = method.getAnnotation(JDACommand.class);
-    if (properties == null)
-      throw new IllegalArgumentException(
-          "Method named " + method.getName() + " is not annotated with JDACommand!");
-    CommandBuilder builder = new CommandBuilder();
+		List<Command> list = new ArrayList<>();
+		commands.forEach(
+						method -> {
+							try {
+								list.add(compileMethod(o, method));
+							} catch (MalformedParametersException e) {
+								LOG.error(e.getMessage());
+							}
+						});
+		return list;
+	}
 
-    // Name
-    String[] names = properties.name();
-    builder.setName(names.length < 1 ? "null" : names[0]);
+	private Command compileMethod(Object o, Method method) throws MalformedParametersException {
+		JDACommand properties = method.getAnnotation(JDACommand.class);
+		if (properties == null)
+			throw new IllegalArgumentException(
+							"Method named " + method.getName() + " is not annotated with JDACommand!");
+		CommandBuilder builder = new CommandBuilder();
 
-    // Aliases
-    if (names.length > 1) for (int i = 1; i < names.length; i++) builder.addAlias(names[i]);
+		// Name
+		String[] names = properties.name();
+		builder.setName(names.length < 1 ? "null" : names[0]);
 
-    // Help
-    builder.setHelp(properties.help());
+		// Aliases
+		if (names.length > 1) for (int i = 1; i < names.length; i++) builder.addAlias(names[i]);
 
-    // Arguments
-    builder.setArguments(
-        properties.arguments().trim().isEmpty() ? null : properties.arguments().trim());
+		// Help
+		builder.setHelp(properties.help());
 
-    // Category
-    if (!properties.category().location().equals(JDACommand.Category.class)) {
-      JDACommand.Category category = properties.category();
-      for (Field field : category.location().getDeclaredFields()) {
-        if (Modifier.isStatic(field.getModifiers())
-            && field.getType().equals(Command.Category.class)) {
-          if (category.name().equalsIgnoreCase(field.getName())) {
-            try {
-              builder.setCategory((Command.Category) field.get(null));
-            } catch (IllegalAccessException e) {
-              LOG.error("Encountered Exception ", e);
-            }
-          }
-        }
-      }
-    }
+		// Arguments
+		builder.setArguments(
+						properties.arguments().trim().isEmpty() ? null : properties.arguments().trim());
 
-    // Guild Only
-    builder.setGuildOnly(properties.guildOnly());
+		// Category
+		if (!properties.category().location().equals(JDACommand.Category.class)) {
+			JDACommand.Category category = properties.category();
+			for (Field field : category.location().getDeclaredFields()) {
+				if (Modifier.isStatic(field.getModifiers())
+								&& field.getType().equals(Command.Category.class)) {
+					if (category.name().equalsIgnoreCase(field.getName())) {
+						try {
+							builder.setCategory((Command.Category) field.get(null));
+						} catch (IllegalAccessException e) {
+							LOG.error("Encountered Exception ", e);
+						}
+					}
+				}
+			}
+		}
 
-    // Required Role
-    builder.setRequiredRole(
-        properties.requiredRole().trim().isEmpty() ? null : properties.requiredRole().trim());
+		// Guild Only
+		builder.setGuildOnly(properties.guildOnly());
 
-    // Owner Command
-    builder.setOwnerCommand(properties.ownerCommand());
+		// Required Role
+		builder.setRequiredRole(
+						properties.requiredRole().trim().isEmpty() ? null : properties.requiredRole().trim());
 
-    // Cooldown Delay
-    builder.setCooldown(properties.cooldown().value());
+		// Owner Command
+		builder.setOwnerCommand(properties.ownerCommand());
 
-    // Cooldown Scope
-    builder.setCooldownScope(properties.cooldown().scope());
+		// Cooldown Delay
+		builder.setCooldown(properties.cooldown().value());
 
-    // Bot Permissions
-    builder.setBotPermissions(properties.botPermissions());
+		// Cooldown Scope
+		builder.setCooldownScope(properties.cooldown().scope());
 
-    // User Permissions
-    builder.setUserPermissions(properties.userPermissions());
+		// Bot Permissions
+		builder.setBotPermissions(properties.botPermissions());
 
-    // Uses Topic Tags
-    builder.setUsesTopicTags(properties.useTopicTags());
+		// User Permissions
+		builder.setUserPermissions(properties.userPermissions());
 
-    // Hidden
-    builder.setHidden(properties.isHidden());
+		// Uses Topic Tags
+		builder.setUsesTopicTags(properties.useTopicTags());
 
-    // Child Commands
-    if (properties.children().length > 0) {
-      collect(
-              (Method m) -> {
-                for (String cName : properties.children()) {
-                  if (cName.equalsIgnoreCase(m.getName())) return true;
-                }
-                return false;
-              },
-              o.getClass().getMethods())
-          .forEach(
-              cm -> {
-                try {
-                  builder.addChild(compileMethod(o, cm));
-                } catch (MalformedParametersException e) {
-                  LOG.error("Encountered Exception ", e);
-                }
-              });
-    }
+		// Hidden
+		builder.setHidden(properties.isHidden());
 
-    // Analyze parameter types as a final check.
+		// Child Commands
+		if (properties.children().length > 0) {
+			collect(
+							(Method m) -> {
+								for (String cName : properties.children()) {
+									if (cName.equalsIgnoreCase(m.getName())) return true;
+								}
+								return false;
+							},
+							o.getClass().getMethods())
+							.forEach(
+											cm -> {
+												try {
+													builder.addChild(compileMethod(o, cm));
+												} catch (MalformedParametersException e) {
+													LOG.error("Encountered Exception ", e);
+												}
+											});
+		}
 
-    Class<?>[] parameters = method.getParameterTypes();
-    // Dual Parameter Command, CommandEvent
-    if (parameters[0] == Command.class && parameters[1] == CommandEvent.class) {
-      return builder.build(
-          (command, event) -> {
-            try {
-              method.invoke(o, command, event);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-              LOG.error("Encountered Exception ", e);
-            }
-          });
-    } else if (parameters[0] == CommandEvent.class) {
-      // Single parameter CommandEvent
-      if (parameters.length == 1) {
-        return builder.build(
-            event -> {
-              try {
-                method.invoke(o, event);
-              } catch (IllegalAccessException | InvocationTargetException e) {
-                LOG.error("Encountered Exception ", e);
-              }
-            });
-      }
-      // Dual Parameter CommandEvent, Command
-      else if (parameters[1] == Command.class) {
-        return builder.build(
-            (command, event) -> {
-              try {
-                method.invoke(o, event, command);
-              } catch (IllegalAccessException | InvocationTargetException e) {
-                LOG.error("Encountered Exception ", e);
-              }
-            });
-      }
-    }
+		// Analyze parameter types as a final check.
 
-    // If we reach this point there is a malformed method and we shouldn't finish the compilation.
-    throw new MalformedParametersException(
-        "Method named "
-            + method.getName()
-            + " was not compiled due to improper "
-            + "parameter types!");
-  }
+		Class<?>[] parameters = method.getParameterTypes();
+		// Dual Parameter Command, CommandEvent
+		if (parameters[0] == Command.class && parameters[1] == CommandEvent.class) {
+			return builder.build(
+							(command, event) -> {
+								try {
+									method.invoke(o, command, event);
+								} catch (IllegalAccessException | InvocationTargetException e) {
+									LOG.error("Encountered Exception ", e);
+								}
+							});
+		} else if (parameters[0] == CommandEvent.class) {
+			// Single parameter CommandEvent
+			if (parameters.length == 1) {
+				return builder.build(
+								event -> {
+									try {
+										method.invoke(o, event);
+									} catch (IllegalAccessException | InvocationTargetException e) {
+										LOG.error("Encountered Exception ", e);
+									}
+								});
+			}
+			// Dual Parameter CommandEvent, Command
+			else if (parameters[1] == Command.class) {
+				return builder.build(
+								(command, event) -> {
+									try {
+										method.invoke(o, event, command);
+									} catch (IllegalAccessException | InvocationTargetException e) {
+										LOG.error("Encountered Exception ", e);
+									}
+								});
+			}
+		}
 
-  @SafeVarargs
-  private static <T> List<T> collect(Predicate<T> filter, T... entities) {
-    List<T> list = new ArrayList<>();
-    for (T entity : entities) {
-      if (filter.test(entity)) list.add(entity);
-    }
-    return list;
-  }
+		// If we reach this point there is a malformed method and we shouldn't finish the compilation.
+		throw new MalformedParametersException(
+						"Method named " + method.getName() + " was not compiled due to improper parameter types!");
+	}
 }

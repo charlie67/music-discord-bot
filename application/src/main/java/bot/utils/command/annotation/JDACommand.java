@@ -15,10 +15,8 @@
  */
 package bot.utils.command.annotation;
 
-import bot.utils.command.AnnotatedModuleCompiler;
 import bot.utils.command.Command;
-import bot.utils.command.CommandBuilder;
-import bot.utils.command.CommandClientBuilder;
+import bot.utils.command.CooldownScope;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,32 +25,32 @@ import net.dv8tion.jda.api.Permission;
 
 /**
  * An Annotation applicable to {@link java.lang.reflect.Method Method}s that will act as {@link
- * Command Command}s when added to a Client using {@link
- * CommandClientBuilder#addAnnotatedModule(Object) CommandClientBuilder#addAnnotatedModule()}
- * serving as metadata "constructors" for what would be a class extending Command of the same
- * functionality and settings.
+ * bot.utils.command.Command Command}s when added to a Client using {@link
+ * bot.utils.command.CommandClientBuilder#addAnnotatedModule(Object)
+ * CommandClientBuilder#addAnnotatedModule()} serving as metadata "constructors" for what would be a
+ * class extending Command of the same functionality and settings.
  *
  * <p>The primary issue that command systems face when trying to implement "annotated command"
  * systems is that reflection is a powerful but also costly tool and requires much more overhead
  * than most other types systems.
  *
  * <p>To circumvent this, classes annotated with this are put through an {@link
- * AnnotatedModuleCompiler AnnotatedModuleCompiler}. where they will be converted to Commands using
- * {@link CommandBuilder CommandBuilder}.
+ * bot.utils.command.AnnotatedModuleCompiler AnnotatedModuleCompiler}. where they will be converted
+ * to Commands using {@link bot.utils.command.CommandBuilder CommandBuilder}.
  *
  * <p>Classes that wish to be contain methods to be used as commands must be annotated with {@link
- * JDACommand.Module @Module}. <br>
+ * bot.utils.command.annotation.JDACommand.Module @Module}. <br>
  * Following that, any methods of said class annotated with this annotation (whose names are also
  * given as parameters of the {@code @Module} annotation) will be registered to the module and
  * "compiled" through the AnnotatedModuleCompiler provided in CommandClientBuilder.
  *
  * <pre>
- * <code>   {@link JDACommand.Module @JDACommand.Module}({@link JDACommand.Module#value() value} = "example")
+ * <code>   {@link bot.utils.command.annotation.JDACommand.Module @JDACommand.Module}({@link bot.utils.command.annotation.JDACommand.Module#value() value} = "example")
  * public class AnnotatedModuleCmd {
  *
  *     {@literal @JDACommand(}
- *          {@link JDACommand#name() name} = {"example", "test", "demo"},
- *          {@link JDACommand#help() help} = "gives an example of what commands do"
+ *          {@link bot.utils.command.annotation.JDACommand#name() name} = {"example", "test", "demo"},
+ *          {@link bot.utils.command.annotation.JDACommand#help() help} = "gives an example of what commands do"
  *      )
  *      public void example(CommandEvent) {
  *          event.reply("Hey look! This would be the bot's reply if this was a command!");
@@ -61,7 +59,7 @@ import net.dv8tion.jda.api.Permission;
  * }</code></pre>
  *
  * @author Kaidan Gustave
- * @see JDACommand.Module
+ * @see bot.utils.command.annotation.JDACommand.Module
  * @since 1.7
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -117,22 +115,24 @@ public @interface JDACommand {
   /**
    * The {@link JDACommand.Cooldown JDACommand.Cooldown} for the command.
    *
-   * <p>This holds both metadata for both the {@link Command#cooldown Command#cooldown} and {@link
-   * Command#cooldownScope Command#cooldownScope}.
+   * <p>This holds both metadata for both the {@link Command#getCooldown() Command#cooldown} and
+   * {@link Command#getCooldownScope() Command#cooldownScope}.
    *
    * @return The {@code @Cooldown} for the command.
    */
   Cooldown cooldown() default @Cooldown(0);
 
   /**
-   * The {@link Permission Permissions} the bot must have on a guild to use this command.
+   * The {@link net.dv8tion.jda.api.Permission Permissions} the bot must have on a guild to use this
+   * command.
    *
    * @return The required permissions the bot must have to use this command.
    */
   Permission[] botPermissions() default {};
 
   /**
-   * The {@link Permission Permissions} the user must have on a guild to use this command.
+   * The {@link net.dv8tion.jda.api.Permission Permissions} the user must have on a guild to use
+   * this command.
    *
    * @return The required permissions a user must have to use this command.
    */
@@ -142,7 +142,8 @@ public @interface JDACommand {
    * Whether or not this command uses topic tags. <br>
    * Default {@code true}.
    *
-   * <p>For more information on topic tags, see {@link Command#usesTopicTags Command#usesTopicTags}
+   * <p>For more information on topic tags, see {@link bot.utils.command.Command#usesTopicTags
+   * Command#usesTopicTags}
    *
    * @return {@code true} if this command uses topic tags, {@code false} otherwise.
    */
@@ -165,19 +166,19 @@ public @interface JDACommand {
   /**
    * The {@link JDACommand.Category JDACommand.Category} for this command. <br>
    * This holds data to properly locate a <b>static field</b> representing this command's {@link
-   * Command.Category Category}.
+   * bot.utils.command.Command.Category Category}.
    *
    * @return The {@code @Category} for this command.
    */
   Category category() default @Category(name = "null", location = Category.class);
 
   /**
-   * A helper annotation to assist in location of methods that will generate into {@link Command
-   * Command}s.
+   * A helper annotation to assist in location of methods that will generate into {@link
+   * bot.utils.command.Command Command}s.
    *
    * <p>Method names provided to this annotation must have one or two parameters. Either a single
-   * parameter {@link CommandEvent CommandEvent}, or a double parameter {@code CommandEvent} and
-   * {@code Command}. <br>
+   * parameter {@link bot.utils.command.CommandEvent CommandEvent}, or a double parameter {@code
+   * CommandEvent} and {@code Command}. <br>
    * The arrangement of the double parameters is not important, so methods may do it as {@code
    * (CommandEvent, Command)} or {@code (Command, CommandEvent)}.
    *
@@ -188,7 +189,7 @@ public @interface JDACommand {
   @interface Module {
     /**
      * The names of any methods that will be targeted when compiling this object using the {@link
-     * AnnotatedModuleCompiler AnnotatedModuleCompiler}.
+     * bot.utils.command.AnnotatedModuleCompiler AnnotatedModuleCompiler}.
      *
      * <p><b>This is not the same thing as the name of the commands!</b> These are the names of the
      * methods representing execution of the commands!
@@ -199,11 +200,10 @@ public @interface JDACommand {
   }
 
   /**
-   * A value wrapper for what would be {@link Command#cooldown Command#cooldown} and {@link
-   * Command#cooldownScope Command#cooldownScope}.
+   * A value wrapper for what would be {@link Command#getCooldown() Command#cooldown} and {@link
+   * Command#getCooldownScope() Command#cooldownScope}.
    *
-   * <p>The default {@link Command.CooldownScope CooldownScope} is {@link Command.CooldownScope#USER
-   * CooldownScope.USER}.
+   * <p>The default {@link CooldownScope} is {@link CooldownScope#USER CooldownScope.USER}.
    *
    * @see JDACommand#cooldown()
    */
@@ -218,33 +218,35 @@ public @interface JDACommand {
     int value();
 
     /**
-     * The {@link Command.CooldownScope CooldownScope} for the annotated Command.
+     * The {@link CooldownScope CooldownScope} for the annotated Command.
      *
-     * <p>By default this is {@link Command.CooldownScope#USER CooldownScope.USER}.
+     * <p>By default this is {@link CooldownScope#USER CooldownScope.USER}.
      *
      * @return The CooldownScope for this annotated Command.
      */
-    Command.CooldownScope scope() default Command.CooldownScope.USER;
+    CooldownScope scope() default CooldownScope.USER;
   }
 
   /**
    * A helper annotation to assist in location of Category instance.
    *
    * <p>This will target a <b>static field</b> in the specified class {@link
-   * JDACommand.Category#location() location} using reflections, with a matching {@link
-   * JDACommand.Category#name() name}.
+   * bot.utils.command.annotation.JDACommand.Category#location() location} using reflections, with a
+   * matching {@link bot.utils.command.annotation.JDACommand.Category#name() name}.
    *
    * <p>It is important to remember the target must be a <b>static field</b> and any other attempted
-   * inputs will result in errors from the {@link AnnotatedModuleCompiler compiler}.
+   * inputs will result in errors from the {@link bot.utils.command.AnnotatedModuleCompiler
+   * compiler}.
    *
-   * @see JDACommand#category()
+   * @see bot.utils.command.annotation.JDACommand#category()
    */
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @interface Category {
     /**
-     * The name of the <b>static field</b> in the {@link JDACommand.Category#location() target
-     * class} that will be the category for the annotated command.
+     * The name of the <b>static field</b> in the {@link
+     * bot.utils.command.annotation.JDACommand.Category#location() target class} that will be the
+     * category for the annotated command.
      *
      * @return The name of the <b>static field</b> in the target class.
      */

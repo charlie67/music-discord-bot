@@ -5,7 +5,7 @@ import bot.commands.audio.utils.TrackScheduler;
 import bot.service.VoiceChannelService;
 import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
+import bot.utils.command.events.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

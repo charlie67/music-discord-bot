@@ -3,6 +3,7 @@ package bot.utils.command.events;
 import bot.utils.command.CommandClient;
 import bot.utils.command.CommandClientBuilder;
 import bot.utils.command.impl.CommandClientImpl;
+import bot.utils.command.option.OptionName;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,9 +17,12 @@ import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.utils.Checks;
@@ -35,7 +39,7 @@ public class TextCommandEvent implements CommandEvent {
 	private final MessageReceivedEvent event;
 	private final String prefix;
 	private final CommandClient client;
-	private final Map<String, String> optionMap;
+	private final Map<OptionName, OptionMapping> optionMap;
 	private String args;
 
 	public TextCommandEvent(
@@ -43,7 +47,7 @@ public class TextCommandEvent implements CommandEvent {
 					String prefix,
 					String args,
 					CommandClient client,
-					Map<String, String> optionMap) {
+					Map<OptionName, OptionMapping> optionMap) {
 		this.event = event;
 		this.prefix = prefix;
 		this.args = args;
@@ -82,6 +86,16 @@ public class TextCommandEvent implements CommandEvent {
 
 	public void reply(String message) {
 		sendMessage(event.getChannel(), message);
+	}
+
+	@Override
+	public void reply(MessageEmbed... embed) {
+
+	}
+
+	@Override
+	public ReplyCallbackAction replyCallback(String message) {
+		return null;
 	}
 
 	/**
@@ -301,6 +315,16 @@ public class TextCommandEvent implements CommandEvent {
 	 */
 	public void replyFormatted(String format, Object... args) {
 		sendMessage(event.getChannel(), String.format(format, args));
+	}
+
+	@Override
+	public OptionMapping getOption(OptionName optionName) {
+		return optionMap.get(optionName);
+	}
+
+	@Override
+	public boolean optionPresent(OptionName optionName) {
+		return optionMap.containsKey(optionName);
 	}
 
 	@Override
@@ -714,6 +738,11 @@ public class TextCommandEvent implements CommandEvent {
 		react(client.getSuccess());
 	}
 
+	@Override
+	public void reactSuccessOrReply(String reply) {
+		reactSuccess();
+	}
+
 	/**
 	 * Adds a warning reaction to the calling {@link net.dv8tion.jda.api.entities.Message Message}.
 	 */
@@ -726,6 +755,11 @@ public class TextCommandEvent implements CommandEvent {
 	 */
 	public void reactError() {
 		react(client.getError());
+	}
+
+	@Override
+	public MessageChannelUnion getMessageChannel() {
+		return event.getChannel();
 	}
 
 	// private methods
@@ -865,6 +899,11 @@ public class TextCommandEvent implements CommandEvent {
 	 */
 	public MessageChannel getChannel() {
 		return event.getChannel();
+	}
+
+	@Override
+	public User getUser() {
+		return event.getAuthor();
 	}
 
 	/**

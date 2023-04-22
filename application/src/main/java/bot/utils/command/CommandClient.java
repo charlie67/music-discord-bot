@@ -15,21 +15,23 @@
  */
 package bot.utils.command;
 
-import bot.utils.command.annotation.JDACommand;
-import bot.utils.command.impl.CommandClientImpl;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
  * A Bot Client interface implemented on objects used to hold bot data.
  *
- * <p>This is implemented in {@link CommandClientImpl CommandClientImpl} alongside implementation of
- * {@link net.dv8tion.jda.api.hooks.EventListener EventListener} to create a compounded "Client
- * Listener" which catches specific kinds of events thrown by JDA and processes them automatically
- * to handle and execute {@link Command Command}s.
+ * <p>This is implemented in {@link bot.utils.command.impl.CommandClientImpl CommandClientImpl}
+ * alongside implementation of {@link net.dv8tion.jda.api.hooks.EventListener EventListener} to
+ * create a compounded "Client Listener" which catches specific kinds of events thrown by JDA and
+ * processes them automatically to handle and execute {@link bot.utils.command.Command Command}s.
  *
  * <p>Implementations also serve as a useful platforms, carrying reference info such as the bot's
  * {@linkplain #getOwnerId() Owner ID}, {@linkplain #getPrefix() prefix}, and a {@linkplain
@@ -38,8 +40,8 @@ import net.dv8tion.jda.api.entities.Guild;
  * <p>For the CommandClientImpl, once initialized, only the following can be modified:
  *
  * <ul>
- *   <li>{@link Command Command}s may be added or removed.
- *   <li>The {@link CommandListener CommandListener} may be set.
+ *   <li>{@link bot.utils.command.Command Command}s may be added or removed.
+ *   <li>The {@link bot.utils.command.CommandListener CommandListener} may be set.
  * </ul>
  *
  * @author John Grosh (jagrosh)
@@ -50,18 +52,18 @@ import net.dv8tion.jda.api.entities.Guild;
  *     <b>EVER</b>.
  *     <p><b>2)</b> Always create and add the CommandClientImpl to JDA <b>BEFORE</b> you build it,
  *     or there is a chance some minor errors will occur, <b>especially</b> if JDA has already fired
- *     a {@link net.dv8tion.jda.api.events.ReadyEvent ReadyEvent}.
+ *     a {@link net.dv8tion.jda.api.events.session.ReadyEvent ReadyEvent}.
  *     <p><b>3)</b> Do not provide anything other than a String representing a long (and furthermore
  *     a User ID) as an Owner ID or a CoOwner ID. This will generate errors, but not stop the
  *     creation of the CommandClientImpl which will cause several errors to occur very quickly after
  *     startup (except if you provide {@code null} for the Owner ID, that'll just flat out throw an
- *     {@link IllegalArgumentException IllegalArgumentException}).
- *     <p><b>4)</b> Do not provide strings when using {@link CommandClientBuilder#setEmojis(String,
- *     String, String) CommandClientBuilder#setEmojis(String, String, String)} that are not unicode
- *     emojis or that do not match the custom emote format specified in {@link
- *     net.dv8tion.jda.api.entities.Emote#getAsMention() Emote#getAsMention()} (IE: {@code
- *     <:EmoteName:EmoteID>}).
- *     <p><b>5)</b> Avoid using {@link CommandClientImpl#linkIds(long,
+ *     {@link java.lang.IllegalArgumentException IllegalArgumentException}).
+ *     <p><b>4)</b> Do not provide strings when using {@link
+ *     bot.utils.command.CommandClientBuilder#setEmojis(String, String, String)
+ *     CommandClientBuilder#setEmojis(String, String, String)} that are not unicode emojis or that
+ *     do not match the custom emote format specified in {@link Emoji#getFormatted()} ()
+ *     Emote#getAsMention()} (IE: {@code <:EmoteName:EmoteID>}).
+ *     <p><b>5)</b> Avoid using {@link bot.utils.command.impl.CommandClientImpl#linkIds(long,
  *     net.dv8tion.jda.api.entities.Message)}. This will create errors and has no real purpose
  *     outside of it's current usage.
  */
@@ -81,17 +83,32 @@ public interface CommandClient {
   String getAltPrefix();
 
   /**
+   * Gets the array of prefixes
+   *
+   * @return A possibly-null list of prefixes
+   */
+  String[] getPrefixes();
+
+  /**
+   * Gets the prefix BiConsumer
+   *
+   * @return A possibly-null prefix BiConsumer
+   */
+  Function<MessageReceivedEvent, String> getPrefixFunction();
+
+  /**
    * Returns the visual representation of the bot's prefix.
    *
-   * <p>This is the same as {@link CommandClient#getPrefix() } unless the prefix is the default, in
-   * which case it appears as {@literal @Botname}.
+   * <p>This is the same as {@link bot.utils.command.CommandClient#getPrefix() } unless the prefix
+   * is the default, in which case it appears as {@literal @Botname}.
    *
    * @return A never-null prefix
    */
   String getTextualPrefix();
 
   /**
-   * Adds a single {@link Command Command} to this CommandClient's registered Commands.
+   * Adds a single {@link bot.utils.command.Command Command} to this CommandClient's registered
+   * Commands.
    *
    * <p>For CommandClient's containing 20 commands or less, command calls by users will have the bot
    * iterate through the entire {@link java.util.ArrayList ArrayList} to find the command called. As
@@ -99,9 +116,9 @@ public interface CommandClient {
    *
    * <p>To prevent delay a CommandClient that has more that 20 Commands registered to it will begin
    * to use <b>indexed calls</b>. <br>
-   * Indexed calls use a {@link java.util.HashMap HashMap} which links their {@link Command#name
-   * name} and their {@link Command#aliases aliases} to the index that which they are located at in
-   * the ArrayList they are stored.
+   * Indexed calls use a {@link java.util.HashMap HashMap} which links their {@link
+   * bot.utils.command.Command#name name} and their {@link bot.utils.command.Command#aliases
+   * aliases} to the index that which they are located at in the ArrayList they are stored.
    *
    * <p>This means that all insertion and removal of Commands must reorganize the index maintained
    * by the HashMap. <br>
@@ -109,14 +126,14 @@ public interface CommandClient {
    * meaning it will become the "rightmost" Command in the ArrayList.
    *
    * @param command The Command to add
-   * @throws IllegalArgumentException If the Command provided has a name or alias that has already
-   *     been registered
+   * @throws java.lang.IllegalArgumentException If the Command provided has a name or alias that has
+   *     already been registered
    */
   void addCommand(Command command);
 
   /**
-   * Adds a single {@link Command Command} to this CommandClient's registered Commands at the
-   * specified index.
+   * Adds a single {@link bot.utils.command.Command Command} to this CommandClient's registered
+   * Commands at the specified index.
    *
    * <p>For CommandClient's containing 20 commands or less, command calls by users will have the bot
    * iterate through the entire {@link java.util.ArrayList ArrayList} to find the command called. As
@@ -124,9 +141,9 @@ public interface CommandClient {
    *
    * <p>To prevent delay a CommandClient that has more that 20 Commands registered to it will begin
    * to use <b>indexed calls</b>. <br>
-   * Indexed calls use a {@link java.util.HashMap HashMap} which links their {@link Command#name
-   * name} and their {@link Command#aliases aliases} to the index that which they are located at in
-   * the ArrayList they are stored.
+   * Indexed calls use a {@link java.util.HashMap HashMap} which links their {@link
+   * bot.utils.command.Command#name name} and their {@link bot.utils.command.Command#aliases
+   * aliases} to the index that which they are located at in the ArrayList they are stored.
    *
    * <p>This means that all insertion and removal of Commands must reorganize the index maintained
    * by the HashMap. <br>
@@ -138,15 +155,35 @@ public interface CommandClient {
    * @param command The Command to add
    * @param index The index to add the Command at (must follow the specifications {@code
    *     0<=index<=size()})
-   * @throws ArrayIndexOutOfBoundsException If {@code index < 0} or {@code index > size()}
-   * @throws IllegalArgumentException If the Command provided has a name or alias that has already
-   *     been registered to an index
+   * @throws java.lang.ArrayIndexOutOfBoundsException If {@code index < 0} or {@code index > size()}
+   * @throws java.lang.IllegalArgumentException If the Command provided has a name or alias that has
+   *     already been registered to an index
    */
   void addCommand(Command command, int index);
 
   /**
-   * Removes a single {@link Command Command} from this CommandClient's registered Commands at the
-   * index linked to the provided name/alias.
+   * Adds a single {@link ContextMenu} to this CommandClient's registered Context Menus.
+   *
+   * @param menu The menu to add
+   * @throws java.lang.IllegalArgumentException If the Context Menu provided has a name that has
+   *     already been registered
+   */
+  void addContextMenu(ContextMenu menu);
+
+  /**
+   * Adds a single {@link ContextMenu} to this CommandClient's registered Context Menus.
+   *
+   * @param menu The menu to add
+   * @param index The index to add the Context Menu at (must follow the specifications {@code
+   *     0<=index<=size()})
+   * @throws java.lang.IllegalArgumentException If the Context Menu provided has a name that has
+   *     already been registered
+   */
+  void addContextMenu(ContextMenu menu, int index);
+
+  /**
+   * Removes a single {@link bot.utils.command.Command Command} from this CommandClient's registered
+   * Commands at the index linked to the provided name/alias.
    *
    * <p>For CommandClient's containing 20 commands or less, command calls by users will have the bot
    * iterate through the entire {@link java.util.ArrayList ArrayList} to find the command called. As
@@ -154,9 +191,9 @@ public interface CommandClient {
    *
    * <p>To prevent delay a CommandClient that has more that 20 Commands registered to it will begin
    * to use <b>indexed calls</b>. <br>
-   * Indexed calls use a {@link java.util.HashMap HashMap} which links their {@link Command#name
-   * name} and their {@link Command#aliases aliases} to the index that which they are located at in
-   * the ArrayList they are stored.
+   * Indexed calls use a {@link java.util.HashMap HashMap} which links their {@link
+   * bot.utils.command.Command#name name} and their {@link bot.utils.command.Command#aliases
+   * aliases} to the index that which they are located at in the ArrayList they are stored.
    *
    * <p>This means that all insertion and removal of Commands must reorganize the index maintained
    * by the HashMap. <br>
@@ -165,77 +202,101 @@ public interface CommandClient {
    * ({@code size()-1}).
    *
    * @param name The name or an alias of the Command to remove
-   * @throws IllegalArgumentException If the name provided was not registered to an index
+   * @throws java.lang.IllegalArgumentException If the name provided was not registered to an index
    */
   void removeCommand(String name);
 
   /**
-   * Compiles the provided {@link Object Object} annotated with {@link JDACommand.Module
-   * JDACommand.Module} into a {@link List List} of {@link Command Command}s and adds them to this
-   * CommandClient in the order they are listed.
+   * Compiles the provided {@link java.lang.Object Object} annotated with {@link
+   * bot.utils.command.annotation.JDACommand.Module JDACommand.Module} into a {@link java.util.List
+   * List} of {@link bot.utils.command.Command Command}s and adds them to this CommandClient in the
+   * order they are listed.
    *
    * <p>This is done through the {@link AnnotatedModuleCompiler AnnotatedModuleCompiler} provided
    * when building this CommandClient.
    *
    * @param module An object annotated with JDACommand.Module to compile into commands to be added.
-   * @throws IllegalArgumentException If the Command provided has a name or alias that has already
-   *     been registered
+   * @throws java.lang.IllegalArgumentException If the Command provided has a name or alias that has
+   *     already been registered
    */
   void addAnnotatedModule(Object module);
 
   /**
-   * Compiles the provided {@link Object Object} annotated with {@link JDACommand.Module
-   * JDACommand.Module} into a {@link List List} of {@link Command Command}s and adds them to this
-   * CommandClient via the {@link Function Function} provided.
+   * Compiles the provided {@link java.lang.Object Object} annotated with {@link
+   * bot.utils.command.annotation.JDACommand.Module JDACommand.Module} into a {@link java.util.List
+   * List} of {@link bot.utils.command.Command Command}s and adds them to this CommandClient via the
+   * {@link java.util.function.Function Function} provided.
    *
    * <p>This is done through the {@link AnnotatedModuleCompiler AnnotatedModuleCompiler} provided
    * when building this CommandClient.
    *
-   * <p>The Function will {@link Function#apply(Object) apply} each {@link Command Command} in the
-   * compiled list and request an {@code int} in return. <br>
+   * <p>The Function will {@link java.util.function.Function#apply(Object) apply} each {@link
+   * Command Command} in the compiled list and request an {@code int} in return. <br>
    * Using this {@code int}, the command provided will be applied to the CommandClient via {@link
    * CommandClient#addCommand(Command, int) CommandClient#addCommand(Command, int)}.
    *
    * @param module An object annotated with JDACommand.Module to compile into commands to be added.
    * @param mapFunction The Function to get indexes for each compiled Command with when adding them
    *     to the CommandClient.
-   * @throws ArrayIndexOutOfBoundsException If {@code index < 0} or {@code index > size()}
-   * @throws IllegalArgumentException If the Command provided has a name or alias that has already
-   *     been registered to an index
+   * @throws java.lang.ArrayIndexOutOfBoundsException If {@code index < 0} or {@code index > size()}
+   * @throws java.lang.IllegalArgumentException If the Command provided has a name or alias that has
+   *     already been registered to an index
    */
   void addAnnotatedModule(Object module, Function<Command, Integer> mapFunction);
 
   /**
-   * Sets the {@link CommandListener CommandListener} to catch command-related events thrown by this
-   * {@link CommandClient CommandClient}.
-   *
-   * @param listener The CommandListener
-   */
-  void setListener(CommandListener listener);
-
-  /**
-   * Returns the current {@link CommandListener CommandListener}.
+   * Returns the current {@link bot.utils.command.CommandListener CommandListener}.
    *
    * @return A possibly-null CommandListener
    */
   CommandListener getListener();
 
   /**
-   * Returns the list of registered {@link Command Command}s during this session.
+   * Sets the {@link bot.utils.command.CommandListener CommandListener} to catch command-related
+   * events thrown by this {@link bot.utils.command.CommandClient CommandClient}.
+   *
+   * @param listener The CommandListener
+   */
+  void setListener(CommandListener listener);
+
+  /**
+   * Returns the list of registered {@link bot.utils.command.Command Command}s during this session.
    *
    * @return A never-null List of Commands registered during this session
    */
   List<Command> getCommands();
 
   /**
-   * Gets the time this {@link CommandClient CommandClient} implementation was created.
+   * Returns the list of registered {@link ContextMenu}s during this session.
+   *
+   * @return A never-null List of Context Menus registered during this session
+   */
+  List<ContextMenu> getContextMenus();
+
+  /**
+   * Returns whether manual upsertion is enabled
+   *
+   * @return The manual upsertion status
+   */
+  boolean isManualUpsert();
+
+  /**
+   * Returns the forced Guild ID for automatic slash command upserts
+   *
+   * @return A possibly-null forcedGuildId set in the builder
+   */
+  String forcedGuildId();
+
+  /**
+   * Gets the time this {@link bot.utils.command.CommandClient CommandClient} implementation was
+   * created.
    *
    * @return The start time of this CommandClient implementation
    */
   OffsetDateTime getStartTime();
 
   /**
-   * Gets the {@link OffsetDateTime OffsetDateTime} that the specified cooldown expires.
+   * Gets the {@link java.time.OffsetDateTime OffsetDateTime} that the specified cooldown expires.
    *
    * @param name The cooldown name
    * @return The expiration time, or null if the cooldown does not exist
@@ -262,8 +323,8 @@ public interface CommandClient {
   void cleanCooldowns();
 
   /**
-   * Gets the number of uses for the provide {@link Command Command} during this session, or {@code
-   * 0} if the command is not registered to this CommandClient.
+   * Gets the number of uses for the provide {@link bot.utils.command.Command Command} during this
+   * session, or {@code 0} if the command is not registered to this CommandClient.
    *
    * @param command The Command
    * @return The number of uses for the Command
@@ -271,12 +332,13 @@ public interface CommandClient {
   int getCommandUses(Command command);
 
   /**
-   * Gets the number of uses for a {@link Command Command} during this session matching the provided
-   * String name, or {@code 0} if there is no Command with the name.
+   * Gets the number of uses for a {@link bot.utils.command.Command Command} during this session
+   * matching the provided String name, or {@code 0} if there is no Command with the name.
    *
-   * <p><b>NOTE:</b> this method <b>WILL NOT</b> get uses for a command if an {@link Command#aliases
-   * alias} is provided! Also note that {@link Command#children child commands} <b>ARE NOT</b>
-   * tracked and providing names or effective names of child commands will return {@code 0}.
+   * <p><b>NOTE:</b> this method <b>WILL NOT</b> get uses for a command if an {@link
+   * bot.utils.command.Command#aliases alias} is provided! Also note that {@link
+   * bot.utils.command.Command#children child commands} <b>ARE NOT</b> tracked and providing names
+   * or effective names of child commands will return {@code 0}.
    *
    * @param name The name of the Command
    * @return The number of uses for the Command, or {@code 0} if the name does not match with a
@@ -334,10 +396,8 @@ public interface CommandClient {
   String getError();
 
   /**
-   * Gets the {@link ScheduledExecutorService ScheduledExecutorService} held by this client.
-   *
-   * <p>This is used for methods such as {@link CommandEvent#async(Runnable)
-   * CommandEvent#async(Runnable)} run code asynchronously.
+   * Gets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} held by
+   * this client.
    *
    * @return The ScheduledExecutorService held by this client.
    */
@@ -351,8 +411,8 @@ public interface CommandClient {
   String getServerInvite();
 
   /**
-   * Gets an a recently updated count of all the {@link Guild Guild}s the bot is connected to on all
-   * shards.
+   * Gets an a recently updated count of all the {@link net.dv8tion.jda.api.entities.Guild Guild}s
+   * the bot is connected to on all shards.
    *
    * <p><b>NOTE:</b> This may not always or should not be assumed accurate! Any time a shard joins
    * or leaves a guild it will update the number retrieved by this method but will not update when
@@ -365,7 +425,7 @@ public interface CommandClient {
    *   <li>3) Shard A invokes this method
    * </ul>
    *
-   * The number retrieved by Shard B will be that of the number retrieved by Shard A, minus 10
+   * <p>The number retrieved by Shard B will be that of the number retrieved by Shard A, minus 10
    * guilds because Shard B hasn't updated and accounted for those 10 guilds on Shard A.
    *
    * <p><b>This feature requires a Discord Bots API Key to be set!</b> <br>
@@ -392,31 +452,35 @@ public interface CommandClient {
    * a response to the calling Message being deleted.
    *
    * @return {@code true} if the bot uses linked deletion, {@code false} otherwise.
-   * @see CommandClientBuilder#setLinkedCacheSize(int) CommandClientBuilder#setLinkedCacheSize(int)
+   * @see bot.utils.command.CommandClientBuilder#setLinkedCacheSize(int)
+   *     CommandClientBuilder#setLinkedCacheSize(int)
    */
   boolean usesLinkedDeletion();
 
   /**
    * Returns an Object of the type parameter that should contain settings relating to the specified
-   * {@link Guild Guild}.
+   * {@link net.dv8tion.jda.api.entities.Guild Guild}.
    *
-   * <p>The returning object for this is specified via provision of a {@link GuildSettingsManager
-   * GuildSettingsManager} to {@link
-   * CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)
+   * <p>The returning object for this is specified via provision of a {@link
+   * bot.utils.command.GuildSettingsManager GuildSettingsManager} to {@link
+   * bot.utils.command.CommandClientBuilder#setGuildSettingsManager(bot.utils.command.GuildSettingsManager)
    * CommandClientBuilder#setGuildSettingsManager(GuildSettingsManager)}, more specifically {@link
-   * GuildSettingsManager#getSettings(Guild) GuildSettingsManager#getSettings(Guild)}.
+   * GuildSettingsManager#getSettings(net.dv8tion.jda.api.entities.Guild)
+   * GuildSettingsManager#getSettings(Guild)}.
    *
    * @param <S> The type of settings the GuildSettingsManager provides
    * @param guild The Guild to get Settings for
    * @return The settings object for the Guild, specified in {@link
-   *     GuildSettingsManager#getSettings(Guild) GuildSettingsManager#getSettings(Guild)}, can be
-   *     {@code null} if the implementation allows it.
+   *     bot.utils.command.GuildSettingsManager#getSettings(Guild)
+   *     GuildSettingsManager#getSettings(Guild)}, can be {@code null} if the implementation allows
+   *     it.
    */
   <S> S getSettingsFor(Guild guild);
 
   /**
-   * Returns the type of {@link GuildSettingsManager GuildSettingsManager}, the same type of one
-   * provided when building this CommandClient, or {@code null} if one was not provided there.
+   * Returns the type of {@link bot.utils.command.GuildSettingsManager GuildSettingsManager}, the
+   * same type of one provided when building this CommandClient, or {@code null} if one was not
+   * provided there.
    *
    * <p>This is good if you want to use non-abstract methods specific to your implementation.
    *
@@ -432,10 +496,27 @@ public interface CommandClient {
   void shutdown();
 
   /**
-   * Get a command with a particular name or null if it doesn't exist.
+   * Upserts all interactions to the provided {@link #forcedGuildId() forced server}. <br>
+   * This runs after the {@link net.dv8tion.jda.api.events.session.ReadyEvent ReadyEvent} has been
+   * fired if {@link #isManualUpsert()} is {@code false}. <br>
+   * If {@link #forcedGuildId()} is {@code null}, commands will upsert globally. <b>This may take up
+   * to an hour.</b>
    *
-   * @param name The name of the command to get
-   * @return The command or null if it doesn't exist
+   * @param jda The JDA instance to use
    */
-  Command getCommandWithName(String name);
+  void upsertInteractions(JDA jda);
+
+  /**
+   * Upserts all interactions to the provided server. <br>
+   * This runs after the {@link net.dv8tion.jda.api.events.session.ReadyEvent ReadyEvent} has been
+   * fired if {@link #isManualUpsert()} is {@code false}. <br>
+   * If {@code null} is passed for the server, commands will upsert globally. <b>This may take up to
+   * an hour.</b>
+   *
+   * @param jda The JDA instance to use
+   * @param serverId The server to upsert interactions for
+   */
+  void upsertInteractions(JDA jda, String serverId);
+
+  Optional<Command> getCommandWithName(String name);
 }

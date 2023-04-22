@@ -2,8 +2,9 @@ package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.service.VoiceChannelService;
+import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
+import bot.utils.command.events.CommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +15,10 @@ public class ClearQueueCommand extends Command {
 
   @Autowired
   public ClearQueueCommand(VoiceChannelService voiceChannelService) {
-    this.name = "clear";
+    this.name = "clearqueue";
+    this.aliases = new String[] {"clear"};
     this.help = "Clear the queue for this server";
+    this.guildOnly = true;
 
     this.voiceChannelService = voiceChannelService;
   }
@@ -23,15 +26,20 @@ public class ClearQueueCommand extends Command {
   @Override
   protected void execute(CommandEvent event) {
     AudioPlayerSendHandler audioPlayerSendHandler;
+
+    if (!voiceChannelService.isUserConnectedToAudioChannel(event.getGuild(), event.getMember())) {
+      event.reply(TextChannelResponses.USER_NOT_CONNECTED_TO_VOICE_CHANNEL);
+    }
+
     try {
       audioPlayerSendHandler =
           voiceChannelService.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
     } catch (IllegalArgumentException e) {
-      event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
+      event.reply(TextChannelResponses.BOT_NOT_CONNECTED_TO_VOICE);
       return;
     }
 
     audioPlayerSendHandler.getTrackScheduler().clearQueue();
-    event.reactSuccess();
+    event.reply(TextChannelResponses.QUEUE_CLEARED);
   }
 }

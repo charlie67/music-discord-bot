@@ -1,6 +1,5 @@
 package bot.commands.audio.utils;
 
-import bot.commands.audio.UserInfo;
 import bot.dao.OptionEntityDao;
 import com.google.common.collect.EvictingQueue;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;

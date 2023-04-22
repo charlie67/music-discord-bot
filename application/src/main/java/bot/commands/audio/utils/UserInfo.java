@@ -1,4 +1,4 @@
-package bot.commands.audio;
+package bot.commands.audio.utils;
 
 import net.dv8tion.jda.api.JDA;
 

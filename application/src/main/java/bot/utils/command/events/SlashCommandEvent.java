@@ -79,7 +79,7 @@ public class SlashCommandEvent implements CommandEvent {
 
 	@Override
 	public void reactSuccessOrReply(String reply) {
-
+		this.reply(reply);
 	}
 
 	@Override
@@ -109,6 +109,11 @@ public class SlashCommandEvent implements CommandEvent {
 
 	@Override
 	public User getUser() {
+		return event.getUser();
+	}
+
+	@Override
+	public User getAuthor() {
 		return event.getUser();
 	}
 

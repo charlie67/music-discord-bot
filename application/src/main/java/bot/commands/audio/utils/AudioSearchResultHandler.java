@@ -2,7 +2,6 @@ package bot.commands.audio.utils;
 
 import static bot.utils.TextChannelResponses.ERROR_LOADING_VIDEO;
 
-import bot.commands.audio.UserInfo;
 import bot.utils.TimeUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;

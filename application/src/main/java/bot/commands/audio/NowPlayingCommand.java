@@ -6,7 +6,7 @@ import bot.service.VoiceChannelService;
 import bot.utils.TextChannelResponses;
 import bot.utils.TimeUtils;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
+import bot.utils.command.events.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import java.awt.*;
@@ -23,7 +23,7 @@ public class NowPlayingCommand extends Command {
   public NowPlayingCommand(VoiceChannelService voiceChannelService) {
     this.name = "nowplaying";
     this.aliases = new String[] {"np", "now playing"};
-    this.help = "Get the currently playing song";
+    this.help = "Show the currently playing track.";
 
     this.voiceChannelService = voiceChannelService;
   }
@@ -35,14 +35,14 @@ public class NowPlayingCommand extends Command {
       audioPlayerSendHandler =
           voiceChannelService.getAudioPlayerSendHandler(event.getJDA(), event.getGuild().getId());
     } catch (IllegalArgumentException e) {
-      event.getChannel().sendMessage(TextChannelResponses.BOT_NOT_CONNECTED_TO_VOICE).queue();
+      event.reply(TextChannelResponses.BOT_NOT_CONNECTED_TO_VOICE);
       return;
     }
 
     AudioTrack np = audioPlayerSendHandler.getAudioPlayer().getPlayingTrack();
 
     if (np == null) {
-      event.getChannel().sendMessage(TextChannelResponses.NOTHING_CURRENTLY_PLAYING).queue();
+      event.reply(TextChannelResponses.NOTHING_CURRENTLY_PLAYING);
       return;
     }
 

@@ -1,107 +1,92 @@
 package bot.utils;
 
 import bot.commands.audio.utils.TrackScheduler;
-import bot.utils.command.CommandEvent;
+import bot.utils.command.events.CommandEvent;
+import com.google.common.collect.Lists;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import java.awt.Color;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 public class EmbedUtils {
-  public static EmbedBuilder createEmbedBuilder(
-      CommandEvent event, TrackScheduler trackScheduler, List<AudioTrack> queue, boolean totalTime)
-      throws NumberFormatException {
-    double totalPages = Math.ceil((double) queue.size() / 10);
-    Integer page = getPageNumber(event, totalPages);
+	@NotNull
+	public static List<MessageEmbed> createEmbedBuilder(
+					CommandEvent event, TrackScheduler trackScheduler, List<AudioTrack> queue) {
 
-    EmbedBuilder eb = new EmbedBuilder();
-    eb.setFooter(String.format("Page %d/%.0f", page, totalPages), event.getAuthor().getAvatarUrl());
+		List<MessageEmbed> embeds = new ArrayList<>();
 
-    // get a random colour for the embed
-    setRandomColour(eb);
+		int counter = 1;
+		for (List<AudioTrack> audioTracks : Lists.partition(queue, 10)) {
+			EmbedBuilder eb = new EmbedBuilder();
+			eb.setFooter(event.getMember().getAvatarUrl());
 
-    AtomicInteger ordinal = new AtomicInteger(1);
-    StringBuilder sb = new StringBuilder();
+			// get a random colour for the embed
+			eb.setColor(getRandomColor());
 
-    for (AudioTrack audioTrack : queue) {
-      int itemPosition = ordinal.getAndIncrement();
-      if (itemPosition < 10 * page + 1 - 10) continue;
+			StringBuilder sb = new StringBuilder();
 
-      sb.append(
-          String.format(
-              "`%d.` [%s](%s) | %s\n\n",
-              itemPosition,
-              audioTrack.getInfo().title,
-              audioTrack.getInfo().uri,
-              TimeUtils.timeString(audioTrack.getDuration() / 1000)));
+			for (AudioTrack audioTrack : audioTracks) {
 
-      if (ordinal.get() > 10 * page) break;
-    }
+				sb.append(
+								String.format(
+												"`%d.` [%s](%s) | %s\n\n",
+												counter,
+												audioTrack.getInfo().title,
+												audioTrack.getInfo().uri,
+												TimeUtils.timeString(audioTrack.getDuration() / 1000)));
+				counter++;
+			}
 
-    if (totalTime) {
-      sb.append(
-          String.format(
-              "%d songs in queue | %s total duration",
-              queue.size(),
-              TimeUtils.timeString(trackScheduler.getQueueDurationInMilliSeconds() / 1000)));
-    } else {
-      sb.append(String.format("%d songs in history", queue.size()));
-    }
+			sb.append(
+							String.format(
+											"%d songs in queue | %s total duration",
+											queue.size(),
+											TimeUtils.timeString(trackScheduler.getQueueDurationInMilliSeconds() / 1000)));
 
-    eb.setDescription(sb);
-    return eb;
-  }
+			eb.setDescription(sb);
+			embeds.add(eb.build());
+		}
+		return embeds;
+	}
 
-  private static Integer getPageNumber(CommandEvent event, double totalPages) {
-    int page = 1;
+	public static void splitTextListsToSend(
+					List<String> eachAliasDescription, MessageChannel channel) {
+		ArrayList<String> fullMessagesToSend = new ArrayList<>();
 
-    if (!event.getArgs().equals("")) {
-      page = Integer.parseInt(event.getArgs());
+		int index = -1;
+		for (String aliasDescription : eachAliasDescription) {
+			if (fullMessagesToSend.isEmpty()) {
+				fullMessagesToSend.add(aliasDescription);
+				index++;
+			} else {
+				String previousMessage = fullMessagesToSend.get(index);
 
-      if (page > totalPages) {
-        throw new NumberFormatException();
-      }
-    }
-    return page;
-  }
+				if (aliasDescription.length() + previousMessage.length() < 2000) {
+					fullMessagesToSend.remove(index);
+					aliasDescription = previousMessage + aliasDescription;
+					fullMessagesToSend.add(aliasDescription);
+				} else {
+					fullMessagesToSend.add(aliasDescription);
+					index++;
+				}
+			}
+		}
 
-  public static void splitTextListsToSend(
-      List<String> eachAliasDescription, MessageChannel channel) {
-    ArrayList<String> fullMessagesToSend = new ArrayList<>();
+		fullMessagesToSend.forEach(message -> channel.sendMessage(message).queue());
+	}
 
-    int index = -1;
-    for (String aliasDescription : eachAliasDescription) {
-      if (fullMessagesToSend.isEmpty()) {
-        fullMessagesToSend.add(aliasDescription);
-        index++;
-      } else {
-        String previousMessage = fullMessagesToSend.get(index);
-
-        if (aliasDescription.length() + previousMessage.length() < 2000) {
-          fullMessagesToSend.remove(index);
-          aliasDescription = previousMessage + aliasDescription;
-          fullMessagesToSend.add(aliasDescription);
-        } else {
-          fullMessagesToSend.add(aliasDescription);
-          index++;
-        }
-      }
-    }
-
-    fullMessagesToSend.forEach(message -> channel.sendMessage(message).queue());
-  }
-
-  public static void setRandomColour(EmbedBuilder eb) {
-    Random rand = new Random();
-    // Java 'Color' class takes 3 floats, from 0 to 1.
-    float r = rand.nextFloat();
-    float g = rand.nextFloat();
-    float b = rand.nextFloat();
-    Color randomColor = new Color(r, g, b);
-    eb.setColor(randomColor);
-  }
+	public static Color getRandomColor() {
+		Random rand = new Random();
+		// Java 'Color' class takes 3 floats, from 0 to 1.
+		float r = rand.nextFloat();
+		float g = rand.nextFloat();
+		float b = rand.nextFloat();
+		return new Color(r, g, b);
+	}
 }

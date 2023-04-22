@@ -15,41 +15,52 @@
  */
 package bot.utils.command;
 
-import bot.commands.alias.AliasCreateCommand;
-import bot.repositories.AliasEntityRepository;
-import bot.utils.command.annotation.JDACommand;
 import bot.utils.command.impl.AnnotatedModuleCompilerImpl;
 import bot.utils.command.impl.CommandClientImpl;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import net.dv8tion.jda.annotations.DeprecatedSince;
+import net.dv8tion.jda.annotations.ForRemoval;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
- * A simple builder used to create a {@link CommandClientImpl CommandClientImpl}.
+ * A simple builder used to create a {@link bot.utils.command.impl.CommandClientImpl
+ * CommandClientImpl}.
  *
- * <p>Once built, add the {@link CommandClient CommandClient} as an EventListener to {@link
- * net.dv8tion.jda.api.JDA JDA} and it will automatically handle commands with ease!
+ * <p>Once built, add the {@link bot.utils.command.CommandClient CommandClient} as an EventListener
+ * to {@link net.dv8tion.jda.api.JDA JDA} and it will automatically handle commands with ease!
  *
  * @author John Grosh (jagrosh)
  */
 public class CommandClientBuilder {
+  private final LinkedList<Command> commands = new LinkedList<>();
+  private final LinkedList<SlashCommand> slashCommands = new LinkedList<>();
+  private final LinkedList<ContextMenu> contextMenus = new LinkedList<>();
   private Activity activity = Activity.playing("default");
   private OnlineStatus status = OnlineStatus.ONLINE;
   private String ownerId;
   private String[] coOwnerIds;
   private String prefix;
   private String altprefix;
+  private String[] prefixes;
+  private Function<MessageReceivedEvent, String> prefixFunction;
+  private Function<MessageReceivedEvent, Boolean> commandPreProcessFunction;
+  private BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction;
   private String serverInvite;
   private String success;
   private String warning;
   private String error;
   private String carbonKey;
   private String botsKey;
-  private final LinkedList<Command> commands = new LinkedList<>();
-  private AliasCreateCommand aliasCreateCommand = null;
+  private String forcedGuildId = null;
+  private boolean manualUpsert = false;
   private CommandListener listener;
   private boolean useHelp = true;
   private boolean shutdownAutomatically = true;
@@ -59,12 +70,12 @@ public class CommandClientBuilder {
   private int linkedCacheSize = 0;
   private AnnotatedModuleCompiler compiler = new AnnotatedModuleCompilerImpl();
   private GuildSettingsManager manager = null;
-  private AliasEntityRepository aliasEntityRepository = null;
 
   /**
-   * Builds a {@link CommandClientImpl CommandClientImpl} with the provided settings. <br>
-   * Once built, only the {@link CommandListener CommandListener}, and {@link Command Command}s can
-   * be changed.
+   * Builds a {@link bot.utils.command.impl.CommandClientImpl CommandClientImpl} with the provided
+   * settings. <br>
+   * Once built, only the {@link bot.utils.command.CommandListener CommandListener}, and {@link
+   * bot.utils.command.Command Command}s can be changed.
    *
    * @return The CommandClient built.
    */
@@ -75,6 +86,10 @@ public class CommandClientBuilder {
             coOwnerIds,
             prefix,
             altprefix,
+            prefixes,
+            prefixFunction,
+            commandPreProcessFunction,
+            commandPreProcessBiFunction,
             activity,
             status,
             serverInvite,
@@ -84,6 +99,10 @@ public class CommandClientBuilder {
             carbonKey,
             botsKey,
             new ArrayList<>(commands),
+            new ArrayList<>(slashCommands),
+            new ArrayList<>(contextMenus),
+            forcedGuildId,
+            manualUpsert,
             useHelp,
             shutdownAutomatically,
             helpConsumer,
@@ -91,9 +110,7 @@ public class CommandClientBuilder {
             executor,
             linkedCacheSize,
             compiler,
-            manager,
-            aliasEntityRepository,
-            aliasCreateCommand);
+            manager);
     if (listener != null) client.setListener(listener);
     return client;
   }
@@ -112,6 +129,19 @@ public class CommandClientBuilder {
   }
 
   /**
+   * Sets the owner for the bot. <br>
+   * Make sure to verify that the ID provided is ISnowflake compatible when setting this. If it is
+   * not, this will warn the developer.
+   *
+   * @param ownerId The ID of the owner.
+   * @return This builder
+   */
+  public CommandClientBuilder setOwnerId(long ownerId) {
+    this.ownerId = String.valueOf(ownerId);
+    return this;
+  }
+
+  /**
    * Sets the one or more CoOwners of the bot. <br>
    * Make sure to verify that all of the IDs provided are ISnowflake compatible when setting this.
    * If it is not, this will warn the developer which ones are not.
@@ -121,6 +151,19 @@ public class CommandClientBuilder {
    */
   public CommandClientBuilder setCoOwnerIds(String... coOwnerIds) {
     this.coOwnerIds = coOwnerIds;
+    return this;
+  }
+
+  /**
+   * Sets the one or more CoOwners of the bot. <br>
+   * Make sure to verify that all of the IDs provided are ISnowflake compatible when setting this.
+   * If it is not, this will warn the developer which ones are not.
+   *
+   * @param coOwnerIds The ID(s) of the CoOwners
+   * @return This builder
+   */
+  public CommandClientBuilder setCoOwnerIds(long... coOwnerIds) {
+    this.coOwnerIds = Arrays.stream(coOwnerIds).mapToObj(String::valueOf).toArray(String[]::new);
     return this;
   }
 
@@ -150,12 +193,72 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets whether the {@link CommandClient CommandClient} will use the builder to automatically
-   * create a help command or not.
+   * Sets an array of prefixes in case it's not enough. Be careful.
+   *
+   * @param prefixes The prefixes to use
+   * @return This builder
+   */
+  public CommandClientBuilder setPrefixes(String[] prefixes) {
+    this.prefixes = prefixes;
+    return this;
+  }
+
+  /**
+   * Sets the Prefix Function. Used if you want custom prefixes per server. <br>
+   * Be careful, this function should be quick, as it's executed every time MessageReceivedEvent is
+   * called. <br>
+   * If function returns null, it will be ignored.
+   *
+   * @param prefixFunction The prefix function to execute to use
+   * @return This builder
+   */
+  public CommandClientBuilder setPrefixFunction(
+      Function<MessageReceivedEvent, String> prefixFunction) {
+    this.prefixFunction = prefixFunction;
+    return this;
+  }
+
+  /**
+   * Sets the pre-process function. This code is executed before every command.<br>
+   * Returning "true" will allow processing to proceed.<br>
+   * Returning "false" or "null" will prevent the Command from executing.
+   *
+   * @param commandPreProcessFunction The function to execute
+   * @return This builder
+   * @deprecated Please use {@link #setCommandPreProcessBiFunction(BiFunction)} instead. You can
+   *     simply add a new parameter for the command, it doesn't have to be used.
+   */
+  @Deprecated
+  @DeprecatedSince("1.24.0")
+  @ForRemoval(deadline = "2.0")
+  public CommandClientBuilder setCommandPreProcessFunction(
+      Function<MessageReceivedEvent, Boolean> commandPreProcessFunction) {
+    this.commandPreProcessFunction = commandPreProcessFunction;
+    return this;
+  }
+
+  /**
+   * Sets the pre-process function. This code is executed before every command.<br>
+   * Returning "true" will allow processing to proceed.<br>
+   * Returning "false" or "null" will prevent the Command from executing.<br>
+   * You can use Command to see which command will run.<br>
+   *
+   * @param commandPreProcessBiFunction The function to execute
+   * @return This builder
+   */
+  public CommandClientBuilder setCommandPreProcessBiFunction(
+      BiFunction<MessageReceivedEvent, Command, Boolean> commandPreProcessBiFunction) {
+    this.commandPreProcessBiFunction = commandPreProcessBiFunction;
+    return this;
+  }
+
+  /**
+   * Sets whether the {@link bot.utils.command.CommandClient CommandClient} will use the builder to
+   * automatically create a help command or not.
    *
    * @param useHelp {@code false} to disable the help command builder, otherwise the CommandClient
    *     will use either the default or one provided via {@link
-   *     CommandClientBuilder#setHelpConsumer(Consumer)}}.
+   *     bot.utils.command.CommandClientBuilder#setHelpConsumer(Consumer)}}.
    * @return This builder
    */
   public CommandClientBuilder useHelpBuilder(boolean useHelp) {
@@ -168,8 +271,8 @@ public class CommandClientBuilder {
    * Setting it to {@code null} or not setting this at all will cause the bot to use the default
    * help builder.
    *
-   * @param helpConsumer A consumer to accept a {@link CommandEvent CommandEvent} when a help
-   *     command is called.
+   * @param helpConsumer A consumer to accept a {@link bot.utils.command.CommandEvent CommandEvent}
+   *     when a help command is called.
    * @return This builder
    */
   public CommandClientBuilder setHelpConsumer(Consumer<CommandEvent> helpConsumer) {
@@ -217,8 +320,8 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link Activity Game} to use when the bot is ready. <br>
-   * Can be set to {@code null} for no activity.
+   * Sets the {@link net.dv8tion.jda.api.entities.Activity Game} to use when the bot is ready. <br>
+   * Can be set to {@code null} for JDA Utilities to not set it.
    *
    * @param activity The Game to use when the bot is ready
    * @return This builder
@@ -229,8 +332,8 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link Activity Game} the bot will use as the default: 'Playing <b>Type
-   * [prefix]help</b>'
+   * Sets the {@link net.dv8tion.jda.api.entities.Activity Game} the bot will use as the default:
+   * 'Playing <b>Type [prefix]help</b>'
    *
    * @return This builder
    */
@@ -240,7 +343,8 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link OnlineStatus OnlineStatus} the bot will use once Ready This defaults to ONLINE
+   * Sets the {@link net.dv8tion.jda.api.OnlineStatus OnlineStatus} the bot will use once Ready This
+   * defaults to ONLINE
    *
    * @param status The status to set
    * @return This builder
@@ -251,8 +355,8 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Adds a {@link Command Command} and registers it to the {@link CommandClientImpl
-   * CommandClientImpl} for this session.
+   * Adds a {@link bot.utils.command.Command Command} and registers it to the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session.
    *
    * @param command The command to add
    * @return This builder
@@ -263,9 +367,10 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Adds and registers multiple {@link Command Command}s to the {@link CommandClientImpl
-   * CommandClientImpl} for this session. <br>
-   * This is the same as calling {@link CommandClientBuilder#addCommand(Command)} multiple times.
+   * Adds and registers multiple {@link bot.utils.command.Command Command}s to the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session. <br>
+   * This is the same as calling {@link bot.utils.command.CommandClientBuilder#addCommand(Command)}
+   * multiple times.
    *
    * @param commands The Commands to add
    * @return This builder
@@ -276,16 +381,104 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Adds an annotated command module to the {@link CommandClientImpl CommandClientImpl} for this
-   * session.
+   * Adds a {@link bot.utils.command.SlashCommand SlashCommand} and registers it to the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session.
    *
-   * <p>For more information on annotated command modules, see {@link
-   * com.jagrosh.jdautilities.command.annotation the annotation package} documentation.
+   * @param command The SlashCommand to add
+   * @return This builder
+   */
+  public CommandClientBuilder addSlashCommand(SlashCommand command) {
+    slashCommands.add(command);
+    return this;
+  }
+
+  /**
+   * Adds and registers multiple {@link bot.utils.command.SlashCommand SlashCommand}s to the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session. <br>
+   * This is the same as calling {@link
+   * bot.utils.command.CommandClientBuilder#addSlashCommand(SlashCommand)} multiple times.
+   *
+   * @param commands The Commands to add
+   * @return This builder
+   */
+  public CommandClientBuilder addSlashCommands(SlashCommand... commands) {
+    for (SlashCommand command : commands) this.addSlashCommand(command);
+    return this;
+  }
+
+  /**
+   * Adds a {@link bot.utils.command.SlashCommand SlashCommand} and registers it to the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session.
+   *
+   * @param contextMenu The Context Menu to add
+   * @return This builder
+   */
+  public CommandClientBuilder addContextMenu(ContextMenu contextMenu) {
+    contextMenus.add(contextMenu);
+    return this;
+  }
+
+  /**
+   * Adds and registers multiple {@link bot.utils.command.SlashCommand SlashCommand}s to the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session. <br>
+   * This is the same as calling {@link
+   * bot.utils.command.CommandClientBuilder#addSlashCommand(SlashCommand)} multiple times.
+   *
+   * @param contextMenus The Context Menus to add
+   * @return This builder
+   */
+  public CommandClientBuilder addContextMenus(ContextMenu... contextMenus) {
+    for (ContextMenu contextMenu : contextMenus) this.addContextMenu(contextMenu);
+    return this;
+  }
+
+  /**
+   * Forces Guild Only for SlashCommands. Setting this to null disables the feature, but it is off
+   * by default.
+   *
+   * @param guildId the guild ID.
+   * @return This Builder
+   */
+  public CommandClientBuilder forceGuildOnly(String guildId) {
+    this.forcedGuildId = guildId;
+    return this;
+  }
+
+  /**
+   * Forces Guild Only for SlashCommands. Setting this to null disables the feature, but it is off
+   * by default.
+   *
+   * @param guildId the guild ID.
+   * @return This Builder
+   */
+  public CommandClientBuilder forceGuildOnly(long guildId) {
+    this.forcedGuildId = String.valueOf(guildId);
+    return this;
+  }
+
+  /**
+   * Whether or not to manually upsert slash commands. This is designed if you want to handle
+   * upserting, instead of doing it every boot. False by default.
+   *
+   * @param manualUpsert your option.
+   * @return This Builder
+   */
+  public CommandClientBuilder setManualUpsert(boolean manualUpsert) {
+    this.manualUpsert = manualUpsert;
+    return this;
+  }
+
+  /**
+   * Adds an annotated command module to the {@link bot.utils.command.impl.CommandClientImpl
+   * CommandClientImpl} for this session.
+   *
+   * <p>For more information on annotated command modules, see {@link bot.utils.command.annotation
+   * the annotation package} documentation.
    *
    * @param module The annotated command module to add
    * @return This builder
    * @see AnnotatedModuleCompiler
-   * @see JDACommand
+   * @see bot.utils.command.annotation.JDACommand
    */
   public CommandClientBuilder addAnnotatedModule(Object module) {
     this.commands.addAll(compiler.compile(module));
@@ -293,18 +486,18 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Adds multiple annotated command modules to the {@link CommandClientImpl CommandClientImpl} for
-   * this session. <br>
-   * This is the same as calling {@link CommandClientBuilder#addAnnotatedModule(Object)} multiple
-   * times.
+   * Adds multiple annotated command modules to the {@link bot.utils.command.impl.CommandClientImpl
+   * CommandClientImpl} for this session. <br>
+   * This is the same as calling {@link
+   * bot.utils.command.CommandClientBuilder#addAnnotatedModule(Object)} multiple times.
    *
-   * <p>For more information on annotated command modules, see {@link
-   * com.jagrosh.jdautilities.command.annotation the annotation package} documentation.
+   * <p>For more information on annotated command modules, see {@link bot.utils.command.annotation
+   * the annotation package} documentation.
    *
    * @param modules The annotated command modules to add
    * @return This builder
    * @see AnnotatedModuleCompiler
-   * @see JDACommand
+   * @see bot.utils.command.annotation.JDACommand
    */
   public CommandClientBuilder addAnnotatedModules(Object... modules) {
     for (Object command : modules) addAnnotatedModule(command);
@@ -312,15 +505,16 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link AnnotatedModuleCompiler AnnotatedModuleCompiler} for this CommandClientBuilder.
+   * Sets the {@link bot.utils.command.AnnotatedModuleCompiler AnnotatedModuleCompiler} for this
+   * CommandClientBuilder.
    *
-   * <p>If not set this will be the default implementation found {@link AnnotatedModuleCompilerImpl
-   * here}.
+   * <p>If not set this will be the default implementation found {@link
+   * bot.utils.command.impl.AnnotatedModuleCompilerImpl here}.
    *
    * @param compiler The AnnotatedModuleCompiler to use
    * @return This builder
    * @see AnnotatedModuleCompiler
-   * @see JDACommand
+   * @see bot.utils.command.annotation.JDACommand
    */
   public CommandClientBuilder setAnnotatedCompiler(AnnotatedModuleCompiler compiler) {
     this.compiler = compiler;
@@ -331,8 +525,8 @@ public class CommandClientBuilder {
    * Sets the <a href="https://www.carbonitex.net/discord/bots">Carbonitex</a> key for this bot's
    * listing.
    *
-   * <p>When set, the {@link CommandClientImpl CommandClientImpl} will automatically update it's
-   * Carbonitex listing with relevant information such as server count.
+   * <p>When set, the {@link bot.utils.command.impl.CommandClientImpl CommandClientImpl} will
+   * automatically update it's Carbonitex listing with relevant information such as server count.
    *
    * @param key A Carbonitex key
    * @return This builder
@@ -345,11 +539,11 @@ public class CommandClientBuilder {
   /**
    * Sets the <a href="https://discord.bots.gg/">Discord Bots</a> API key for this bot's listing.
    *
-   * <p>When set, the {@link CommandClientImpl CommandClientImpl} will automatically update it's
-   * Discord Bots listing with relevant information such as server count.
+   * <p>When set, the {@link bot.utils.command.impl.CommandClientImpl CommandClientImpl} will
+   * automatically update it's Discord Bots listing with relevant information such as server count.
    *
    * <p>This will also retrieve the bot's total guild count in the same request, which can be
-   * accessed via {@link CommandClient#getTotalGuilds()}.
+   * accessed via {@link bot.utils.command.CommandClient#getTotalGuilds()}.
    *
    * @param key A Discord Bots API key
    * @return This builder
@@ -374,8 +568,8 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link CommandListener CommandListener} for the {@link CommandClientImpl
-   * CommandClientImpl}.
+   * Sets the {@link bot.utils.command.CommandListener CommandListener} for the {@link
+   * bot.utils.command.impl.CommandClientImpl CommandClientImpl}.
    *
    * @param listener The CommandListener for the CommandClientImpl
    * @return This builder
@@ -386,8 +580,8 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link ScheduledExecutorService ScheduledExecutorService} for the {@link
-   * CommandClientImpl CommandClientImpl}.
+   * Sets the {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} for the
+   * {@link bot.utils.command.impl.CommandClientImpl CommandClientImpl}.
    *
    * @param executor The ScheduledExecutorService for the CommandClientImpl
    * @return This builder
@@ -399,7 +593,7 @@ public class CommandClientBuilder {
 
   /**
    * Sets the Command Client to shut down internals automatically when a {@link
-   * net.dv8tion.jda.api.events.ShutdownEvent ShutdownEvent} is received.
+   * net.dv8tion.jda.api.events.session.ShutdownEvent ShutdownEvent} is received.
    *
    * @param shutdownAutomatically {@code false} to disable calling the shutdown method when a
    *     ShutdownEvent is received
@@ -423,7 +617,8 @@ public class CommandClientBuilder {
    * <p>Setting {@code 0} or negative will cause the client to not use linked caching <b>at all</b>.
    *
    * @param linkedCacheSize The maximum number of paired responses that can be cached, or {@code <1}
-   *     if the built {@link CommandClient CommandClient} will not use linked caching.
+   *     if the built {@link bot.utils.command.CommandClient CommandClient} will not use linked
+   *     caching.
    * @return This builder
    */
   public CommandClientBuilder setLinkedCacheSize(int linkedCacheSize) {
@@ -432,37 +627,14 @@ public class CommandClientBuilder {
   }
 
   /**
-   * Sets the {@link GuildSettingsManager GuildSettingsManager} for the CommandClientImpl built
-   * using this builder.
+   * Sets the {@link bot.utils.command.GuildSettingsManager GuildSettingsManager} for the
+   * CommandClientImpl built using this builder.
    *
    * @param manager The GuildSettingsManager to set.
    * @return This builder
    */
   public CommandClientBuilder setGuildSettingsManager(GuildSettingsManager manager) {
     this.manager = manager;
-    return this;
-  }
-
-  /**
-   * Sets the aliasEntityRepository for the CommandClientImpl built using this builder.
-   *
-   * @param aliasEntityRepository the aliasEntityRepository to set.
-   * @return This builder
-   */
-  public CommandClientBuilder setAliasEntityRepository(
-      AliasEntityRepository aliasEntityRepository) {
-    this.aliasEntityRepository = aliasEntityRepository;
-    return this;
-  }
-
-  /**
-   * Sets the aliasCreateCommand for the CommandClientImpl built using this builder.
-   *
-   * @param aliasCreateCommand the aliasCreateCommand to set.
-   * @return This builder
-   */
-  public CommandClientBuilder setAliasCreateCommand(AliasCreateCommand aliasCreateCommand) {
-    this.aliasCreateCommand = aliasCreateCommand;
     return this;
   }
 }

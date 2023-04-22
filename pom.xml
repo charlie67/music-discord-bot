@@ -59,6 +59,16 @@
 			<url>https://jitpack.io</url>
 		</repository>
 		<repository>
+			<id>maven_central</id>
+			<name>Maven Central</name>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>m2-chew-snapshots</id>
+			<name>Maven Chewtral</name>
+			<url>https://m2.chew.pro/snapshots</url>
+		</repository>
+		<repository>
 			<id>dv8tion</id>
 			<name>m2-dv8tion</name>
 			<url>https://m2.dv8tion.net/releases</url>
@@ -67,16 +77,6 @@
 			<id>central</id>
 			<name>bintray</name>
 			<url>https://jcenter.bintray.com</url>
-		</repository>
-		<repository>
-			<id>maven_central</id>
-			<name>Maven Central</name>
-			<url>https://repo.maven.apache.org/maven2/</url>
-		</repository>
-		<repository>
-			<id>chew</id>
-			<name>m2-chew</name>
-			<url>https://m2.chew.pro/releases</url>
 		</repository>
 	</repositories>
 

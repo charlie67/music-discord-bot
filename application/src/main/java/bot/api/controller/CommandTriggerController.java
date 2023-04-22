@@ -2,11 +2,9 @@ package bot.api.controller;
 
 import bot.api.dto.TriggerCommandDto;
 import bot.configuration.CommandClientService;
-import bot.entities.AliasEntity;
-import bot.repositories.AliasEntityRepository;
 import bot.service.BotService;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,62 +25,53 @@ public class CommandTriggerController {
 
   private final BotService botService;
 
-  private final AliasEntityRepository aliasEntityRepository;
-
   @PostMapping()
   public ResponseEntity<String> triggerCommand(@RequestBody TriggerCommandDto triggerCommandDto) {
-    Command command = commandClientService.getCommandWithName(triggerCommandDto.getCommandName());
+    Optional<Command> commandOptional =
+        commandClientService.getCommandWithName(triggerCommandDto.getCommandName());
 
-    if (command == null) {
-      // try getting an alias
-      AliasEntity aliasEntity =
-          aliasEntityRepository.findByServerIdAndName(
-              triggerCommandDto.getGuildId(), triggerCommandDto.getCommandName());
-
-      if (aliasEntity != null) {
-        triggerCommandDto.setCommandArgs(aliasEntity.getArgs());
-        command = commandClientService.getCommandWithName(aliasEntity.getCommand());
-      } else {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-      }
+    if (commandOptional.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    Command command = commandOptional.get();
 
     // try setting it to the bot because it probably isn't needed
     if (StringUtils.isEmpty(triggerCommandDto.getAuthorId())) {
       triggerCommandDto.setAuthorId(botService.getJda().getSelfUser().getId());
     }
 
-    if (!allRequiredVariablesPresent(triggerCommandDto) || command == null) {
+    if (!allRequiredVariablesPresent(triggerCommandDto)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    CommandEvent apiCommandEvent;
-    try {
-      apiCommandEvent = botService.createCommandEvent(triggerCommandDto);
-    } catch (IllegalArgumentException e) {
-      log.error("Error when creating command event", e);
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-    command.run(apiCommandEvent);
-    log.info(
-        String.format(
-            "Ran command %s with arguments %s in server %s",
-            triggerCommandDto.getCommandName(),
-            triggerCommandDto.getCommandArgs(),
-            triggerCommandDto.getGuildId()));
+    //		CommandEvent apiCommandEvent;
+    //		try {
+    //			apiCommandEvent = botService.createCommandEvent(triggerCommandDto);
+    //		} catch (IllegalArgumentException e) {
+    //			log.error("Error when creating command event", e);
+    //			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    //		}
+    //		command.run(apiCommandEvent);
+    //		log.info(
+    //						String.format(
+    //										"Ran command %s with arguments %s in server %s",
+    //										triggerCommandDto.getCommandName(),
+    //										triggerCommandDto.getCommandArgs(),
+    //										triggerCommandDto.getGuildId()));
 
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   private boolean allRequiredVariablesPresent(TriggerCommandDto triggerCommandDto) {
-    if (StringUtils.isEmpty(triggerCommandDto.getCommandName())) {
+    if (!StringUtils.hasText(triggerCommandDto.getCommandName())) {
       return false;
-    } else if (StringUtils.isEmpty(triggerCommandDto.getAuthorId())) {
+    } else if (!StringUtils.hasText(triggerCommandDto.getAuthorId())) {
       return false;
-    } else if (StringUtils.isEmpty(triggerCommandDto.getGuildId())) {
+    } else if (!StringUtils.hasText(triggerCommandDto.getGuildId())) {
       return false;
     } else {
-      return !StringUtils.isEmpty(triggerCommandDto.getTextChannelId());
+      return StringUtils.hasText(triggerCommandDto.getTextChannelId());
     }
   }
 }

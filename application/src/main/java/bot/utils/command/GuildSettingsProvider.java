@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
  * <p>This interface allows the specification of any of the following functions:
  *
  * <ul>
- *   <li>Guild Specific Prefixes (via {@link GuildSettingsProvider#getPrefixes()})
+ *   <li>Guild Specific Prefixes (via {@link bot.utils.command.GuildSettingsProvider#getPrefixes()})
  * </ul>
  *
  * <p>Note that all of these functions are <b>OPTIONAL</b> to implement, and instructions are
@@ -43,8 +43,8 @@ import javax.annotation.Nullable;
  */
 public interface GuildSettingsProvider {
   /**
-   * Gets a {@link Collection Collection} of String prefixes available for the Guild represented by
-   * this implementation.
+   * Gets a {@link java.util.Collection Collection} of String prefixes available for the Guild
+   * represented by this implementation.
    *
    * <p>An empty Collection or {@code null} may be returned to signify the Guild doesn't have any
    * guild specific prefixes, or that this feature is not supported by this implementation.
