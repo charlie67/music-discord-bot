@@ -1,39 +1,39 @@
 package bot.utils.command.option.optionValue;
 
+import java.util.List;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public interface OptionValue {
 
+  OptionType getType();
 
-	OptionType getType();
+  String getName();
 
-	String getName();
+  List<Message.Attachment> getAsAttachment();
 
-	Message.Attachment getAsAttachment();
+  String getAsString();
 
-	String getAsString();
+  Boolean getAsBoolean();
 
-	Boolean getAsBoolean();
+  long getAsLong();
 
-	long getAsLong();
+  int getAsInt();
 
-	int getAsInt();
+  double getAsDouble();
 
-	double getAsDouble();
+  Member getAsMember();
 
-	Member getAsMember();
+  User getAsUser();
 
-	User getAsUser();
+  Role getAsRole();
 
-	Role getAsRole();
+  ChannelType getChannelType();
 
-	ChannelType getChannelType();
-
-	MessageChannelUnion getAsChannel();
+  GuildChannelUnion getAsChannel();
 }

@@ -15,6 +15,7 @@
  */
 package bot.utils.command;
 
+import bot.utils.command.events.CommandEvent;
 import bot.utils.command.impl.AnnotatedModuleCompilerImpl;
 import bot.utils.command.impl.CommandClientImpl;
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  */
 public class CommandClientBuilder {
   private final LinkedList<Command> commands = new LinkedList<>();
-  private final LinkedList<SlashCommand> slashCommands = new LinkedList<>();
   private final LinkedList<ContextMenu> contextMenus = new LinkedList<>();
   private Activity activity = Activity.playing("default");
   private OnlineStatus status = OnlineStatus.ONLINE;
@@ -99,13 +99,11 @@ public class CommandClientBuilder {
             carbonKey,
             botsKey,
             new ArrayList<>(commands),
-            new ArrayList<>(slashCommands),
             new ArrayList<>(contextMenus),
             forcedGuildId,
             manualUpsert,
             useHelp,
             shutdownAutomatically,
-            helpConsumer,
             helpWord,
             executor,
             linkedCacheSize,
@@ -271,8 +269,8 @@ public class CommandClientBuilder {
    * Setting it to {@code null} or not setting this at all will cause the bot to use the default
    * help builder.
    *
-   * @param helpConsumer A consumer to accept a {@link bot.utils.command.CommandEvent CommandEvent}
-   *     when a help command is called.
+   * @param helpConsumer A consumer to accept a {@link bot.utils.command.events.CommandEvent
+   *     CommandEvent} when a help command is called.
    * @return This builder
    */
   public CommandClientBuilder setHelpConsumer(Consumer<CommandEvent> helpConsumer) {
@@ -380,53 +378,11 @@ public class CommandClientBuilder {
     return this;
   }
 
-  /**
-   * Adds a {@link bot.utils.command.SlashCommand SlashCommand} and registers it to the {@link
-   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session.
-   *
-   * @param command The SlashCommand to add
-   * @return This builder
-   */
-  public CommandClientBuilder addSlashCommand(SlashCommand command) {
-    slashCommands.add(command);
-    return this;
-  }
-
-  /**
-   * Adds and registers multiple {@link bot.utils.command.SlashCommand SlashCommand}s to the {@link
-   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session. <br>
-   * This is the same as calling {@link
-   * bot.utils.command.CommandClientBuilder#addSlashCommand(SlashCommand)} multiple times.
-   *
-   * @param commands The Commands to add
-   * @return This builder
-   */
-  public CommandClientBuilder addSlashCommands(SlashCommand... commands) {
-    for (SlashCommand command : commands) this.addSlashCommand(command);
-    return this;
-  }
-
-  /**
-   * Adds a {@link bot.utils.command.SlashCommand SlashCommand} and registers it to the {@link
-   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session.
-   *
-   * @param contextMenu The Context Menu to add
-   * @return This builder
-   */
   public CommandClientBuilder addContextMenu(ContextMenu contextMenu) {
     contextMenus.add(contextMenu);
     return this;
   }
 
-  /**
-   * Adds and registers multiple {@link bot.utils.command.SlashCommand SlashCommand}s to the {@link
-   * bot.utils.command.impl.CommandClientImpl CommandClientImpl} for this session. <br>
-   * This is the same as calling {@link
-   * bot.utils.command.CommandClientBuilder#addSlashCommand(SlashCommand)} multiple times.
-   *
-   * @param contextMenus The Context Menus to add
-   * @return This builder
-   */
   public CommandClientBuilder addContextMenus(ContextMenu... contextMenus) {
     for (ContextMenu contextMenu : contextMenus) this.addContextMenu(contextMenu);
     return this;

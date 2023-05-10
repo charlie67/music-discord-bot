@@ -1,4 +1,3 @@
 package bot.utils.command.option;
 
-public class OptionDataCreator {
-}
+public class OptionDataCreator {}

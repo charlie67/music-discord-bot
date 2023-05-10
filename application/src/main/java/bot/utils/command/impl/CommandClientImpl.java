@@ -15,17 +15,7 @@
  */
 package bot.utils.command.impl;
 
-import bot.utils.command.AnnotatedModuleCompiler;
-import bot.utils.command.Command;
-import bot.utils.command.CommandClient;
-import bot.utils.command.CommandListener;
-import bot.utils.command.ContextMenu;
-import bot.utils.command.GuildSettingsManager;
-import bot.utils.command.GuildSettingsProvider;
-import bot.utils.command.MessageContextMenu;
-import bot.utils.command.MessageContextMenuEvent;
-import bot.utils.command.UserContextMenu;
-import bot.utils.command.UserContextMenuEvent;
+import bot.utils.command.*;
 import bot.utils.command.events.CommandEvent;
 import bot.utils.command.events.SlashCommandEvent;
 import bot.utils.command.events.TextCommandEvent;
@@ -35,17 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiFunction;
@@ -72,14 +52,7 @@ import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.internal.utils.Checks;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -671,7 +644,7 @@ public class CommandClientImpl implements CommandClient, EventListener {
 
         if (command != null) {
           CommandEvent cevent =
-              new TextCommandEvent(event, parts.prefixUsed, args, this, command.getOptions());
+              new TextCommandEvent(event, parts.prefixUsed, args, this, command.createOptionMap());
 
           if (listener != null) listener.onCommand(cevent, command);
           uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);
@@ -852,8 +825,8 @@ public class CommandClientImpl implements CommandClient, EventListener {
     String[] parts = path.split(" ");
 
     final Command command; // this will be null if it's not a command
-    synchronized (slashCommandIndex) {
-      int i = slashCommandIndex.getOrDefault(parts[0].toLowerCase(Locale.ROOT), -1);
+    synchronized (commandIndex) {
+      int i = commandIndex.getOrDefault(parts[0].toLowerCase(Locale.ROOT), -1);
       command = i != -1 ? commands.get(i) : null;
     }
 

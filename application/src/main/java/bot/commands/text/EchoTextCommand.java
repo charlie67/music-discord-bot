@@ -1,26 +1,31 @@
 package bot.commands.text;
 
-import bot.utils.command.Command;
-import bot.utils.command.events.CommandEvent;
-
 import static bot.utils.TextChannelResponses.ECHO_COMMAND_NO_ARGS;
 
+import bot.utils.command.Command;
+import bot.utils.command.events.CommandEvent;
+import bot.utils.command.option.Option;
+import bot.utils.command.option.OptionName;
+import java.util.List;
+
 public class EchoTextCommand extends Command {
-	public EchoTextCommand() {
-		this.name = "echotext";
-		this.aliases = new String[]{"echo", "text"};
-		this.help = "Sends a message with the text that was passed in as an argument";
-	}
+  public EchoTextCommand() {
+    this.name = "echotext";
+    this.aliases = new String[] {"echo", "text"};
+    this.help = "Sends a message with the text that was passed in as an argument";
 
-	@Override
-	protected void execute(CommandEvent event) {
-		String textToReturn = event.getOptionString();
+    this.options = List.of(Option.createOption(OptionName.ECHO_TEXT, true, 0));
+  }
 
-		if (textToReturn.isEmpty()) {
-			event.getChannel().sendMessage(ECHO_COMMAND_NO_ARGS).queue();
-			return;
-		}
+  @Override
+  protected void execute(CommandEvent event) {
+    String textToReturn = event.getOption(OptionName.ECHO_TEXT).getAsString();
 
-		event.getChannel().sendMessage(textToReturn).queue();
-	}
+    if (textToReturn.isEmpty()) {
+      event.reply(ECHO_COMMAND_NO_ARGS);
+      return;
+    }
+
+    event.reply(textToReturn);
+  }
 }

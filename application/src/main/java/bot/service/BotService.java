@@ -1,13 +1,6 @@
 package bot.service;
 
-import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS_AND_STICKERS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_PRESENCES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_VOICE_STATES;
-import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
+import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 
 import bot.configuration.BotConfiguration;
 import bot.configuration.CommandClientService;
