@@ -48,7 +48,7 @@
         <dependency>
             <artifactId>lavaplayer-fork</artifactId>
             <groupId>com.github.walkyst</groupId>
-            <version>1.3.98.4</version>
+            <version>1.4.2</version>
         </dependency>
 
         <dependency>
