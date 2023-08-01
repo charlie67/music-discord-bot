@@ -1,7 +1,10 @@
 package bot.utils.command.option.optionValue;
 
 import bot.utils.command.option.OptionName;
+
 import java.util.List;
+
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
@@ -14,76 +17,77 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 @RequiredArgsConstructor
+@Builder
 public class TextOptionValue implements OptionValue {
 
-  private final OptionName optionName;
+	private final OptionName optionName;
 
-  private final JDA jda;
-  MessageReceivedEvent event;
-  private String optionString;
+	private final JDA jda;
+	private final MessageReceivedEvent event;
+	private final String optionValue;
 
-  @Override
-  public OptionType getType() {
-    return optionName.getOptionType();
-  }
+	@Override
+	public OptionType getType() {
+		return optionName.getOptionType();
+	}
 
-  @Override
-  public String getName() {
-    return optionName.getDisplayName();
-  }
+	@Override
+	public String getName() {
+		return optionName.getDisplayName();
+	}
 
-  @Override
-  public List<Message.Attachment> getAsAttachment() {
-    return event.getMessage().getAttachments();
-  }
+	@Override
+	public List<Message.Attachment> getAsAttachment() {
+		return event.getMessage().getAttachments();
+	}
 
-  @Override
-  public String getAsString() {
-    return optionString;
-  }
+	@Override
+	public String getAsString() {
+		return optionValue;
+	}
 
-  @Override
-  public Boolean getAsBoolean() {
-    return Boolean.valueOf(optionString);
-  }
+	@Override
+	public Boolean getAsBoolean() {
+		return Boolean.valueOf(optionValue);
+	}
 
-  @Override
-  public long getAsLong() {
-    return Long.parseLong(optionString);
-  }
+	@Override
+	public long getAsLong() {
+		return Long.parseLong(optionValue);
+	}
 
-  @Override
-  public int getAsInt() {
-    return Integer.parseInt(optionString);
-  }
+	@Override
+	public int getAsInt() {
+		return Integer.parseInt(optionValue);
+	}
 
-  @Override
-  public double getAsDouble() {
-    return Double.parseDouble(optionString);
-  }
+	@Override
+	public double getAsDouble() {
+		return Double.parseDouble(optionValue);
+	}
 
-  @Override
-  public Member getAsMember() {
-    return event.getGuild().getMemberById(optionString);
-  }
+	@Override
+	public Member getAsMember() {
+		return event.getGuild().getMemberById(optionValue);
+	}
 
-  @Override
-  public User getAsUser() {
-    return jda.getUserById(optionString);
-  }
+	@Override
+	public User getAsUser() {
+		return jda.getUserById(optionValue);
+	}
 
-  @Override
-  public Role getAsRole() {
-    return null;
-  }
+	@Override
+	public Role getAsRole() {
+		return null;
+	}
 
-  @Override
-  public ChannelType getChannelType() {
-    return event.getChannelType();
-  }
+	@Override
+	public ChannelType getChannelType() {
+		return event.getChannelType();
+	}
 
-  @Override
-  public GuildChannelUnion getAsChannel() {
-    return null;
-  }
+	@Override
+	public GuildChannelUnion getAsChannel() {
+		return null;
+	}
 }
