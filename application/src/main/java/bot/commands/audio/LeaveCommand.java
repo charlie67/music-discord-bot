@@ -12,34 +12,32 @@ import org.springframework.stereotype.Component;
 @Component
 public class LeaveCommand extends Command {
 
-  private final VoiceChannelService voiceChannelService;
+	private final VoiceChannelService voiceChannelService;
 
-  @Autowired
-  public LeaveCommand(VoiceChannelService voiceChannelService) {
-    this.name = "leave";
-    this.aliases = new String[]{"die", "stop"};
-    this.help = "Leave the currently connected voice channel";
+	@Autowired
+	public LeaveCommand(VoiceChannelService voiceChannelService) {
+		this.name = "leave";
+		this.aliases = new String[]{"die", "stop"};
+		this.help = "Leave the currently connected voice channel";
 
-    this.voiceChannelService = voiceChannelService;
-  }
+		this.voiceChannelService = voiceChannelService;
+	}
 
-  @Override
-  protected void execute(CommandEvent event) {
-    AudioManager audioManager = event.getGuild().getAudioManager();
-    AudioPlayerSendHandler audioPlayerSendHandler;
-    try {
-      audioPlayerSendHandler = voiceChannelService.getAudioPlayerSendHandler(event.getJDA(),
-          event.getGuild().getId());
-    } catch (IllegalArgumentException e) {
-      event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
-      return;
-    }
+	@Override
+	protected void execute(CommandEvent event) {
+		AudioManager audioManager = event.getGuild().getAudioManager();
+		AudioPlayerSendHandler audioPlayerSendHandler;
+		try {
+			audioPlayerSendHandler = voiceChannelService.getAudioPlayerSendHandler(event.getJDA(),
+							event.getGuild().getId());
+		} catch (IllegalArgumentException e) {
+			event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
+			return;
+		}
 
-    // tell the track scheduler that the bot is leaving the vc and not to find related videos.
-    audioPlayerSendHandler.getTrackScheduler().setGotLeaveMessage(true);
-    audioPlayerSendHandler.getAudioPlayer().stopTrack();
-    audioManager.closeAudioConnection();
-    audioPlayerSendHandler.getTrackScheduler().clearQueue();
-    event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
-  }
+		audioPlayerSendHandler.getAudioPlayer().stopTrack();
+		audioManager.closeAudioConnection();
+		audioPlayerSendHandler.getTrackScheduler().clearQueue();
+		event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+	}
 }
