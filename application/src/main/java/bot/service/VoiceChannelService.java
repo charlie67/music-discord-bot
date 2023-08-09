@@ -4,7 +4,6 @@ import bot.commands.audio.UserInfo;
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.commands.audio.utils.AudioSearchResultHandler;
 import bot.commands.audio.utils.TrackScheduler;
-import bot.dao.OptionEntityDao;
 import bot.utils.TextChannelResponses;
 import bot.utils.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -96,12 +95,10 @@ public class VoiceChannelService {
    * @param event         The event that cased this to happen
    * @param playTop       If this should be placed at the top of the queue
    * @param playerManager Used for creating audio players and loading tracks and playlists.
-   * @param youtubeApiKey The API key for youtube
    * @throws IllegalArgumentException If an error occurred during play
    */
   public void searchAndPlaySong(CommandEvent event, boolean playTop,
-                                AudioPlayerManager playerManager,
-                                String youtubeApiKey, OptionEntityDao optionEntityDao) throws IllegalArgumentException {
+                                AudioPlayerManager playerManager) throws IllegalArgumentException {
     String argument = event.getArgs();
     MessageChannel channel = event.getChannel();
     Guild guild = event.getGuild();
