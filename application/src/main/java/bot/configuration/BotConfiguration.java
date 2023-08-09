@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class BotConfiguration {
 
-  private String youtubeApiKey;
   private String discordKey;
   private String userId;
   private String redditClientId;
