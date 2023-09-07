@@ -2,8 +2,6 @@ package bot.commands.utilities;
 
 import bot.entities.OptionEntity;
 import bot.repositories.OptionEntityRepository;
-import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -15,7 +13,7 @@ import static bot.utils.TextChannelResponses.NOT_VALID_BOOLEAN;
 import static bot.utils.TextChannelResponses.NOT_VALID_OPTION;
 
 @Component
-public class OptionsCommand extends Command {
+public class OptionsCommand {
 
   static final String[] OPTION_NAMES = new String[]{};
   private final OptionEntityRepository optionEntityRepository;
@@ -32,7 +30,7 @@ public class OptionsCommand extends Command {
     this.help = "Set options for the bot. Current Options:\n";
   }
 
-  @Override
+
   protected void execute(CommandEvent event) {
     event.getChannel().sendTyping().queue();
 
