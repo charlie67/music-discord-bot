@@ -1,7 +1,17 @@
 name: Build
 
 on:
-  push
+  push:
+    branches:
+      "*"
+    tags:
+      "*"
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - tagging
+    types:
+      - completed
 
 jobs:
   build:
