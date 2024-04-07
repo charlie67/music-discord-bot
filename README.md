@@ -10,4 +10,6 @@ Java Discord bot
 | REDDIT_CLIENT_ID     | The Reddit API client ID                               |
 | REDDIT_CLIENT_SECRET | The Reddit API client secret                             |
 | OWNER_ID             | The Discord ID of the bot owner                   |
-| POSTGRES_LOCATION    | The URL of the Postgres database
+| POSTGRES_LOCATION    | The URL of the Postgres database                  |
+| YOUTUBE_EMAIL        | The email address of the YouTube account to use   |
+| YOUTUBE_PASSWORD     | The password for that YouTube account             |
