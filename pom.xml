@@ -78,6 +78,11 @@
 			<name>m2-chew</name>
 			<url>https://m2.chew.pro/releases</url>
 		</repository>
+		<repository>
+			<id>arbjergDev-snapshots</id>
+			<name>Lavalink Repository</name>
+			<url>https://maven.lavalink.dev/snapshots</url>
+		</repository>
 	</repositories>
 
 	<version>0.0.1-SNAPSHOT</version>
