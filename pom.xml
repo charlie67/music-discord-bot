@@ -83,6 +83,11 @@
 			<name>Lavalink Repository</name>
 			<url>https://maven.lavalink.dev/snapshots</url>
 		</repository>
+		<repository>
+			<id>arbjergDev-releases</id>
+			<name>Lavalink Repository</name>
+			<url>https://maven.lavalink.dev/releases</url>
+		</repository>
 	</repositories>
 
 	<version>0.0.1-SNAPSHOT</version>
