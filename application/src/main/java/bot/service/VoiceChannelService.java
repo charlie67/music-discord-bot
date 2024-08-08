@@ -93,7 +93,6 @@ public class VoiceChannelService {
 	 * @param event         The event that cased this to happen
 	 * @param playTop       If this should be placed at the top of the queue
 	 * @param playerManager Used for creating audio players and loading tracks and playlists.
-	 * @param youtubeApiKey The API key for youtube
 	 * @throws IllegalArgumentException If an error occurred during play
 	 */
 	public void searchAndPlaySong(CommandEvent event, boolean playTop,
