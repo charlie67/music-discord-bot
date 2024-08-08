@@ -46,9 +46,14 @@
         </dependency>
 
         <dependency>
-            <artifactId>lavaplayer-fork</artifactId>
-            <groupId>com.github.walkyst</groupId>
-            <version>1.4.2</version>
+            <groupId>dev.arbjerg</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>v2</artifactId>
+            <version>1.5.2</version>
         </dependency>
 
         <dependency>

@@ -78,6 +78,16 @@
 			<name>bintray</name>
 			<url>https://jcenter.bintray.com</url>
 		</repository>
+		<repository>
+			<id>arbjergDev-snapshots</id>
+			<name>Lavalink Repository</name>
+			<url>https://maven.lavalink.dev/snapshots</url>
+		</repository>
+		<repository>
+			<id>arbjergDev-releases</id>
+			<name>Lavalink Repository</name>
+			<url>https://maven.lavalink.dev/releases</url>
+		</repository>
 	</repositories>
 
 	<version>0.0.1-SNAPSHOT</version>
