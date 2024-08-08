@@ -11,11 +11,11 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.AndroidWithThumbnail;
-import dev.lavalink.youtube.clients.Music;
+import dev.lavalink.youtube.clients.AndroidMusic;
+import dev.lavalink.youtube.clients.TvHtml5Embedded;
+import dev.lavalink.youtube.clients.Web;
 import dev.lavalink.youtube.clients.WebWithThumbnail;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +24,8 @@ import org.springframework.stereotype.Component;
 public class AudioPlayerConfiguration {
 
 	@Bean
-	public YoutubeAudioSourceManager youtubeAudioSourceManager(
-					@Value("${bot.youtube.email}") String youtubeEmail,
-					@Value("${bot.youtube.password}") String youtubePassword) {
-		return new YoutubeAudioSourceManager(true, new Music(), new WebWithThumbnail(), new AndroidWithThumbnail());
+	public YoutubeAudioSourceManager youtubeAudioSourceManager() {
+		return new YoutubeAudioSourceManager(true, new WebWithThumbnail(), new TvHtml5Embedded(), new Web(), new AndroidMusic());
 	}
 
 	@Bean
