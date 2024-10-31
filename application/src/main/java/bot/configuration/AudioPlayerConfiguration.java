@@ -16,6 +16,7 @@ import dev.lavalink.youtube.clients.TvHtml5Embedded;
 import dev.lavalink.youtube.clients.Web;
 import dev.lavalink.youtube.clients.WebWithThumbnail;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +24,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AudioPlayerConfiguration {
 
+	@Value("${YOUTUBE_OAUTH}")
+	private String oauth;
+
 	@Bean
 	public YoutubeAudioSourceManager youtubeAudioSourceManager() {
-		return new YoutubeAudioSourceManager(true, new WebWithThumbnail(), new TvHtml5Embedded(), new Web(), new AndroidMusic());
+		YoutubeAudioSourceManager manager = new YoutubeAudioSourceManager(true, new WebWithThumbnail(), new TvHtml5Embedded(), new Web(), new AndroidMusic());
+
+		manager.useOauth2(oauth, false);
+
+		return manager;
 	}
 
 	@Bean
