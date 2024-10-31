@@ -64,9 +64,9 @@
 			<url>https://m2.dv8tion.net/releases</url>
 		</repository>
 		<repository>
-			<id>central</id>
-			<name>bintray</name>
-			<url>https://jcenter.bintray.com</url>
+			<id>scijava</id>
+			<name>scijava</name>
+			<url>https://maven.scijava.org/content/repositories/public/</url>
 		</repository>
 		<repository>
 			<id>maven_central</id>
