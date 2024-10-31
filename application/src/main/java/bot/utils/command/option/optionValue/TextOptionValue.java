@@ -1,6 +1,6 @@
 package bot.utils.command.option.optionValue;
 
-import bot.utils.command.option.OptionName;
+import bot.utils.command.option.Response;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 @Builder
 public class TextOptionValue implements OptionValue {
 
-	private final OptionName optionName;
+	private final Response optionName;
 
 	private final JDA jda;
 	private final MessageReceivedEvent event;

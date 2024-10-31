@@ -6,16 +6,14 @@ import bot.service.VoiceChannelService;
 import bot.utils.command.Command;
 import bot.utils.command.events.CommandEvent;
 import bot.utils.command.option.Option;
-import bot.utils.command.option.OptionName;
-import bot.utils.command.option.optionValue.OptionValue;
-import bot.utils.command.option.optionValue.TextOptionValue;
+import bot.utils.command.option.Response;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
+
+import static bot.utils.EmoteHelper.THUMBS_UP_STRING;
 
 @Component
 public class SkipToCommand extends Command {
@@ -28,7 +26,7 @@ public class SkipToCommand extends Command {
 		this.help = "Skips to a certain position in the queue.";
 		this.guildOnly = true;
 
-		this.options = List.of(Option.createOption(OptionName.SKIP_TO_POSITION, true, 0));
+		this.options = List.of(Option.createOption(Response.SKIP_TO_POSITION, true, 0));
 
 		this.voiceChannelService = voiceChannelService;
 	}
@@ -47,7 +45,7 @@ public class SkipToCommand extends Command {
 		int elementSkipTo;
 
 		try {
-			elementSkipTo = event.getOption(OptionName.SKIP_TO_POSITION).getAsInt();
+			elementSkipTo = event.getOption(Response.SKIP_TO_POSITION).getAsInt();
 		} catch (NumberFormatException e) {
 			event.getChannel().sendMessage("**You need to provide a number to skip to.**").queue();
 			return;
@@ -60,15 +58,6 @@ public class SkipToCommand extends Command {
 
 		trackScheduler.setQueue(sublistQueue);
 		audioPlayerSendHandler.getAudioPlayer().stopTrack();
-		event.reactSuccess();
-	}
-
-	@Override
-	public Map<OptionName, OptionValue> createOptionMap(MessageReceivedEvent event) {
-		final String message = event.getMessage().getContentRaw();
-		String[] parts = message.split("\\s+", 2);
-
-		OptionValue optionValue = TextOptionValue.builder().optionName(OptionName.SKIP_TO_POSITION).optionValue(parts[1]).jda(event.getJDA()).build();
-		return Map.of(OptionName.SKIP_TO_POSITION, optionValue);
+		event.reactSuccessOrReply(THUMBS_UP_STRING);
 	}
 }

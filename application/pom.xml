@@ -3,12 +3,31 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <artifactId>application</artifactId>
+
+    <groupId>to.charlie.discordbot</groupId>
+    <modelVersion>4.0.0</modelVersion>
+    <name>Discord Bot</name>
+
+    <parent>
+        <artifactId>discord-bot</artifactId>
+        <groupId>to.charlie</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <jda.version>5.1.1</jda.version>
+    </properties>
+
+    <version>0.0.1-SNAPSHOT</version>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.4</version>
+                <version>${spring.version}</version>
                 <executions>
                     <execution>
                         <id>repackage</id>
@@ -24,13 +43,10 @@
         <dependency>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>2.7.4</version>
         </dependency>
-
         <dependency>
             <artifactId>spring-boot-starter-web</artifactId>
             <groupId>org.springframework.boot</groupId>
-            <version>2.7.4</version>
         </dependency>
 
         <dependency>
@@ -42,7 +58,7 @@
         <dependency>
             <artifactId>JDA</artifactId>
             <groupId>net.dv8tion</groupId>
-            <version>4.4.1_353</version>
+            <version>${jda.version}</version>
         </dependency>
 
         <dependency>
@@ -59,9 +75,8 @@
         <dependency>
             <artifactId>jda-chewtils</artifactId>
             <groupId>pw.chew</groupId>
-            <scope>compile</scope>
             <type>pom</type>
-            <version>1.24.1</version>
+            <version>2.0</version>
         </dependency>
 
         <dependency>
@@ -95,22 +110,14 @@
             <scope>runtime</scope>
             <version>42.5.0</version>
         </dependency>
+
+        <!--  test dependencies-->
+        <dependency>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    <groupId>to.charlie.discordbot</groupId>
-    <modelVersion>4.0.0</modelVersion>
-    <name>Discord Bot</name>
 
-    <parent>
-        <artifactId>discord-bot</artifactId>
-        <groupId>to.charlie</groupId>
-        <version>0.0.1-SNAPSHOT</version>
-    </parent>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
-
-    <version>0.0.1-SNAPSHOT</version>
 
 </project>

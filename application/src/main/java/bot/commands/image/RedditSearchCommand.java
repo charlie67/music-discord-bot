@@ -4,14 +4,12 @@ import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
 import bot.utils.command.events.CommandEvent;
 import bot.utils.command.option.Option;
-import bot.utils.command.option.OptionName;
-import bot.utils.command.option.optionValue.OptionValue;
-import bot.utils.command.option.optionValue.TextOptionValue;
+import bot.utils.command.option.Response;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Component
 public class RedditSearchCommand extends Command {
 	private final Map<MultiKey<String>, SubredditHolderComponent> guildIdToSubredditHolder =
 					new HashMap<>();
@@ -33,18 +32,18 @@ public class RedditSearchCommand extends Command {
 		this.help = "Search reddit for an image from a supplied subreddit";
 		this.guildOnly = true;
 
-		this.options = List.of(Option.createOption(OptionName.SEARCH_SUBREDDIT_OPTION, true, 0));
+		this.options = List.of(Option.createOption(Response.SEARCH_SUBREDDIT_OPTION, true, 0));
 	}
 
 	@Override
 	public void execute(CommandEvent event) {
-		if (!event.optionPresent(OptionName.SEARCH_SUBREDDIT_OPTION)) {
+		if (!event.optionPresent(Response.SEARCH_SUBREDDIT_OPTION)) {
 			event.reply(TextChannelResponses.NO_SUBREDDIT_PROVIDED);
 			return;
 		}
 
 		final String guildId = event.getGuild().getId();
-		final String subreddit = event.getOption(OptionName.SEARCH_SUBREDDIT_OPTION).getAsString();
+		final String subreddit = event.getOption(Response.SEARCH_SUBREDDIT_OPTION).getAsString();
 
 		try {
 			getNextUrl(event, subreddit, guildId);
@@ -75,21 +74,21 @@ public class RedditSearchCommand extends Command {
 		}
 	}
 
-	@Override
-	public Map<OptionName, OptionValue> createOptionMap(MessageReceivedEvent event) {
-		final String message = event.getMessage().getContentRaw();
-		String[] parts = message.split("\\s+", 2);
-
-		TextOptionValue.TextOptionValueBuilder textOptionValueBuilder = TextOptionValue.builder().optionName(OptionName.SEARCH_SUBREDDIT_OPTION).jda(event.getJDA());
-
-		if (parts.length == 1) {
-			OptionValue optionValue = textOptionValueBuilder.optionValue("").build();
-			return Map.of(OptionName.SEARCH_SUBREDDIT_OPTION, optionValue);
-		}
-
-		OptionValue optionValue = textOptionValueBuilder.optionValue(parts[1]).build();
-		return Map.of(OptionName.SEARCH_SUBREDDIT_OPTION, optionValue);
-	}
+//	@Override
+//	public Map<OptionName, OptionValue> createOptionMap(MessageReceivedEvent event) {
+//		final String message = event.getMessage().getContentRaw();
+//		String[] parts = message.split("\\s+", 2);
+//
+//		TextOptionValue.TextOptionValueBuilder textOptionValueBuilder = TextOptionValue.builder().optionName(OptionName.SEARCH_SUBREDDIT_OPTION).jda(event.getJDA());
+//
+//		if (parts.length == 1) {
+//			OptionValue optionValue = textOptionValueBuilder.optionValue("").build();
+//			return Map.of(OptionName.SEARCH_SUBREDDIT_OPTION, optionValue);
+//		}
+//
+//		OptionValue optionValue = textOptionValueBuilder.optionValue(parts[1]).build();
+//		return Map.of(OptionName.SEARCH_SUBREDDIT_OPTION, optionValue);
+//	}
 
 	private static class SubredditHolderComponent {
 		private final String subredditName;

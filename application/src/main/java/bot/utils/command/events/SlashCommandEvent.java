@@ -3,9 +3,10 @@ package bot.utils.command.events;
 import bot.utils.command.CommandClient;
 import bot.utils.command.events.eventReply.MessageReplyAction;
 import bot.utils.command.events.eventReply.SlashMessageReplyAction;
-import bot.utils.command.option.OptionName;
+import bot.utils.command.option.Response;
 import bot.utils.command.option.optionValue.OptionValue;
 import bot.utils.command.option.optionValue.SlashOptionValue;
+import com.jagrosh.jdautilities.menu.EmbedPaginator;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
@@ -33,7 +34,7 @@ public class SlashCommandEvent implements CommandEvent {
 	}
 
 	@Override
-	public OptionValue getOption(OptionName optionName) {
+	public OptionValue getOption(Response optionName) {
 		return SlashOptionValue.builder()
 						.optionName(optionName)
 						.optionMapping(event.getOption(optionName.getDisplayName()))
@@ -41,7 +42,7 @@ public class SlashCommandEvent implements CommandEvent {
 	}
 
 	@Override
-	public boolean optionPresent(OptionName optionName) {
+	public boolean optionPresent(Response optionName) {
 		return event.getOption(optionName.getDisplayName()) != null;
 	}
 
@@ -69,22 +70,29 @@ public class SlashCommandEvent implements CommandEvent {
 	}
 
 	@Override
+	public void reply(EmbedPaginator buttonMenu) {
+		buttonMenu.display(event.getHook());
+	}
+
+	@Override
 	public MessageReplyAction replyCallback(final String content) {
 		return new SlashMessageReplyAction(event.reply(content), event);
 	}
 
-	@Override
-	public void reactSuccess() {
-	}
+//	@Override
+//	public void reactSuccess() {
+//		this.reply("What happened here?");
+//	}
 
 	@Override
 	public void reactSuccessOrReply(String reply) {
 		this.reply(reply);
 	}
 
-	@Override
-	public void reactError() {
-	}
+//	@Override
+//	public void reactError() {
+//		this.reply("What happened here?");
+//	}
 
 	@Override
 	public ChannelType getChannelType() {

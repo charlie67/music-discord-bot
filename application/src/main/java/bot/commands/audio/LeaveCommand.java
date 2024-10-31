@@ -2,12 +2,16 @@ package bot.commands.audio;
 
 import bot.commands.audio.utils.AudioPlayerSendHandler;
 import bot.service.VoiceChannelService;
-import bot.utils.UnicodeEmote;
+import bot.utils.EmoteHelper;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
+import bot.utils.command.events.CommandEvent;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static bot.utils.EmoteHelper.THUMBS_UP;
+import static bot.utils.EmoteHelper.WAVE_STRING;
 
 @Component
 public class LeaveCommand extends Command {
@@ -31,13 +35,13 @@ public class LeaveCommand extends Command {
 			audioPlayerSendHandler = voiceChannelService.getAudioPlayerSendHandler(event.getJDA(),
 							event.getGuild().getId());
 		} catch (IllegalArgumentException e) {
-			event.getChannel().sendMessage("**Not currently connected to the voice channel**").queue();
+			event.reply("**Not currently connected to the voice channel**");
 			return;
 		}
 
 		audioPlayerSendHandler.getAudioPlayer().stopTrack();
 		audioManager.closeAudioConnection();
 		audioPlayerSendHandler.getTrackScheduler().clearQueue();
-		event.getMessage().addReaction(UnicodeEmote.THUMBS_UP).queue();
+		event.reactSuccessOrReply(WAVE_STRING);
 	}
 }

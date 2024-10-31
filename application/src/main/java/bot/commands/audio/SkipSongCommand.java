@@ -7,6 +7,9 @@ import bot.utils.command.events.CommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static bot.utils.EmoteHelper.THUMBS_UP_STRING;
+import static bot.utils.EmoteHelper.WAVE_STRING;
+
 @Component
 public class SkipSongCommand extends Command {
 
@@ -36,7 +39,7 @@ public class SkipSongCommand extends Command {
       audioPlayerSendHandler.getTrackScheduler().setLoopTrack(null);
 
       audioPlayerSendHandler.getAudioPlayer().stopTrack();
-      event.reactSuccess();
+      event.reactSuccessOrReply(THUMBS_UP_STRING);
     }
   }
 }

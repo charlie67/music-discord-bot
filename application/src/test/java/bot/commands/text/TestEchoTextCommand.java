@@ -1,6 +1,6 @@
 // package bot.commands.text;
 //
-// import bot.utils.command.CommandEvent;
+// import bot.utils.command.events.CommandEvent;
 // import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 // import org.junit.jupiter.api.BeforeEach;
 // import org.junit.jupiter.api.Test;

@@ -9,7 +9,7 @@ import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
 import bot.utils.command.events.CommandEvent;
 import bot.utils.command.option.Option;
-import bot.utils.command.option.OptionName;
+import bot.utils.command.option.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class AliasSearchCommand extends Command {
     this.name = "aliassearch";
     this.aliases = new String[] {"as"};
     this.help = "Search all the aliases in this server";
-    this.options = List.of(Option.createOption(OptionName.ALIAS_SEARCH_NAME, true, 0));
+    this.options = List.of(Option.createOption(Response.ALIAS_SEARCH_NAME, true, 0));
 
     this.aliasEntityRepository = aliasEntityRepository;
   }
@@ -33,7 +33,7 @@ public class AliasSearchCommand extends Command {
   @Override
   protected void execute(CommandEvent event) {
     String guildId = event.getGuild().getId();
-    String nameContains = event.getOption(OptionName.ALIAS_SEARCH_NAME).getAsString();
+    String nameContains = event.getOption(Response.ALIAS_SEARCH_NAME).getAsString();
 
     if (nameContains.isEmpty()) {
       event.reply(TextChannelResponses.ALIAS_SEARCH_NOT_PROVIDED);

@@ -3,7 +3,7 @@
 // import bot.commands.audio.utils.AudioPlayerSendHandler;
 // import bot.commands.audio.utils.TrackScheduler;
 // import bot.utils.UnicodeEmote;
-// import bot.utils.command.CommandEvent;
+// import bot.utils.command.events.CommandEvent;
 // import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 // import net.dv8tion.jda.api.entities.Guild;
 // import net.dv8tion.jda.api.entities.Message;

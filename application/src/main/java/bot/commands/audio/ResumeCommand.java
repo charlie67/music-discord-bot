@@ -29,11 +29,11 @@ public class ResumeCommand extends Command {
     try {
       voiceChannelService.setPauseStatusOnAudioPlayer(event, false);
     } catch (IllegalArgumentException e) {
-      LOGGER.debug("Trying to resume a currently playing song", e);
-      event.getChannel().sendMessage(TextChannelResponses.TRYING_TO_RESUME_PLAYING_SONG).queue();
+      LOGGER.info("Trying to resume a currently playing song", e);
+      event.reply(TextChannelResponses.TRYING_TO_RESUME_PLAYING_SONG);
       return;
     } catch (IllegalAccessException e) {
-      LOGGER.debug("Error while running resume command", e);
+      LOGGER.info("Error while running resume command", e);
       return;
     }
 

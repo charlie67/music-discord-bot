@@ -1,63 +1,63 @@
 package bot.commands.utilities;
 
-import static bot.commands.utilities.OptionsCommand.OPTION_NAMES;
-
 import bot.entities.OptionEntity;
 import bot.repositories.OptionEntityRepository;
 import bot.utils.command.Command;
 import bot.utils.command.events.CommandEvent;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+
+
 @Component
 public class OptionListCommand extends Command {
-  private final OptionEntityRepository optionEntityRepository;
+	private final OptionEntityRepository optionEntityRepository;
 
-  public OptionListCommand(OptionEntityRepository optionEntityRepository) {
-    this.optionEntityRepository = optionEntityRepository;
+	public OptionListCommand(OptionEntityRepository optionEntityRepository) {
+		this.optionEntityRepository = optionEntityRepository;
 
-    this.name = "optionlist";
-    this.aliases = new String[] {"settingslist", "settinglist", "optionslist"};
-    this.help = "Show a list of the current settings.";
-  }
+		this.name = "optionlist";
+		this.aliases = new String[]{"settingslist", "settinglist", "optionslist"};
+		this.help = "Show a list of the current settings.";
+	}
 
-  @Override
-  protected void execute(CommandEvent event) {
-    event.deferReply();
+	@Override
+	protected void execute(CommandEvent event) {
+		HashMap<String, Boolean> nameToState = new HashMap<>();
 
-    HashMap<String, Boolean> nameToState = new HashMap<>();
+		// get the settings and then
+		for (OptionName optionName : OptionName.values()) {
+			OptionEntity optionEntity =
+							optionEntityRepository.findByServerIdAndName(event.getGuild().getId(), optionName.getDisplayName().toLowerCase());
 
-    // get the settings and then
-    for (String option : OPTION_NAMES) {
-      OptionEntity optionEntity =
-          optionEntityRepository.findByServerIdAndName(event.getGuild().getId(), option);
+			if (optionEntity == null ) {
+				nameToState.put(optionName.getDisplayName(), optionName.isDefaultValue());
+			} else {
+				nameToState.put(optionName.getDisplayName(), optionEntity.getOption());
+			}
+		}
 
-      if (optionEntity == null || optionEntity.getOption()) {
-        nameToState.put(option, true);
+		EmbedBuilder eb = new EmbedBuilder();
 
-      } else {
-        nameToState.put(option, false);
-      }
-    }
+		// get a random colour for the embed
+		Random rand = new Random();
+		eb.setColor(new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()));
 
-    EmbedBuilder eb = new EmbedBuilder();
+		AtomicInteger ordinal = new AtomicInteger(1);
+		StringBuilder sb = new StringBuilder();
 
-    // get a random colour for the embed
-    //    setRandomColour(eb);
+		nameToState.forEach(
+						(setting_name, value) -> {
+							int itemPosition = ordinal.getAndIncrement();
 
-    AtomicInteger ordinal = new AtomicInteger(1);
-    StringBuilder sb = new StringBuilder();
+							sb.append(String.format("`%d.` %s - %s\n\n", itemPosition, setting_name, value));
+						});
 
-    nameToState.forEach(
-        (setting_name, value) -> {
-          int itemPosition = ordinal.getAndIncrement();
-
-          sb.append(String.format("`%d.` %s - %s\n\n", itemPosition, setting_name, value));
-        });
-
-    eb.setDescription(sb);
-    event.reply(eb.build());
-  }
+		eb.setDescription(sb);
+		event.reply(eb.build());
+	}
 }

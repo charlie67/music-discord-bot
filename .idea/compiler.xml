@@ -20,7 +20,9 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="application" options="-parameters" />
       <module name="spotify-history" options="" />
+      <module name="tests" options="-parameters" />
     </option>
   </component>
 </project>

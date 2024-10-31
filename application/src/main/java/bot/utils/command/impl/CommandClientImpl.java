@@ -15,8 +15,19 @@
  */
 package bot.utils.command.impl;
 
-import bot.utils.command.*;
+import bot.utils.command.AnnotatedModuleCompiler;
+import bot.utils.command.Command;
+import bot.utils.command.CommandClient;
+import bot.utils.command.CommandListener;
+import bot.utils.command.ContextMenu;
+import bot.utils.command.GuildSettingsManager;
+import bot.utils.command.GuildSettingsProvider;
+import bot.utils.command.MessageContextMenu;
+import bot.utils.command.MessageContextMenuEvent;
+import bot.utils.command.UserContextMenu;
+import bot.utils.command.UserContextMenuEvent;
 import bot.utils.command.events.CommandEvent;
+import bot.utils.command.events.CommandEventType;
 import bot.utils.command.events.SlashCommandEvent;
 import bot.utils.command.events.TextCommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FixedSizeCache;
@@ -41,7 +52,14 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -53,7 +71,17 @@ import java.io.IOException;
 import java.io.Reader;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiFunction;
@@ -222,7 +250,10 @@ public class CommandClientImpl implements CommandClient, EventListener {
 
 	@Override
 	public List<Command> getCommands() {
-		return commands;
+		return commands
+						.stream()
+						.filter(command -> command.isCommandExecutionAllowedIn(CommandEventType.SLASH))
+						.collect(Collectors.toList());
 	}
 
 	@Override
@@ -639,9 +670,9 @@ public class CommandClientImpl implements CommandClient, EventListener {
 					command = i != -1 ? commands.get(i) : null;
 				}
 
-				if (command != null) {
+				if (command != null && command.isCommandExecutionAllowedIn(CommandEventType.TEXT)) {
 					CommandEvent cevent =
-									new TextCommandEvent(event, parts.prefixUsed, args, this, command.createOptionMap(event));
+									new TextCommandEvent(event, parts.prefixUsed, args, this, command.getOptions());
 
 					if (listener != null) listener.onCommand(cevent, command);
 					uses.put(command.getName(), uses.getOrDefault(command.getName(), 0) + 1);

@@ -2,7 +2,7 @@
 //
 // import bot.utils.TextChannelResponses;
 // import bot.utils.TimeUtils;
-// import bot.utils.command.CommandEvent;
+// import bot.utils.command.events.CommandEvent;
 // import org.junit.jupiter.api.Test;
 // import org.mockito.ArgumentCaptor;
 // import testUtils.SeekCommandTestMocker;

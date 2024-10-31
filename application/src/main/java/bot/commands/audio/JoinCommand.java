@@ -1,13 +1,16 @@
 package bot.commands.audio;
 
 import bot.service.VoiceChannelService;
-import bot.utils.TextChannelResponses;
 import bot.utils.command.Command;
-import bot.utils.command.CommandEvent;
+import bot.utils.command.events.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static bot.utils.EmoteHelper.WAVE_STRING;
+import static bot.utils.TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL;
+import static bot.utils.TextChannelResponses.USER_NOT_CONNECTED_TO_VOICE_CHANNEL;
 
 @Component
 public class JoinCommand extends Command {
@@ -30,12 +33,11 @@ public class JoinCommand extends Command {
 		try {
 			voiceChannelService.joinVoiceChannel(event.getMember(), event.getGuild(),
 							playerManager);
+			event.reactSuccessOrReply(WAVE_STRING);
 		} catch (IllegalArgumentException e) {
-			event.getChannel().sendMessage(TextChannelResponses.NOT_CONNECTED_TO_VOICE_MESSAGE).queue();
+			event.reply(USER_NOT_CONNECTED_TO_VOICE_CHANNEL);
 		} catch (InsufficientPermissionException e) {
-			event.getChannel()
-							.sendMessage(TextChannelResponses.DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL).queue();
+			event.reply(DONT_HAVE_PERMISSION_TO_JOIN_VOICE_CHANNEL);
 		}
 	}
-
 }

@@ -1,6 +1,6 @@
 package bot.utils.command.option.optionValue;
 
-import bot.utils.command.option.OptionName;
+import bot.utils.command.option.Response;
 import java.util.Collections;
 import java.util.List;
 import lombok.Builder;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 @Builder
 public class SlashOptionValue implements OptionValue {
 
-  private final OptionName optionName;
+  private final Response optionName;
 
   private final OptionMapping optionMapping;
 

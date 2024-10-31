@@ -12,19 +12,19 @@
 
         <label for="guildIdSelect">Guild ID</label>
         <select id="guildIdSelect" name="guildId" onchange="guildSelectedChange()">
-            <option value="placeholder"></option>
+            <optionName value="placeholder"></optionName>
         </select>
         <br><br>
 
         <label for="textChannelId">Text Channel ID</label>
         <select id="textChannelId" name="textChannelId">
-            <option value="placeholder"></option>
+            <optionName value="placeholder"></optionName>
         </select>
         <br><br>
 
         <label for="authorId">Author ID</label>
         <select id="authorId" name="authorId">
-            <option value="placeholder"></option>
+            <optionName value="placeholder"></optionName>
         </select>
         <br><br>
 
@@ -83,7 +83,7 @@
 
                 response.json().then(function(data) {
                     $.each(data, function (i, item) {
-                        $('#guildIdSelect').append($('<option>', {
+                        $('#guildIdSelect').append($('<optionName>', {
                             value: item.id,
                             text : item.name
                         }));
@@ -111,7 +111,7 @@
 
                     $.each(data, function (i, item) {
                         console.log("adding item " + item)
-                        $('#authorId').append($('<option>', {
+                        $('#authorId').append($('<optionName>', {
                             value: item.id,
                             text : item.name + "-" + item.inVoice
                         }));
@@ -128,7 +128,7 @@
                     console.log(data)
 
                     $.each(data, function (i, item) {
-                        $('#textChannelId').append($('<option>', {
+                        $('#textChannelId').append($('<optionName>', {
                             value: item.id,
                             text : item.name
                         }));

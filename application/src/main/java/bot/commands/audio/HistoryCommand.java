@@ -9,15 +9,19 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.EmbedPaginator;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import static bot.utils.EmbedUtils.createEmbedBuilder;
 
+@Component
 public class HistoryCommand extends Command {
 	private final EventWaiter eventWaiter;
 
+	@Autowired
 	public HistoryCommand(EventWaiter eventWaiter) {
 		this.name = "playhistory";
 		this.aliases = new String[]{"history"};
@@ -56,7 +60,7 @@ public class HistoryCommand extends Command {
 			buttonMenu.display(event.getChannel());
 			event.reply("**History**");
 		} catch (NumberFormatException e) {
-			event.getChannel().sendMessage(TextChannelResponses.CANT_DISPLAY_QUEUE_PAGE).queue();
+			event.reply(TextChannelResponses.CANT_DISPLAY_QUEUE_PAGE);
 		}
 	}
 }

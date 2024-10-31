@@ -1,7 +1,7 @@
 // package testUtils;
 //
 // import bot.commands.audio.utils.AudioPlayerSendHandler;
-// import bot.utils.command.CommandEvent;
+// import bot.utils.command.events.CommandEvent;
 // import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 // import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 // import net.dv8tion.jda.api.entities.Guild;

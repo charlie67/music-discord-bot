@@ -44,17 +44,17 @@ public class LoopCommand extends Command {
     AudioTrack loopTrack = trackScheduler.getLoopTrack();
 
     if (nowPlaying == null) {
-      event.getChannel().sendMessage(TextChannelResponses.NOTHING_CURRENTLY_PLAYING).queue();
+      event.reply(TextChannelResponses.NOTHING_CURRENTLY_PLAYING);
       return;
     }
 
     if (loopTrack == null) {
       trackScheduler.setLoopTrack(nowPlaying);
-      event.getChannel().sendMessage(TextChannelResponses.LOOP_ENABLED).queue();
+      event.reply(TextChannelResponses.LOOP_ENABLED);
       LOGGER.info("Loop enabled");
     } else {
       trackScheduler.setLoopTrack(null);
-      event.getChannel().sendMessage(TextChannelResponses.LOOP_DISABLED).queue();
+      event.reply(TextChannelResponses.LOOP_DISABLED);
       LOGGER.info("Loop disabled");
     }
   }

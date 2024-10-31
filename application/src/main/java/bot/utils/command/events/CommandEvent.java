@@ -2,8 +2,9 @@ package bot.utils.command.events;
 
 import bot.utils.command.CommandClient;
 import bot.utils.command.events.eventReply.MessageReplyAction;
-import bot.utils.command.option.OptionName;
+import bot.utils.command.option.Response;
 import bot.utils.command.option.optionValue.OptionValue;
+import com.jagrosh.jdautilities.menu.EmbedPaginator;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -47,9 +48,9 @@ public interface CommandEvent {
 		return msgs;
 	}
 
-	OptionValue getOption(OptionName optionName);
+	OptionValue getOption(Response optionName);
 
-	boolean optionPresent(OptionName optionName);
+	boolean optionPresent(Response optionName);
 
 	void deferReply();
 
@@ -57,13 +58,11 @@ public interface CommandEvent {
 
 	void reply(MessageEmbed... embed);
 
+	void reply(EmbedPaginator buttonMenu);
+
 	MessageReplyAction replyCallback(String message);
 
-	void reactSuccess();
-
 	void reactSuccessOrReply(String reply);
-
-	void reactError();
 
 	MessageChannelUnion getMessageChannel();
 
@@ -98,4 +97,5 @@ public interface CommandEvent {
 	default boolean isFromGuild() {
 		return isFromType(ChannelType.TEXT);
 	}
+
 }

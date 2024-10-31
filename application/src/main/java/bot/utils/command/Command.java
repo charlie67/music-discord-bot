@@ -17,16 +17,7 @@ package bot.utils.command;
 
 import bot.utils.command.events.CommandEvent;
 import bot.utils.command.events.CommandEventType;
-import bot.utils.command.events.SlashCommandEvent;
 import bot.utils.command.option.Option;
-import bot.utils.command.option.OptionName;
-import bot.utils.command.option.optionValue.OptionValue;
-
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -35,10 +26,25 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.build.*;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * <h2><b>Commands In JDA-Utilities</b></h2>
@@ -120,12 +126,9 @@ public abstract class Command extends Interaction {
 	 * commands, not slash commands.
 	 */
 	protected String[] aliases = new String[0];
-
 	protected List<ChannelType> allowedInChannels = List.of(ChannelType.TEXT);
-
 	protected List<CommandEventType> allowedCommandExecution =
 					List.of(CommandEventType.SLASH, CommandEventType.TEXT);
-
 	/**
 	 * An array list of OptionData.
 	 *
@@ -142,7 +145,6 @@ public abstract class Command extends Interaction {
 	 *     this.options = dataList;</code></pre>
 	 */
 	protected List<Option> options = new ArrayList<>();
-
 	/**
 	 * The subcommand/child group this is associated with. Will be in format {@code /<parent name>
 	 * <subcommandGroup name> <subcommand name>}.
@@ -193,9 +195,19 @@ public abstract class Command extends Interaction {
 	 * <b>This has no effect for SlashCommands.</b>
 	 */
 	protected boolean hidden = false;
-
 	protected Map<DiscordLocale, String> nameLocalization = new HashMap<>();
 	String arguments = "";
+
+	public List<String> getAllNames() {
+		final List<String> list = Arrays.asList(aliases);
+		list.add(name);
+
+		return list;
+	}
+
+	public boolean isCommandExecutionAllowedIn(final CommandEventType commandEventType) {
+		return allowedCommandExecution.contains(commandEventType);
+	}
 
 	/**
 	 * The main body method of a {@link bot.utils.command.Command Command}. <br>
@@ -205,10 +217,6 @@ public abstract class Command extends Interaction {
 	 * @param event The {@link CommandEvent CommandEvent} that triggered this Command
 	 */
 	protected abstract void execute(CommandEvent event);
-
-	public Map<OptionName, OptionValue> createOptionMap(MessageReceivedEvent event) {
-		return Map.of();
-	}
 
 	/**
 	 * Runs checks for the {@link bot.utils.command.Command Command} with the given {@link
@@ -353,6 +361,7 @@ public abstract class Command extends Interaction {
 
 		// run
 		try {
+			event.deferReply();
 			execute(event);
 		} catch (Throwable t) {
 			if (event.getClient().getListener() != null) {

@@ -3,20 +3,21 @@ package bot.utils.command.events;
 import bot.utils.command.CommandClient;
 import bot.utils.command.CommandClientBuilder;
 import bot.utils.command.events.eventReply.MessageReplyAction;
-import bot.utils.command.events.eventReply.SlashMessageReplyAction;
 import bot.utils.command.events.eventReply.TextMessageReplyAction;
 import bot.utils.command.impl.CommandClientImpl;
-import bot.utils.command.option.OptionName;
+import bot.utils.command.option.Option;
+import bot.utils.command.option.Response;
 import bot.utils.command.option.optionValue.OptionValue;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Consumer;
-
+import bot.utils.command.option.optionValue.TextOptionValue;
+import com.jagrosh.jdautilities.menu.EmbedPaginator;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -26,10 +27,18 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.utils.Checks;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 @Getter
 public class TextCommandEvent implements CommandEvent {
@@ -38,7 +47,7 @@ public class TextCommandEvent implements CommandEvent {
 	private final MessageReceivedEvent event;
 	private final String prefix;
 	private final CommandClient client;
-	private final Map<OptionName, OptionValue> optionMap;
+	private final Map<Response, OptionValue> optionMap;
 	private String args;
 
 	public TextCommandEvent(
@@ -46,12 +55,34 @@ public class TextCommandEvent implements CommandEvent {
 					String prefix,
 					String args,
 					CommandClient client,
-					Map<OptionName, OptionValue> optionMap) {
+					List<Option> options) {
 		this.event = event;
 		this.prefix = prefix;
 		this.args = args;
 		this.client = client;
-		this.optionMap = optionMap;
+		this.optionMap = new HashMap<>();
+
+		if (options.isEmpty()) {
+			return;
+		} else if (options.size() == 1) {
+			Option option = options.getFirst();
+			OptionValue optionValue = TextOptionValue.builder()
+							.optionName(option.optionName())
+							.jda(event.getJDA())
+							.event(event)
+							.optionValue(args)
+							.build();
+			optionMap.put(option.optionName(), optionValue);
+		} else {
+			options.sort(Comparator.comparingInt(Option::position));
+
+			String[] split = args.split(" ");
+			for (int i = 0; i < split.length; i++) {
+				final String arg = split[i];
+
+				Option chosenOption = options.get(i);
+			}
+		}
 	}
 
 	void setArgs(String args) {
@@ -89,6 +120,12 @@ public class TextCommandEvent implements CommandEvent {
 
 	@Override
 	public void reply(MessageEmbed... embed) {
+		event.getChannel().sendMessageEmbeds(embed[0], Arrays.copyOfRange(embed, 1, embed.length)).queue();
+	}
+
+	@Override
+	public void reply(EmbedPaginator buttonMenu) {
+		buttonMenu.display(event.getChannel());
 	}
 
 	@Override
@@ -316,12 +353,12 @@ public class TextCommandEvent implements CommandEvent {
 	}
 
 	@Override
-	public OptionValue getOption(OptionName optionName) {
+	public OptionValue getOption(Response optionName) {
 		return optionMap.get(optionName);
 	}
 
 	@Override
-	public boolean optionPresent(OptionName optionName) {
+	public boolean optionPresent(Response optionName) {
 		return optionMap.containsKey(optionName);
 	}
 
